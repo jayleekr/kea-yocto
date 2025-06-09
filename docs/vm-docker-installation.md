@@ -1,6 +1,20 @@
-# VM 환경에서 Docker 설치 가이드
+# VM에서 Docker 설치 가이드
 
-이 가이드는 가상머신(VM) 환경에서 Docker를 설치하는 방법을 단계별로 설명합니다.
+이 가이드는 **강의장 x86_64 PC의 Ubuntu 24.04 VM**에서 Docker를 설치하고 Yocto 환경을 설정하는 방법을 안내합니다.
+
+## 📋 시스템 요구사항
+
+### 강의장 PC 사양
+- **CPU**: x86_64 (Intel/AMD)
+- **메모리**: 최소 8GB, 권장 16GB+
+- **저장공간**: 최소 50GB 여유 공간
+- **가상화**: VT-x/AMD-V 지원 및 활성화
+
+### VM 설정 권장사양
+- **메모리**: 6-8GB 할당
+- **CPU**: 4-6 코어 할당  
+- **디스크**: 40GB+ (동적 할당)
+- **네트워크**: NAT 또는 브리지 모드
 
 ## 🔧 사전 요구사항
 
@@ -317,15 +331,14 @@ docker-compose run --rm yocto-lecture
 git clone https://github.com/jayleekr/kea-yocto.git
 cd kea-yocto
 
-# Multi-platform 이미지로 모든 아키텍처에서 네이티브 실행
+# 강의장 x86_64 환경에 최적화된 이미지 실행
 docker pull jabang3/yocto-lecture:5.0-lts
 docker-compose run --rm yocto-lecture
 ```
 
-> 🎉 **Multi-Platform 지원**: ARM64와 x86_64 모두 네이티브 실행을 지원합니다!
-> - VM 아키텍처에 관계없이 동일한 명령어 사용
-> - 별도의 플랫폼 지정 불필요
-> - 최적화된 성능
+> ✅ **강의장 환경**: x86_64 PC에서 네이티브 성능으로 실행됩니다.
+>
+> 📝 **참고**: 이 이미지는 multi-platform을 지원하므로 개발자의 Apple Silicon Mac에서도 테스트 가능합니다.
 
 ## 📞 지원
 
