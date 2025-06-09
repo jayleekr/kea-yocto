@@ -1,0 +1,176 @@
+#
+# Yocto 5.0 LTS 강의 환경 - local.conf 템플릿
+# 이 파일은 BitBake 빌드 설정을 정의합니다.
+#
+
+#
+# Machine Selection
+#
+MACHINE ?= "qemux86-64"
+
+#
+# 빌드 성능 최적화
+#
+# CPU 코어 수에 따른 병렬 작업 설정
+BB_NUMBER_THREADS ?= "8"
+PARALLEL_MAKE ?= "-j 8"
+
+#
+# 다운로드 및 캐시 디렉토리
+#
+# 소스 파일 다운로드 위치
+DL_DIR ?= "/opt/yocto/downloads"
+
+# 공유 상태 캐시 위치 (빌드 시간 단축)
+SSTATE_DIR ?= "/opt/yocto/sstate-cache"
+
+#
+# 임시 빌드 디렉토리
+#
+# 빌드 아티팩트가 저장될 임시 디렉토리
+TMPDIR = "${TOPDIR}/tmp"
+
+#
+# 패키지 관리 설정
+#
+# 패키지 포맷 설정 (rpm, deb, ipk)
+PACKAGE_CLASSES ?= "package_rpm package_deb package_ipk"
+
+#
+# 이미지 설정
+#
+# 루트 파일시스템 크기 (KB 단위)
+IMAGE_ROOTFS_SIZE ?= "8192"
+
+# 추가 루트 파일시스템 여유 공간 (KB 단위)
+IMAGE_ROOTFS_EXTRA_SPACE:append = " + 4096"
+
+# 이미지 피처
+IMAGE_FEATURES ?= "debug-tweaks"
+
+#
+# 개발 도구 및 디버깅
+#
+# 디버그 정보 포함
+EXTRA_IMAGE_FEATURES ?= "debug-tweaks tools-debug tools-profile"
+
+#
+# 네트워크 설정
+#
+# 프록시 설정 (필요한 경우 주석 해제)
+#http_proxy = "http://proxy.company.com:8080/"
+#https_proxy = "http://proxy.company.com:8080/"
+#ftp_proxy = "http://proxy.company.com:8080/"
+#no_proxy = "localhost,127.0.0.1,.company.com"
+
+#
+# 디스크 공간 모니터링
+#
+# 최소 여유 공간 (KB 단위)
+BB_DISKMON_DIRS ??= "\
+    STOPTASKS,${TMPDIR},1G,100M \
+    STOPTASKS,${DL_DIR},1G,100M \
+    STOPTASKS,${SSTATE_DIR},1G,100M \
+    STOPTASKS,/tmp,100M,50M \
+    ABORT,${TMPDIR},100M,1K \
+    ABORT,${DL_DIR},100M,1K \
+    ABORT,${SSTATE_DIR},100M,1K \
+    ABORT,/tmp,10M,1K"
+
+#
+# 로그 설정
+#
+# 콘솔 로그 레벨
+BB_CONSOLE_LOGLEVEL = "2"
+
+# 로그 파일 레벨
+BB_DEFAULT_LOGFORMAT = "%(levelname)s: %(message)s"
+
+#
+# 버전 정보 추적
+#
+# 소스 미러링 타르볼 압축
+BB_GENERATE_MIRROR_TARBALLS = "1"
+
+# 패키지 정보 수집
+INHERIT += "buildstats buildstats-summary"
+
+#
+# 보안 설정
+#
+# 사용자 권한으로 빌드 수행
+INHERIT += "rm_work"
+
+#
+# 강의용 커스터마이징
+#
+# 기본 패키지 추가 (강의에서 사용할 도구들)
+IMAGE_INSTALL:append = " \
+    nano \
+    vim \
+    htop \
+    tree \
+    git \
+    wget \
+    curl \
+    python3 \
+    python3-pip \
+    openssh \
+    "
+
+#
+# 추가 이미지 유형
+#
+# 다양한 형태의 이미지 생성
+IMAGE_FSTYPES += "ext4 tar.bz2 wic wic.bmap"
+
+#
+# QEMU 설정
+#
+# QEMU 실행을 위한 추가 설정
+PACKAGECONFIG:append:pn-qemu-system-native = " sdl"
+PACKAGECONFIG:append:pn-nativesdk-qemu = " sdl"
+
+#
+# 라이선스 처리
+#
+# 상용 라이선스 허용 (강의 목적)
+LICENSE_FLAGS_ACCEPTED = "commercial"
+
+#
+# SDK 설정
+#
+# SDK 생성 시 포함할 도구들
+TOOLCHAIN_HOST_TASK:append = " nativesdk-python3-dev"
+TOOLCHAIN_TARGET_TASK:append = " python3-dev python3-setuptools"
+
+#
+# 테스트 설정
+#
+# 이미지 테스트 활성화 (선택사항)
+# INHERIT += "testimage"
+# TEST_TARGET = "qemu"
+
+#
+# 추가 설정 파일 포함
+#
+# 사용자별 추가 설정이 있는 경우
+include local.conf.user
+
+#
+# 강의 단계별 주석 해제 섹션
+#
+
+# === 1단계: 기본 빌드 (core-image-minimal) ===
+# 기본 설정으로 충분
+
+# === 2단계: 패키지 추가 실습 ===
+# IMAGE_INSTALL:append = " nano"
+
+# === 3단계: 커스텀 레이어 실습 ===
+# meta-myapp 레이어 추가 후:
+# IMAGE_INSTALL:append = " helloworld"
+
+# === 4단계: 고급 설정 ===
+# DISTRO_FEATURES:append = " systemd"
+# VIRTUAL-RUNTIME_init_manager = "systemd" 

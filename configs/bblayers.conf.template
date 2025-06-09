@@ -1,0 +1,31 @@
+# POKY_BBLAYERS_CONF_VERSION is increased each time build/conf/bblayers.conf
+# changes incompatibly
+POKY_BBLAYERS_CONF_VERSION = "2"
+
+BBPATH = "${TOPDIR}"
+BBFILES ?= ""
+
+BBLAYERS ?= " \
+  /opt/poky/meta \
+  /opt/poky/meta-poky \
+  /opt/poky/meta-yocto-bsp \
+  "
+
+#
+# 강의용 추가 레이어
+# 실습 단계에 따라 주석을 해제하세요
+#
+
+# === 커스텀 레이어 실습용 ===
+# BBLAYERS += "/workspace/meta-myapp"
+
+# === OpenEmbedded 레이어 예시 ===
+# meta-openembedded 클론 후 추가
+# BBLAYERS += "/opt/meta-openembedded/meta-oe"
+# BBLAYERS += "/opt/meta-openembedded/meta-python"
+# BBLAYERS += "/opt/meta-openembedded/meta-networking"
+
+# === 추가 BSP 레이어 ===
+# 특정 하드웨어 지원을 위한 BSP 레이어
+# BBLAYERS += "/opt/meta-intel"
+# BBLAYERS += "/opt/meta-raspberrypi" 

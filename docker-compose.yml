@@ -1,0 +1,83 @@
+services:
+  yocto-lecture:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        - UBUNTU_VERSION=24.04
+        - TARGETPLATFORM=linux/amd64
+      platforms:
+        - linux/amd64
+    image: yocto-lecture:5.0-lts
+    container_name: yocto-lecture-container
+    privileged: true
+    stdin_open: true
+    tty: true
+    environment:
+      - BB_NUMBER_THREADS=4
+      - PARALLEL_MAKE=-j 4
+      - MACHINE=qemux86-64
+      - LANG=en_US.UTF-8
+      - LC_ALL=en_US.UTF-8
+      - TZ=Asia/Seoul
+    volumes:
+      - ./yocto-workspace/workspace:/workspace
+      - ./yocto-workspace/downloads:/opt/yocto/downloads
+      - ./yocto-workspace/sstate-cache:/opt/yocto/sstate-cache
+      - /tmp/.X11-unix:/tmp/.X11-unix:rw
+    ports:
+      - "2222:22"
+      - "5555:5555"
+      - "8080:8080"
+    networks:
+      - yocto-network
+    working_dir: /home/yocto
+
+  # 개발용 컨테이너 (더 많은 리소스)
+  yocto-lecture-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        - UBUNTU_VERSION=24.04
+        - TARGETPLATFORM=linux/amd64
+      platforms:
+        - linux/amd64
+    image: yocto-lecture:5.0-lts
+    container_name: yocto-lecture-dev
+    privileged: true
+    stdin_open: true
+    tty: true
+    environment:
+      - BB_NUMBER_THREADS=8
+      - PARALLEL_MAKE=-j 8
+      - MACHINE=qemux86-64
+      - LANG=en_US.UTF-8
+      - LC_ALL=en_US.UTF-8
+      - TZ=Asia/Seoul
+    volumes:
+      - ./yocto-workspace/workspace:/workspace
+      - ./yocto-workspace/downloads:/opt/yocto/downloads
+      - ./yocto-workspace/sstate-cache:/opt/yocto/sstate-cache
+      - /tmp/.X11-unix:/tmp/.X11-unix:rw
+    ports:
+      - "2223:22"
+      - "5556:5555"
+      - "8081:8080"
+    networks:
+      - yocto-network
+    working_dir: /home/yocto
+    profiles:
+      - dev
+
+networks:
+  yocto-network:
+    driver: bridge
+
+volumes:
+  yocto-downloads:
+    driver: local
+  yocto-sstate:
+    driver: local
+  yocto-workspace:
+    driver: local 
