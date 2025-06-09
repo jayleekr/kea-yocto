@@ -77,7 +77,7 @@
 
 #### 옵션 A: 프로젝트 클론하여 빌드
 ```bash
-git clone git@github.com:jayleekr/kea-yocto.git
+git clone https://github.com/jayleekr/kea-yocto.git
 cd kea-yocto
 ```
 
