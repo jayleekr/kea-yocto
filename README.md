@@ -559,3 +559,51 @@ echo 'PARALLEL_MAKE = "-j 4"' >> conf/local.conf
 **Happy Building! 🚀**
 
 > "The best way to learn Yocto is by doing it hands-on in a consistent environment." 
+
+## 🔧 GitHub Actions 자동 빌드 설정
+
+### Docker Hub Token 설정
+GitHub Actions에서 Docker Hub로 자동 푸시하려면 Docker Hub Access Token이 필요합니다.
+
+1. **Docker Hub Access Token 생성**
+   - [Docker Hub](https://hub.docker.com/) 로그인
+   - Account Settings > Security > New Access Token
+   - Token 이름: `github-actions`
+   - 권한: Read, Write, Delete
+   - 생성된 토큰 복사
+
+2. **GitHub Repository Secrets 설정**
+   - GitHub 저장소 페이지에서 Settings > Secrets and variables > Actions
+   - "New repository secret" 클릭
+   - Name: `DOCKERHUB_TOKEN`
+   - Secret: 복사한 Docker Hub Access Token 붙여넣기
+   - "Add secret" 클릭
+
+3. **자동 빌드 확인**
+   - 코드 푸시시 자동으로 GitHub Actions 실행
+   - Docker Hub에 새 이미지 자동 업로드
+   - Actions 탭에서 빌드 상태 확인
+
+### GitHub Actions 특징
+- **트리거**: main/master 브랜치 푸시시 자동 실행
+- **멀티플랫폼**: linux/amd64, linux/arm64 지원
+- **캐싱**: Docker layer 캐시로 빌드 시간 단축
+- **태그**: 브랜치명, 버전 태그, latest 자동 생성
+
+---
+
+## 📞 지원 및 문의
+
+- **GitHub Issues**: 버그 리포트 및 기능 요청
+- **Docker Hub**: [jabang3/yocto-lecture](https://hub.docker.com/r/jabang3/yocto-lecture)
+- **문서**: 프로젝트 README 및 docs/ 디렉토리
+
+---
+
+## 📄 라이선스
+
+MIT License - 자세한 내용은 LICENSE 파일을 참조하세요.
+
+---
+
+**Happy Yocto Building! 🚀** 
