@@ -101,9 +101,9 @@ RUN mkdir -p $POKY_DIR && \
     git clone -b scarthgap https://git.yoctoproject.org/poky $POKY_DIR && \
     chown -R $YOCTO_USER:$YOCTO_USER $POKY_DIR
 
-# 작업 디렉토리 설정
-RUN mkdir -p /workspace /opt/yocto/downloads /opt/yocto/sstate-cache && \
-    chown -R $YOCTO_USER:$YOCTO_USER /workspace /opt/yocto
+# 작업 디렉토리 생성 및 권한 설정
+RUN mkdir -p /workspace /opt/yocto/downloads /opt/yocto/sstate-cache /tmp/yocto-build && \
+    chown -R yocto:yocto /workspace /opt/yocto /tmp/yocto-build
 
 # 설정 파일 템플릿 복사
 COPY --chown=$YOCTO_USER:$YOCTO_USER configs/ /opt/configs/
@@ -156,7 +156,8 @@ RUN echo 'source /etc/profile.d/yocto-env.sh' >> ~/.bashrc && \
 # 기본 빌드 환경 설정 (백그라운드에서 준비)
 RUN /bin/bash -c 'source $POKY_DIR/oe-init-build-env /tmp/prebuild && \
     cp /opt/configs/local.conf.template conf/local.conf 2>/dev/null || true && \
-    cp /opt/configs/bblayers.conf.template conf/bblayers.conf 2>/dev/null || true'
+    cp /opt/configs/bblayers.conf.template conf/bblayers.conf 2>/dev/null || true && \
+    bitbake --version'
 
 # 포트 노출 (QEMU 네트워킹용)
 EXPOSE 2222 5555 8080

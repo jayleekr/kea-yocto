@@ -93,19 +93,40 @@ docker run -it --privileged \
     --name yocto-lecture \
     ${DOCKER_IMAGE} \
     /bin/bash -c "
-        echo '=== Yocto 5.0 LTS 강의 환경에 오신 것을 환영합니다! ==='
+        echo '=== Yocto 5.0 LTS 강의 환경 시작 ==='
         echo '아키텍처: \$(uname -m)'
-        echo 'BitBake 버전: \$(bitbake --version)'
+        echo 'BitBake 버전: \$(bitbake --version 2>/dev/null || echo 'BitBake not in PATH')'
         echo
-        echo '빠른 시작 가이드:'
-        echo '1. Yocto 환경 초기화: yocto_init'
-        echo '2. 첫 번째 빌드: yocto_quick_build'
-        echo '3. QEMU 실행: yocto_run_qemu'
+        echo '=== 빌드 환경 초기화 ==='
+        source /opt/poky/oe-init-build-env /workspace/build
+        
+        # 커스텀 설정 파일 복사
+        if [ -f /opt/configs/local.conf.template ]; then
+            echo '커스텀 local.conf 적용 중...'
+            cp /opt/configs/local.conf.template conf/local.conf
+        fi
+        
+        if [ -f /opt/configs/bblayers.conf.template ]; then
+            echo '커스텀 bblayers.conf 적용 중...'
+            cp /opt/configs/bblayers.conf.template conf/bblayers.conf
+        fi
+        
         echo
-        echo '수동 단계:'
-        echo '1. source /opt/poky/oe-init-build-env /workspace/build'
-        echo '2. bitbake core-image-minimal'
-        echo '3. runqemu qemux86-64 core-image-minimal'
+        echo '=== 설정 확인 ==='
+        echo 'MACHINE: qemux86-64'
+        echo 'TMPDIR: \$(grep \"^TMPDIR\" conf/local.conf || echo \"기본값 사용\")'
+        echo 'DL_DIR: /opt/yocto/downloads'
+        echo 'SSTATE_DIR: /opt/yocto/sstate-cache'
+        echo
+        echo '=== 빌드 준비 완료 ==='
+        echo '다음 명령어로 이미지를 빌드할 수 있습니다:'
+        echo '  bitbake core-image-minimal'
+        echo '  bitbake core-image-full-cmdline'
+        echo
+        echo '=== 편의 명령어 ==='
+        echo '  yocto_init           - 빌드 환경 재초기화'
+        echo '  yocto_quick_build    - core-image-minimal 빌드'
+        echo '  yocto_run_qemu       - QEMU로 이미지 실행'
         echo
         /bin/bash -l
     "
