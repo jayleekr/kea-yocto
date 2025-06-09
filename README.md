@@ -85,8 +85,15 @@ cd kea-yocto
 ```bash
 # Docker Hub에서 직접 다운로드
 docker pull jabang3/yocto-lecture:5.0-lts
-docker pull jabang3/yocto-lecture:latest
+docker-compose run --rm yocto-lecture
 ```
+
+> 💡 **ARM64 VM 사용자**: VM이 ARM64 아키텍처인 경우 다음과 같이 실행하세요:
+> ```bash
+> # ARM64 VM에서 x86_64 이미지 에뮬레이션으로 실행
+> docker pull --platform linux/amd64 jabang3/yocto-lecture:5.0-lts
+> docker-compose run --rm yocto-lecture
+> ```
 
 ### 2단계: 워크스페이스 생성
 ```bash

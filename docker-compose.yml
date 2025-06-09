@@ -8,7 +8,8 @@ services:
         - TARGETPLATFORM=linux/amd64
       platforms:
         - linux/amd64
-    image: yocto-lecture:5.0-lts
+    image: jabang3/yocto-lecture:5.0-lts
+    platform: linux/amd64  # ARM64 VM에서 x86_64 이미지 에뮬레이션
     container_name: yocto-lecture-container
     privileged: true
     stdin_open: true
@@ -21,9 +22,9 @@ services:
       - LC_ALL=en_US.UTF-8
       - TZ=Asia/Seoul
     volumes:
-      - ./yocto-workspace/workspace:/workspace
-      - ./yocto-workspace/downloads:/opt/yocto/downloads
-      - ./yocto-workspace/sstate-cache:/opt/yocto/sstate-cache
+      - ./workspace:/workspace
+      - yocto-downloads:/opt/yocto/downloads
+      - yocto-sstate:/opt/yocto/sstate-cache
       - /tmp/.X11-unix:/tmp/.X11-unix:rw
     ports:
       - "2222:22"
@@ -31,7 +32,9 @@ services:
       - "8080:8080"
     networks:
       - yocto-network
-    working_dir: /home/yocto
+    working_dir: /workspace
+    profiles:
+      - dev
 
   # 개발용 컨테이너 (더 많은 리소스)
   yocto-lecture-dev:

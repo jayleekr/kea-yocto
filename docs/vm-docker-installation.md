@@ -310,6 +310,31 @@ cd kea-yocto
 docker-compose run --rm yocto-lecture
 ```
 
+## 🧪 Yocto 환경 테스트
+
+```bash
+# Yocto 프로젝트 클론 및 테스트
+git clone https://github.com/jayleekr/kea-yocto.git
+cd kea-yocto
+```
+
+### ARM64 VM 사용자
+VM이 ARM64 아키텍처인 경우 (`uname -m` 결과가 `aarch64`):
+```bash
+# 플랫폼을 명시하여 x86_64 이미지 다운로드
+docker pull --platform linux/amd64 jabang3/yocto-lecture:5.0-lts
+
+# 실행
+docker-compose run --rm yocto-lecture
+```
+
+### x86_64 VM 사용자
+```bash
+# 일반적인 방법으로 실행
+docker pull jabang3/yocto-lecture:5.0-lts
+docker-compose run --rm yocto-lecture
+```
+
 ---
 
 ## 📞 지원
