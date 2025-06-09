@@ -83,17 +83,14 @@ cd kea-yocto
 
 #### 옵션 B: 사전 빌드된 이미지 사용 (권장)
 ```bash
-# Docker Hub에서 직접 다운로드
+# Docker Hub에서 직접 다운로드 (multi-platform 지원)
 docker pull jabang3/yocto-lecture:5.0-lts
 docker-compose run --rm yocto-lecture
 ```
 
-> 💡 **ARM64 VM 사용자**: VM이 ARM64 아키텍처인 경우 다음과 같이 실행하세요:
-> ```bash
-> # ARM64 VM에서 x86_64 이미지 에뮬레이션으로 실행
-> docker pull --platform linux/amd64 jabang3/yocto-lecture:5.0-lts
-> docker-compose run --rm yocto-lecture
-> ```
+> 💡 **Multi-Platform 지원**: 이제 ARM64(aarch64)와 x86_64 모두 네이티브 지원합니다!
+> - **x86_64 VM**: 네이티브 실행
+> - **ARM64 VM**: 네이티브 실행 (이전보다 빠른 성능)
 
 ### 2단계: 워크스페이스 생성
 ```bash

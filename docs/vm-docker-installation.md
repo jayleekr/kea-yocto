@@ -316,26 +316,16 @@ docker-compose run --rm yocto-lecture
 # Yocto 프로젝트 클론 및 테스트
 git clone https://github.com/jayleekr/kea-yocto.git
 cd kea-yocto
-```
 
-### ARM64 VM 사용자
-VM이 ARM64 아키텍처인 경우 (`uname -m` 결과가 `aarch64`):
-```bash
-# 플랫폼을 명시하여 x86_64 이미지 다운로드
-docker pull --platform linux/amd64 jabang3/yocto-lecture:5.0-lts
-
-# 실행
-docker-compose run --rm yocto-lecture
-```
-
-### x86_64 VM 사용자
-```bash
-# 일반적인 방법으로 실행
+# Multi-platform 이미지로 모든 아키텍처에서 네이티브 실행
 docker pull jabang3/yocto-lecture:5.0-lts
 docker-compose run --rm yocto-lecture
 ```
 
----
+> 🎉 **Multi-Platform 지원**: ARM64와 x86_64 모두 네이티브 실행을 지원합니다!
+> - VM 아키텍처에 관계없이 동일한 명령어 사용
+> - 별도의 플랫폼 지정 불필요
+> - 최적화된 성능
 
 ## 📞 지원
 
