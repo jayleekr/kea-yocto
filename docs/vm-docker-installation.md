@@ -198,8 +198,11 @@ docker pull jabang3/yocto-lecture:5.0-lts
 # 이미지 확인
 docker images jabang3/yocto-lecture
 
-# 간단한 테스트 실행
-docker run --rm jabang3/yocto-lecture:5.0-lts bitbake --version
+# 기본 이미지 테스트 (Ubuntu 기반 확인)
+docker run --rm jabang3/yocto-lecture:5.0-lts cat /etc/os-release
+
+# Yocto 환경 확인 (BitBake는 환경 초기화 후 사용 가능)
+docker run --rm jabang3/yocto-lecture:5.0-lts bash -c "source /opt/poky/oe-init-build-env /tmp/test && bitbake --version"
 ```
 
 ## 🔧 VM 환경 최적화
@@ -313,27 +316,37 @@ docker run -m 2g jabang3/yocto-lecture:5.0-lts
 설치가 완료되면 다음과 같이 Yocto 강의 환경을 시작할 수 있습니다:
 
 ```bash
-# 방법 1: 사전 빌드된 이미지 사용
-docker run -it --privileged \
-    -v $(pwd)/yocto-workspace:/workspace \
-    jabang3/yocto-lecture:5.0-lts
-
-# 방법 2: GitHub에서 프로젝트 클론하여 사용
+# 방법 1: GitHub 프로젝트를 이용한 실행 (권장)
 git clone https://github.com/jayleekr/kea-yocto.git
 cd kea-yocto
 docker-compose run --rm yocto-lecture
+
+# 방법 2: 직접 컨테이너 실행
+docker run -it --privileged \
+    -v $(pwd)/workspace:/workspace \
+    -v $(pwd)/downloads:/opt/yocto/downloads \
+    -v $(pwd)/sstate-cache:/opt/yocto/sstate-cache \
+    jabang3/yocto-lecture:5.0-lts
 ```
 
 ## 🧪 Yocto 환경 테스트
 
 ```bash
-# Yocto 프로젝트 클론 및 테스트
+# Yocto 프로젝트 클론
 git clone https://github.com/jayleekr/kea-yocto.git
 cd kea-yocto
 
-# 강의장 x86_64 환경에 최적화된 이미지 실행
+# 이미지 다운로드
 docker pull jabang3/yocto-lecture:5.0-lts
-docker-compose run --rm yocto-lecture
+
+# 실제 Yocto 환경 테스트 (정상 작동 확인)
+docker-compose run --rm yocto-lecture bash -c "
+    echo 'Yocto 환경 테스트 시작...'
+    source /opt/poky/oe-init-build-env /workspace/test-build
+    echo 'BitBake 버전:' 
+    bitbake --version
+    echo 'Yocto 환경 테스트 완료!'
+"
 ```
 
 > ✅ **강의장 환경**: x86_64 PC에서 네이티브 성능으로 실행됩니다.
