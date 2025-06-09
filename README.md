@@ -71,6 +71,8 @@
 - **Storage**: 최소 50GB 여유 공간
 - **CPU**: 4코어 이상 권장
 
+> 📖 **VM 환경에서 Docker 설치가 필요한 경우**: [VM Docker 설치 가이드](docs/vm-docker-installation.md)를 참조하세요.
+
 ### 1단계: 프로젝트 클론 또는 Docker 이미지 다운로드
 
 #### 옵션 A: 프로젝트 클론하여 빌드
