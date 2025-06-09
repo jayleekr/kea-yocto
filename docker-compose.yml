@@ -6,8 +6,6 @@ services:
       args:
         - UBUNTU_VERSION=24.04
         - TARGETPLATFORM=linux/amd64
-      platforms:
-        - linux/amd64
     image: jabang3/yocto-lecture:5.0-lts
     platform: linux/amd64  # ARM64 VM에서 x86_64 이미지 에뮬레이션
     container_name: yocto-lecture-container
@@ -44,8 +42,6 @@ services:
       args:
         - UBUNTU_VERSION=24.04
         - TARGETPLATFORM=linux/amd64
-      platforms:
-        - linux/amd64
     image: yocto-lecture:5.0-lts
     container_name: yocto-lecture-dev
     privileged: true

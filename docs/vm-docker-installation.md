@@ -95,6 +95,32 @@ sudo docker --version
 sudo docker compose version
 ```
 
+### 4단계: Docker Compose 설정
+
+Docker Compose는 두 가지 방식으로 사용할 수 있습니다:
+
+#### 방법 1: Docker Compose Plugin (권장 - 이미 설치됨)
+```bash
+# Docker 플러그인으로 설치된 compose 확인
+docker compose version
+```
+
+#### 방법 2: Standalone Docker Compose 설치 (호환성용)
+```bash
+# 기존 docker-compose 명령어 사용을 위한 standalone 버전 설치
+sudo apt-get update
+sudo apt-get install -y docker-compose
+
+# 설치 확인
+docker-compose --version
+```
+
+> 💡 **두 방식의 차이점**:
+> - **`docker compose`** (플러그인): 최신 권장 방식, Docker CLI에 통합
+> - **`docker-compose`** (standalone): 기존 방식, 별도 Python 패키지
+> 
+> 둘 다 설치하면 양쪽 명령어 모두 사용 가능합니다.
+
 ## 👤 사용자 권한 설정
 
 ### Docker 그룹에 사용자 추가
@@ -165,6 +191,10 @@ docker system info
 # Docker 버전 상세 정보
 docker version
 
+# Docker Compose 버전 확인 (두 방식 모두)
+docker compose version      # 플러그인 방식
+docker-compose --version    # standalone 방식
+
 # 실행 중인 컨테이너 확인
 docker ps
 
@@ -186,8 +216,11 @@ docker run -it --rm ubuntu:22.04 bash
 
 ### Docker Compose 확인
 ```bash
-# Docker Compose 플러그인 확인
+# 플러그인 방식 확인 (권장)
 docker compose version
+
+# Standalone 방식 확인
+docker-compose --version
 ```
 
 ### Yocto 이미지 다운로드 및 테스트
@@ -255,7 +288,21 @@ sudo usermod -aG docker $USER
 newgrp docker
 ```
 
-#### 2. 서비스 시작 실패
+#### 2. Docker Compose 버전 호환성 문제
+```bash
+# 문제: services.xxx.build contains unsupported option: 'platforms'
+# 원인: standalone docker-compose (v1.x)가 일부 최신 기능을 지원하지 않음
+
+# 해결 방법 1: Docker Compose 플러그인 사용 (권장)
+docker compose run --rm yocto-lecture
+
+# 해결 방법 2: 최신 Docker Compose 설치
+sudo curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+sudo chmod +x /usr/local/bin/docker-compose
+docker-compose --version
+```
+
+#### 3. 서비스 시작 실패
 ```bash
 # Docker 서비스 상태 확인
 sudo systemctl status docker
@@ -267,7 +314,7 @@ sudo journalctl -u docker.service
 sudo systemctl restart docker
 ```
 
-#### 3. 디스크 공간 부족
+#### 4. 디스크 공간 부족
 ```bash
 # Docker 디스크 사용량 확인
 docker system df
@@ -276,7 +323,7 @@ docker system df
 docker system prune -a --volumes
 ```
 
-#### 4. 네트워크 문제
+#### 5. 네트워크 문제
 ```bash
 # Docker 네트워크 확인
 docker network ls
@@ -339,7 +386,16 @@ cd kea-yocto
 # 이미지 다운로드
 docker pull jabang3/yocto-lecture:5.0-lts
 
-# 실제 Yocto 환경 테스트 (정상 작동 확인)
+# 실제 Yocto 환경 테스트 방법 1: Docker Compose 플러그인 (권장)
+docker compose run --rm yocto-lecture bash -c "
+    echo 'Yocto 환경 테스트 시작...'
+    source /opt/poky/oe-init-build-env /workspace/test-build
+    echo 'BitBake 버전:' 
+    bitbake --version
+    echo 'Yocto 환경 테스트 완료!'
+"
+
+# 실제 Yocto 환경 테스트 방법 2: Standalone docker-compose
 docker-compose run --rm yocto-lecture bash -c "
     echo 'Yocto 환경 테스트 시작...'
     source /opt/poky/oe-init-build-env /workspace/test-build
@@ -350,6 +406,10 @@ docker-compose run --rm yocto-lecture bash -c "
 ```
 
 > ✅ **강의장 환경**: x86_64 PC에서 네이티브 성능으로 실행됩니다.
+>
+> 💡 **호환성 참고**: 
+> - **`docker compose`** (플러그인): 모든 기능 지원, 권장 방식
+> - **`docker-compose`** (standalone): 기본 기능만 지원, 일부 제한 있음
 >
 > 📝 **참고**: 이 이미지는 multi-platform을 지원하므로 개발자의 Apple Silicon Mac에서도 테스트 가능합니다.
 
