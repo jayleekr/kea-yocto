@@ -276,6 +276,38 @@ sudo ufw allow 2376/tcp  # Docker daemon
 sudo ufw allow 2377/tcp  # Docker swarm
 ```
 
+## 🔧 ARM64 VM 특별 설정 (aarch64)
+
+VM이 ARM64 아키텍처인 경우 x86_64 이미지 실행을 위한 추가 설정이 필요합니다.
+
+### QEMU 에뮬레이션 설정
+```bash
+# 현재 아키텍처 확인
+uname -m
+# aarch64 결과가 나오면 ARM64 VM
+
+# QEMU 사용자 에뮬레이션 설치
+sudo apt-get update
+sudo apt-get install -y qemu-user-static binfmt-support
+
+# 크로스 플랫폼 지원 활성화
+docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
+
+# 에뮬레이션 테스트
+docker run --rm --platform linux/amd64 ubuntu:22.04 uname -m
+# 결과가 x86_64로 나와야 정상
+```
+
+### 플랫폼 명시 이미지 Pull
+```bash
+# ARM64 VM에서는 반드시 플랫폼을 명시해서 pull
+docker pull --platform linux/amd64 jabang3/yocto-lecture:5.0-lts
+
+# 이미지 아키텍처 확인
+docker image inspect jabang3/yocto-lecture:5.0-lts --format '{{.Architecture}}'
+# amd64 결과가 나와야 함
+```
+
 ## 🛠️ 문제 해결
 
 ### 일반적인 문제들
@@ -302,7 +334,21 @@ sudo chmod +x /usr/local/bin/docker-compose
 docker-compose --version
 ```
 
-#### 3. 서비스 시작 실패
+#### 3. ARM64 VM에서 exec format error
+```bash
+# 문제: exec /usr/bin/bash: exec format error
+# 원인: ARM64 VM에서 x86_64 이미지 실행 시 에뮬레이션 미설정
+
+# 해결:
+sudo apt-get install -y qemu-user-static binfmt-support
+docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
+
+# 올바른 이미지 pull 및 실행:
+docker pull --platform linux/amd64 jabang3/yocto-lecture:5.0-lts
+docker run --rm --platform linux/amd64 jabang3/yocto-lecture:5.0-lts bash -c "uname -m"
+```
+
+#### 4. 서비스 시작 실패
 ```bash
 # Docker 서비스 상태 확인
 sudo systemctl status docker
@@ -314,7 +360,7 @@ sudo journalctl -u docker.service
 sudo systemctl restart docker
 ```
 
-#### 4. 디스크 공간 부족
+#### 5. 디스크 공간 부족
 ```bash
 # Docker 디스크 사용량 확인
 docker system df
@@ -323,7 +369,7 @@ docker system df
 docker system prune -a --volumes
 ```
 
-#### 5. 네트워크 문제
+#### 6. 네트워크 문제
 ```bash
 # Docker 네트워크 확인
 docker network ls
@@ -383,8 +429,16 @@ docker run -it --privileged \
 git clone https://github.com/jayleekr/kea-yocto.git
 cd kea-yocto
 
-# 이미지 다운로드
-docker pull jabang3/yocto-lecture:5.0-lts
+# ARM64 VM인 경우 QEMU 에뮬레이션 설정 (한 번만 실행)
+if [ "$(uname -m)" = "aarch64" ]; then
+    echo "ARM64 VM 감지 - QEMU 에뮬레이션 설정 중..."
+    sudo apt-get install -y qemu-user-static binfmt-support
+    docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
+    docker pull --platform linux/amd64 jabang3/yocto-lecture:5.0-lts
+else
+    echo "x86_64 VM 감지 - 일반 이미지 다운로드"
+    docker pull jabang3/yocto-lecture:5.0-lts
+fi
 
 # 실제 Yocto 환경 테스트 방법 1: Docker Compose 플러그인 (권장)
 docker compose run --rm yocto-lecture bash -c "
@@ -410,6 +464,7 @@ docker-compose run --rm yocto-lecture bash -c "
 > 💡 **호환성 참고**: 
 > - **`docker compose`** (플러그인): 모든 기능 지원, 권장 방식
 > - **`docker-compose`** (standalone): 기본 기능만 지원, 일부 제한 있음
+> - **ARM64 VM**: QEMU 에뮬레이션으로 x86_64 이미지 실행 (약간 느림)
 >
 > 📝 **참고**: 이 이미지는 multi-platform을 지원하므로 개발자의 Apple Silicon Mac에서도 테스트 가능합니다.
 
