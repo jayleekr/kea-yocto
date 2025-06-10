@@ -23,7 +23,7 @@ log_error() {
 }
 
 # 설정
-DOCKER_IMAGE="yocto-lecture:5.0-lts"
+DOCKER_IMAGE="jabang3/yocto-lecture:5.0-lts"
 WORKSPACE_DIR="yocto-workspace"
 
 # 이미지 존재 여부 확인 함수
@@ -63,14 +63,35 @@ log_step "워크스페이스 생성 중..."
 mkdir -p ${WORKSPACE_DIR}/{workspace,downloads,sstate-cache}
 log_info "워크스페이스가 생성되었습니다: ${WORKSPACE_DIR}"
 
-# x86_64 전용 설정
+# 아키텍처별 설정
 ARCH=$(uname -m)
+PLATFORM_FLAG=""
+
 if [ "$ARCH" = "arm64" ]; then
-    log_info "Apple Silicon Mac에서 x86_64 에뮬레이션으로 실행합니다."
-    BB_THREADS="4"
-    PARALLEL_MAKE="-j 4"
+    log_info "Apple Silicon Mac에서 실행 중입니다."
+    echo "실행 방법을 선택하세요:"
+    echo "1) ARM64 네이티브 (권장, 빠름)"
+    echo "2) x86_64 에뮬레이션 (강의 환경 일치, 느림)"
+    read -p "선택 [1/2]: " choice
+    
+    if [ "$choice" = "2" ]; then
+        log_info "x86_64 에뮬레이션 모드로 실행합니다."
+        PLATFORM_FLAG="--platform linux/amd64"
+        BB_THREADS="4"
+        PARALLEL_MAKE="-j 4"
+        
+        # QEMU 에뮬레이션 설정
+        log_step "QEMU 에뮬레이션 설정 중..."
+        docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
+    else
+        log_info "ARM64 네이티브 모드로 실행합니다."
+        PLATFORM_FLAG="--platform linux/arm64"
+        BB_THREADS="8"
+        PARALLEL_MAKE="-j 8"
+    fi
 else
     log_info "x86_64 네이티브 환경에서 실행합니다."
+    PLATFORM_FLAG="--platform linux/amd64"
     BB_THREADS="8"
     PARALLEL_MAKE="-j 8"
 fi
@@ -84,12 +105,14 @@ cd ${WORKSPACE_DIR}
 docker rm -f yocto-lecture 2>/dev/null || true
 
 docker run -it --privileged \
+    ${PLATFORM_FLAG} \
     -v $(pwd)/workspace:/workspace \
     -v $(pwd)/downloads:/opt/yocto/downloads \
     -v $(pwd)/sstate-cache:/opt/yocto/sstate-cache \
     -e BB_NUMBER_THREADS=${BB_THREADS} \
     -e PARALLEL_MAKE="${PARALLEL_MAKE}" \
     -e MACHINE=qemux86-64 \
+    -e TMPDIR=/tmp/yocto-build \
     --name yocto-lecture \
     ${DOCKER_IMAGE} \
     /bin/bash -c "
