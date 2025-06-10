@@ -1,6 +1,6 @@
 # Yocto 5.0 LTS 강의 환경
 
-**8시간 Yocto Project 강의**를 위한 완전한 Docker 기반 개발 환경입니다.
+**KEA Yocto Project 강의**를 위한 완전한 Docker 기반 개발 환경입니다.
 
 ## 🚀 빠른 시작
 
