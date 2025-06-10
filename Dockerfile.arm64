@@ -1,0 +1,66 @@
+# ARM64 전용 Yocto 환경 - 빠른 빌드
+FROM ubuntu:24.04
+
+# 환경 변수 설정
+ENV DEBIAN_FRONTEND=noninteractive
+ENV LANG=en_US.UTF-8
+ENV LC_ALL=en_US.UTF-8
+ENV TZ=Asia/Seoul
+ENV YOCTO_USER=yocto
+ENV YOCTO_HOME=/home/yocto
+ENV POKY_DIR=/opt/poky
+
+# 시스템 업데이트 및 기본 도구 설치
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    curl wget git vim nano sudo locales tzdata ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
+
+# Yocto 필수 패키지 설치 (ARM64 최적화)
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    gawk git-core diffstat unzip texinfo build-essential \
+    gcc g++ chrpath socat cpio python3 python3-pip python3-pexpect \
+    xz-utils debianutils iputils-ping python3-git python3-jinja2 \
+    libegl1 libsdl1.2-dev xterm file lz4 zstd tree htop screen tmux \
+    qemu-system-x86 qemu-system-arm qemu-utils \
+    && rm -rf /var/lib/apt/lists/*
+
+# 로케일 및 시간대 설정
+RUN locale-gen en_US.UTF-8 && \
+    ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+
+# yocto 사용자 생성
+RUN useradd -m -s /bin/bash $YOCTO_USER && \
+    echo "$YOCTO_USER:yocto" | chpasswd && \
+    usermod -aG sudo $YOCTO_USER && \
+    echo "$YOCTO_USER ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
+
+# Poky 저장소 클론
+RUN mkdir -p $POKY_DIR && \
+    git clone -b scarthgap https://git.yoctoproject.org/poky $POKY_DIR && \
+    chown -R $YOCTO_USER:$YOCTO_USER $POKY_DIR
+
+# 작업 디렉토리 생성
+RUN mkdir -p /workspace /opt/yocto/downloads /opt/yocto/sstate-cache && \
+    chown -R yocto:yocto /workspace /opt/yocto
+
+# 환경 스크립트 생성
+RUN echo '#!/bin/bash' > /etc/profile.d/yocto-env.sh && \
+    echo 'export POKY_DIR=/opt/poky' >> /etc/profile.d/yocto-env.sh && \
+    echo 'export MACHINE="qemux86-64"' >> /etc/profile.d/yocto-env.sh && \
+    echo 'yocto_init() { source $POKY_DIR/oe-init-build-env ${1:-/workspace/build}; }' >> /etc/profile.d/yocto-env.sh && \
+    echo 'yocto_quick_build() { bitbake core-image-minimal; }' >> /etc/profile.d/yocto-env.sh && \
+    chmod +x /etc/profile.d/yocto-env.sh
+
+# 사용자 전환 및 환경 설정
+USER $YOCTO_USER
+WORKDIR $YOCTO_HOME
+RUN echo 'source /etc/profile.d/yocto-env.sh' >> ~/.bashrc
+
+# 포트 노출
+EXPOSE 2222 5555 8080
+
+# 볼륨 마운트 포인트
+VOLUME ["/workspace", "/opt/yocto/downloads", "/opt/yocto/sstate-cache"]
+
+# 시작 명령
+CMD ["/bin/bash", "-l"] 

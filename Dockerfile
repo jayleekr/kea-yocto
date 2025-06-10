@@ -2,7 +2,7 @@
 # 멀티 플랫폼 지원
 
 ARG UBUNTU_VERSION=24.04
-ARG TARGETPLATFORM=linux/amd64
+ARG TARGETPLATFORM
 FROM --platform=${TARGETPLATFORM} ubuntu:${UBUNTU_VERSION}
 
 # 빌드 인수 설정
@@ -40,14 +40,14 @@ RUN apt-get install -y --no-install-recommends \
     ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 
-# Yocto 필수 패키지 설치
-RUN apt-get update && apt-get install -y --no-install-recommends \
+# Yocto 필수 패키지 설치 (아키텍처별 조건부 설치)
+RUN apt-get update && \
+    DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
     gawk \
     git-core \
     diffstat \
     unzip \
     texinfo \
-    gcc-multilib \
     build-essential \
     chrpath \
     socat \
@@ -63,7 +63,14 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libegl1 \
     libsdl1.2-dev \
     xterm \
-    && rm -rf /var/lib/apt/lists/*
+    && \
+    # ARM64에서는 gcc-multilib 대신 기본 gcc 사용
+    if [ "$(uname -m)" = "x86_64" ]; then \
+        apt-get install -y --no-install-recommends gcc-multilib; \
+    else \
+        apt-get install -y --no-install-recommends gcc g++; \
+    fi && \
+    rm -rf /var/lib/apt/lists/*
 
 # Python 도구 설치 (시스템 패키지로)
 RUN apt-get update && apt-get install -y --no-install-recommends \

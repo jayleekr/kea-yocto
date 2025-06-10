@@ -67,4 +67,65 @@ docker compose config --services 2>/dev/null || {
     exit 1
 }
 
-echo "✅ 플랫폼 설정 완료!" 
+echo "✅ 플랫폼 설정 완료!"
+
+# ARM64 환경에서 로컬 빌드가 필요한지 확인
+if [ "$ARCH" = "aarch64" ] || [ "$ARCH" = "arm64" ]; then
+    echo ""
+    echo "🔧 ARM64 환경에서 이미지 상태 확인 중..."
+    
+    # 현재 이미지가 올바른 아키텍처인지 확인
+    DOCKER_IMAGE="jabang3/yocto-lecture:5.0-lts"
+    if docker image inspect $DOCKER_IMAGE >/dev/null 2>&1; then
+        # 이미지 내부 아키텍처 확인 (실제 바이너리 확인)
+        if docker run --rm --platform linux/arm64 $DOCKER_IMAGE uname -m 2>/dev/null | grep -q "x86_64"; then
+            echo "⚠️  기존 이미지가 x86_64 바이너리를 포함하고 있습니다."
+            echo "🏗️  ARM64용 이미지를 로컬에서 빌드합니다..."
+            
+            if docker build --platform linux/arm64 -t yocto-lecture:arm64-local . >/dev/null 2>&1; then
+                echo "✅ ARM64 이미지 로컬 빌드 성공"
+                
+                # override 파일에서 이미지 이름 변경
+                sed -i.bak 's/image: jabang3\/yocto-lecture:5.0-lts/image: yocto-lecture:arm64-local/' docker-compose.override.yml 2>/dev/null || {
+                    # sed 실패시 직접 수정
+                    cat > docker-compose.override.yml << 'EOF'
+# ARM64 환경용 자동 생성 설정
+
+services:
+  yocto-lecture:
+    image: yocto-lecture:arm64-local
+    platform: linux/arm64
+    environment:
+      - BB_NUMBER_THREADS=8
+      - PARALLEL_MAKE=-j 8
+      - MACHINE=qemux86-64
+      - LANG=en_US.UTF-8
+      - LC_ALL=en_US.UTF-8
+      - TZ=Asia/Seoul
+    volumes:
+      - ./yocto-workspace/workspace:/workspace
+      - ./yocto-workspace/downloads:/opt/yocto/downloads
+      - ./yocto-workspace/sstate-cache:/opt/yocto/sstate-cache
+
+  yocto-lecture-dev:
+    image: yocto-lecture:arm64-local
+    platform: linux/arm64
+    environment:
+      - BB_NUMBER_THREADS=8
+      - PARALLEL_MAKE=-j 8
+      - MACHINE=qemux86-64
+      - LANG=en_US.UTF-8
+      - LC_ALL=en_US.UTF-8
+      - TZ=Asia/Seoul
+EOF
+                }
+                
+                echo "📝 로컬 빌드 이미지로 Docker Compose 설정 업데이트됨"
+            else
+                echo "❌ 로컬 빌드 실패. 기존 설정을 유지합니다."
+            fi
+        else
+            echo "✅ 기존 이미지가 올바른 ARM64 아키텍처입니다."
+        fi
+    fi
+fi 

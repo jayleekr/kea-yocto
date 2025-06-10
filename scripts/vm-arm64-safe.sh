@@ -57,27 +57,44 @@ log_info "워크스페이스 준비 완료"
 
 # 4단계: Docker 이미지 확인
 echo
-log_step "4단계: Docker 이미지 준비 중..."
+log_step "4단계: ARM64 전용 이미지 준비 중..."
 
-DOCKER_IMAGE="jabang3/yocto-lecture:5.0-lts"
+ARM64_IMAGE="yocto-lecture:arm64-fast"
+ORIGINAL_IMAGE="jabang3/yocto-lecture:5.0-lts"
 
-# 이미지가 있는지 확인
-if ! docker image inspect $DOCKER_IMAGE >/dev/null 2>&1; then
-    log_info "이미지가 없습니다. 다운로드를 시도합니다..."
+# ARM64 전용 이미지가 있는지 확인
+if docker image inspect $ARM64_IMAGE >/dev/null 2>&1; then
+    log_info "✅ ARM64 전용 이미지 발견: $ARM64_IMAGE"
+    DOCKER_IMAGE=$ARM64_IMAGE
     
-    # ARM64 이미지 우선 시도
-    if docker pull --platform linux/arm64 $DOCKER_IMAGE 2>/dev/null; then
-        log_info "ARM64 이미지 다운로드 성공"
-    elif docker pull $DOCKER_IMAGE 2>/dev/null; then
-        log_info "멀티아키텍처 이미지 다운로드 성공"
+    # 아키텍처 검증
+    CONTAINER_ARCH=$(docker run --rm $ARM64_IMAGE uname -m 2>/dev/null || echo "unknown")
+    if [ "$CONTAINER_ARCH" = "aarch64" ]; then
+        log_info "✅ 이미지 검증 완료 - ARM64 네이티브"
     else
-        log_error "이미지 다운로드 실패"
-        echo
-        echo "해결 방법:"
-        echo "1. 인터넷 연결 확인"
-        echo "2. 로컬 빌드: docker build -t $DOCKER_IMAGE ."
-        echo "3. 다른 레지스트리에서 이미지 다운로드"
-        exit 1
+        log_error "⚠️  이미지 아키텍처 불일치: $CONTAINER_ARCH"
+    fi
+else
+    log_info "ARM64 전용 이미지가 없습니다. 빌드를 시도합니다..."
+    
+    if [ -f "Dockerfile.arm64" ]; then
+        log_info "🏗️  ARM64 이미지 빌드 중... (5-10분 소요)"
+        if docker build -f Dockerfile.arm64 -t $ARM64_IMAGE . >/dev/null 2>&1; then
+            log_info "✅ ARM64 이미지 빌드 성공!"
+            DOCKER_IMAGE=$ARM64_IMAGE
+        else
+            log_error "❌ ARM64 이미지 빌드 실패. 기존 이미지를 사용합니다."
+            DOCKER_IMAGE=$ORIGINAL_IMAGE
+        fi
+    else
+        log_info "기존 이미지 사용: $ORIGINAL_IMAGE"
+        DOCKER_IMAGE=$ORIGINAL_IMAGE
+        
+        # 기존 이미지 다운로드 시도
+        if ! docker image inspect $DOCKER_IMAGE >/dev/null 2>&1; then
+            log_info "이미지 다운로드 중..."
+            docker pull --platform linux/arm64 $DOCKER_IMAGE 2>/dev/null || docker pull $DOCKER_IMAGE
+        fi
     fi
 fi
 
