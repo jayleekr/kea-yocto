@@ -67,8 +67,13 @@ log_info "워크스페이스가 생성되었습니다: ${WORKSPACE_DIR}"
 ARCH=$(uname -m)
 PLATFORM_FLAG=""
 
-if [ "$ARCH" = "arm64" ]; then
-    log_info "Apple Silicon Mac에서 실행 중입니다."
+if [ "$ARCH" = "arm64" ] || [ "$ARCH" = "aarch64" ]; then
+    if [ "$ARCH" = "arm64" ]; then
+        log_info "Apple Silicon Mac에서 실행 중입니다."
+    else
+        log_info "ARM64 VM/시스템에서 실행 중입니다."
+    fi
+    
     echo "실행 방법을 선택하세요:"
     echo "1) ARM64 네이티브 (권장, 빠름)"
     echo "2) x86_64 에뮬레이션 (강의 환경 일치, 느림)"
@@ -83,11 +88,19 @@ if [ "$ARCH" = "arm64" ]; then
         # QEMU 에뮬레이션 설정
         log_step "QEMU 에뮬레이션 설정 중..."
         docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
+        
+        # x86_64 이미지 강제 다운로드
+        log_step "x86_64 이미지 다운로드 중..."
+        docker pull --platform linux/amd64 $DOCKER_IMAGE
     else
         log_info "ARM64 네이티브 모드로 실행합니다."
         PLATFORM_FLAG="--platform linux/arm64"
         BB_THREADS="8"
         PARALLEL_MAKE="-j 8"
+        
+        # ARM64 이미지 강제 다운로드
+        log_step "ARM64 이미지 다운로드 중..."
+        docker pull --platform linux/arm64 $DOCKER_IMAGE
     fi
 else
     log_info "x86_64 네이티브 환경에서 실행합니다."

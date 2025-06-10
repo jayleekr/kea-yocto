@@ -11,6 +11,13 @@ cd kea-yocto
 ./scripts/vm-start.sh
 ```
 
+### **ARM64 VM/Ubuntu** (aarch64)
+```bash
+git clone https://github.com/jayleekr/kea-yocto.git
+cd kea-yocto
+./scripts/arm64-vm-fix.sh
+```
+
 ### **ARM64 Mac** (개발자용)
 ```bash
 git clone https://github.com/jayleekr/kea-yocto.git
