@@ -50,6 +50,21 @@ check_docker_image() {
     fi
 }
 
+echo "🚀 KEA Yocto 빠른 시작"
+echo "========================"
+
+# 캐시 다운로드 먼저 실행
+echo "1️⃣  캐시 준비 중..."
+./scripts/prepare-cache.sh
+
+# Docker 컨테이너 실행
+echo "2️⃣  Docker 컨테이너 시작 중..."
+docker compose run --rm yocto-lecture
+
+echo "✅ 완료! 컨테이너에서 다음 명령어로 빠른 빌드를 시작하세요:"
+echo "   yocto_init"
+echo "   yocto_quick_build"
+
 echo "======================================"
 echo "Yocto 5.0 LTS 강의 환경 빠른 시작"
 echo "======================================"
@@ -87,20 +102,75 @@ if [ "$ARCH" = "arm64" ] || [ "$ARCH" = "aarch64" ]; then
         
         # QEMU 에뮬레이션 설정
         log_step "QEMU 에뮬레이션 설정 중..."
-        docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
         
-        # x86_64 이미지 강제 다운로드
-        log_step "x86_64 이미지 다운로드 중..."
-        docker pull --platform linux/amd64 $DOCKER_IMAGE
+        # Docker Desktop의 QEMU 지원 확인
+        if docker version | grep -q "Docker Desktop"; then
+            log_info "Docker Desktop 환경: 내장 QEMU 지원 사용"
+        else
+            # 더 안전한 QEMU 설정 방법
+            log_info "시스템 QEMU binfmt 설정 확인 중..."
+            
+            # binfmt_misc 지원 확인
+            if [ ! -f /proc/sys/fs/binfmt_misc/status ]; then
+                log_error "binfmt_misc가 지원되지 않습니다. ARM64 네이티브 모드를 사용해주세요."
+                echo "다시 선택해주세요..."
+                choice="1"
+            else
+                # QEMU 설정 시도
+                if ! docker run --rm --privileged multiarch/qemu-user-static:register --reset 2>/dev/null; then
+                    log_error "QEMU 설정 실패. ARM64 네이티브 모드로 전환합니다."
+                    choice="1"
+                fi
+            fi
+        fi
+        
+        # 실패시 ARM64 네이티브로 폴백
+        if [ "$choice" != "2" ]; then
+            log_info "ARM64 네이티브 모드로 변경합니다."
+            PLATFORM_FLAG="--platform linux/arm64"
+            BB_THREADS="8"
+            PARALLEL_MAKE="-j 8"
+        fi
+        
+        # x86_64 이미지 다운로드 (choice가 여전히 2인 경우만)
+        if [ "$choice" = "2" ]; then
+            log_step "x86_64 이미지 다운로드 중..."
+            
+            # Docker buildx 사용해서 더 안전하게 pull
+            if docker buildx version >/dev/null 2>&1; then
+                docker buildx imagetools inspect $DOCKER_IMAGE >/dev/null 2>&1 || {
+                    log_error "x86_64 이미지를 찾을 수 없습니다. ARM64 네이티브 모드로 전환합니다."
+                    choice="1"
+                    PLATFORM_FLAG="--platform linux/arm64"
+                    BB_THREADS="8"
+                    PARALLEL_MAKE="-j 8"
+                }
+            fi
+            
+            if [ "$choice" = "2" ]; then
+                docker pull --platform linux/amd64 $DOCKER_IMAGE 2>/dev/null || {
+                    log_error "x86_64 이미지 다운로드 실패. ARM64 네이티브로 전환합니다."
+                    choice="1"
+                    PLATFORM_FLAG="--platform linux/arm64"
+                    BB_THREADS="8"
+                    PARALLEL_MAKE="-j 8"
+                }
+            fi
+        fi
     else
         log_info "ARM64 네이티브 모드로 실행합니다."
         PLATFORM_FLAG="--platform linux/arm64"
         BB_THREADS="8"
         PARALLEL_MAKE="-j 8"
-        
-        # ARM64 이미지 강제 다운로드
+    fi
+    
+    # ARM64 이미지 다운로드 (네이티브 모드인 경우)
+    if [ "$choice" != "2" ]; then
         log_step "ARM64 이미지 다운로드 중..."
-        docker pull --platform linux/arm64 $DOCKER_IMAGE
+        docker pull --platform linux/arm64 $DOCKER_IMAGE 2>/dev/null || {
+            log_info "ARM64 이미지가 없습니다. 멀티아키텍처 이미지를 시도합니다."
+            docker pull $DOCKER_IMAGE
+        }
     fi
 else
     log_info "x86_64 네이티브 환경에서 실행합니다."

@@ -10,6 +10,18 @@
 - **Storage**: 최소 50GB 여유 공간
 - **CPU**: 4코어 이상 권장
 
+### ⚡ 초고속 시작 (권장) - 빌드 시간 90% 단축!
+
+웹에서 미리 준비된 캐시를 다운로드하여 **첫 빌드를 15-30분**으로 단축:
+
+```bash
+git clone https://github.com/jayleekr/kea-yocto.git
+cd kea-yocto
+./scripts/quick-start.sh  # 웹에서 캐시 자동 다운로드 + 컨테이너 실행
+```
+
+> 💡 여러 미러 서버에서 자동으로 최적 속도로 다운로드합니다
+
 ### 환경별 시작 방법
 
 #### **x86_64 VM/Ubuntu** (강의실 환경, 권장)
@@ -23,6 +35,11 @@ cd kea-yocto
 ```bash
 git clone https://github.com/jayleekr/kea-yocto.git
 cd kea-yocto
+
+# 안전 모드 (권장 - QEMU 에뮬레이션 문제 해결)
+./scripts/vm-arm64-safe.sh
+
+# 또는 고급 모드 (x86_64 에뮬레이션 시도)
 ./scripts/arm64-vm-fix.sh
 ```
 
@@ -210,6 +227,29 @@ kea-yocto/
     └── sstate-cache/           # 상태 캐시
 ```
 
+## 🌐 캐시 서버 설정
+
+### 강사용: 캐시 생성 및 업로드
+강의 전에 미리 캐시를 준비하여 웹에서 제공:
+
+```bash
+# 1. 캐시 생성 (강의 전 준비)
+./scripts/prepare-instructor-cache.sh
+
+# 2. 생성된 캐시를 웹 서버에 업로드
+./scripts/upload-cache.sh
+
+# 생성되는 파일들:
+# - downloads-cache.tar.gz (~2-5GB)
+# - sstate-cache.tar.gz (~10-20GB)
+```
+
+### 수강생용: 빠른 캐시 다운로드
+```bash
+# 미리 준비된 캐시로 빠른 시작
+./scripts/quick-start.sh
+```
+
 ## 🔧 유용한 명령어
 
 ### 컨테이너 관리
@@ -262,7 +302,21 @@ bitbake -g <package-name>
    echo 'PARALLEL_MAKE = "-j 2"' >> conf/local.conf
    ```
 
-3. **네트워크 연결 문제**
+3. **ARM64 VM에서 QEMU 에뮬레이션 오류**
+   ```bash
+   # "exec /register: exec format error" 오류 발생 시
+   
+   # 해결 방법 1: 안전 모드 사용 (권장)
+   ./scripts/vm-arm64-safe.sh
+   
+   # 해결 방법 2: ARM64 네이티브 모드 선택
+   ./scripts/quick-start.sh  # 실행 후 옵션 1 선택
+   
+   # 해결 방법 3: Docker Compose 직접 사용
+   docker compose run --platform linux/arm64 --rm yocto-lecture
+   ```
+
+4. **네트워크 연결 문제**
    ```bash
    # 프록시 설정이 필요한 경우 local.conf에 추가
    echo 'http_proxy = "http://proxy.company.com:8080"' >> conf/local.conf
@@ -290,16 +344,32 @@ bitbake -g <package-name>
 
 ## 🎯 학습 팁
 
-1. **첫 빌드는 시간이 오래 걸립니다** (1-3시간)
-   - 네트워크에서 소스 코드를 다운로드하고 컴파일하기 때문입니다
-   - 두 번째 빌드부터는 캐시를 사용하여 훨씬 빠릅니다
+### ⚡ 빌드 시간 최적화 전략
 
-2. **병렬 빌드 조정**
+| 방법 | 첫 빌드 시간 | 이후 빌드 시간 | 설정 난이도 | 
+|------|--------------|----------------|-------------|
+| **기본 방식** | 2-3시간 | 30분 | 쉬움 |
+| **웹 캐시 다운로드** | 30분 | 10분 | 쉬움 ⭐ |
+| **CDN 캐시** | 15분 | 5분 | 보통 |
+
+### 권장 사용법
+
+1. **강의 환경**: `./scripts/quick-start.sh` 사용 (웹에서 캐시 다운로드)
+2. **개인 학습**: 기본 방식으로 시작하여 캐시 누적
+3. **고속 환경**: CDN 서버의 캐시 활용
+
+### 일반 팁
+
+1. **병렬 빌드 조정**
    - 메모리가 부족하면 `BB_NUMBER_THREADS`와 `PARALLEL_MAKE`를 줄이세요
    - 충분한 메모리가 있으면 값을 늘려서 빌드 속도를 향상시킬 수 있습니다
 
-3. **sstate 캐시 활용**
+2. **sstate 캐시 활용**
    - 컨테이너를 삭제하더라도 `yocto-workspace/sstate-cache`는 보존됩니다
    - 다음 빌드에서 캐시를 재사용하여 시간을 절약할 수 있습니다
+
+3. **네트워크 최적화**
+   - 안정적인 인터넷 연결이 중요합니다
+   - 가능하면 유선 연결을 사용하세요
 
 Happy coding! 🚀 
