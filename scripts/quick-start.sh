@@ -94,6 +94,15 @@ else
     PLATFORM_FLAG="--platform linux/amd64"
     BB_THREADS="8"
     PARALLEL_MAKE="-j 8"
+    
+    # x86_64 환경에서 멀티플랫폼 Docker 지원 확인
+    log_step "Docker 멀티플랫폼 지원 확인 중..."
+    if ! docker buildx version >/dev/null 2>&1; then
+        log_error "Docker buildx가 설치되지 않았습니다."
+        echo "다음 명령으로 Docker를 업데이트하세요:"
+        echo "sudo apt update && sudo apt install docker-ce docker-ce-cli containerd.io"
+        exit 1
+    fi
 fi
 
 # 컨테이너 실행

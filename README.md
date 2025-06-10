@@ -2,28 +2,30 @@
 
 **8시간 Yocto Project 강의**를 위한 완전한 Docker 기반 개발 환경입니다.
 
-## 🚀 TL;DR - VM에서 빠른 시작
+## 🚀 TL;DR - 빠른 시작
 
+### **x86_64 VM/Ubuntu** (강의실 환경, 권장)
 ```bash
-# 1. 프로젝트 클론
 git clone https://github.com/jayleekr/kea-yocto.git
 cd kea-yocto
-
-# 2. ARM64 VM인 경우 (aarch64)
-sudo apt-get install -y qemu-user-static binfmt-support
-docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
-docker pull --platform linux/amd64 jabang3/yocto-lecture:5.0-lts
-
-# 3. x86_64 VM인 경우
-docker pull jabang3/yocto-lecture:5.0-lts
-
-# 4. Yocto 환경 실행
-docker compose run --rm yocto-lecture
-# 또는
-docker-compose run --rm yocto-lecture
+./scripts/vm-start.sh
 ```
 
-> 💡 **문제 발생 시**: [VM 설치 가이드](docs/vm-docker-installation.md) 참조
+### **ARM64 Mac** (개발자용)
+```bash
+git clone https://github.com/jayleekr/kea-yocto.git
+cd kea-yocto
+./scripts/simple-start.sh
+```
+
+### **Docker Compose** (호환성 필요 시)
+```bash
+git clone https://github.com/jayleekr/kea-yocto.git
+cd kea-yocto
+docker compose run --rm yocto-lecture
+```
+
+> 💡 **문제 발생 시**: [VM 설치 가이드](docs/vm-docker-installation.md) 또는 [ARM64 수정 가이드](docs/VM-ARM64-FIX.md) 참조
 
 ---
 
