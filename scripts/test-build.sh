@@ -1,9 +1,56 @@
 #!/bin/bash
 
-# Yocto 빌드 테스트 스크립트 (컨테이너 내부에서 자동 실행)
+# Yocto 빌드 테스트 스크립트 (모든 아키텍처 지원)
 
 echo "🏗️ Yocto 빌드 테스트 시작"
 echo "=========================="
+
+# 시스템 아키텍처 확인
+ARCH=$(uname -m)
+echo "시스템 아키텍처: $ARCH"
+
+# 아키텍처별 플랫폼 설정
+if [ "$ARCH" = "arm64" ] || [ "$ARCH" = "aarch64" ]; then
+    if [ "$ARCH" = "arm64" ]; then
+        echo "Apple Silicon Mac에서 실행 중..."
+        PLATFORM_FLAG="--platform linux/arm64"
+        DESCRIPTION="ARM64 네이티브"
+    else
+        echo "ARM64 VM에서 실행 중..."
+        echo "실행 방법을 선택하세요:"
+        echo "1) ARM64 네이티브 (권장)"
+        echo "2) x86_64 에뮬레이션 (강의 환경 일치)"
+        read -p "선택 [1/2]: " choice
+        
+        if [ "$choice" = "2" ]; then
+            PLATFORM_FLAG="--platform linux/amd64"
+            DESCRIPTION="x86_64 에뮬레이션"
+            
+            # QEMU 에뮬레이션 설정
+            echo "QEMU 에뮬레이션 설정 중..."
+            docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
+            
+            # x86_64 이미지 강제 다운로드
+            echo "x86_64 이미지 강제 다운로드 중..."
+            docker pull --platform linux/amd64 jabang3/yocto-lecture:5.0-lts
+        else
+            PLATFORM_FLAG="--platform linux/arm64"
+            DESCRIPTION="ARM64 네이티브"
+            
+            # ARM64 이미지 강제 다운로드
+            echo "ARM64 이미지 강제 다운로드 중..."
+            docker pull --platform linux/arm64 jabang3/yocto-lecture:5.0-lts
+        fi
+    fi
+else
+    echo "x86_64 시스템에서 실행 중..."
+    PLATFORM_FLAG="--platform linux/amd64"
+    DESCRIPTION="x86_64 네이티브"
+    
+    # x86_64 이미지 강제 다운로드
+    echo "x86_64 이미지 강제 다운로드 중..."
+    docker pull --platform linux/amd64 jabang3/yocto-lecture:5.0-lts
+fi
 
 # 워크스페이스 생성
 mkdir -p yocto-workspace/workspace
@@ -11,11 +58,11 @@ mkdir -p yocto-workspace/workspace
 # 기존 컨테이너 정리
 docker rm -f yocto-build-test 2>/dev/null || true
 
-echo "ARM64 네이티브 컨테이너에서 빌드 테스트 시작..."
+echo "${DESCRIPTION} 컨테이너에서 빌드 테스트 시작..."
 
 # 빌드 테스트 실행
 docker run --rm \
-    --platform linux/arm64 \
+    ${PLATFORM_FLAG} \
     -v $(pwd)/yocto-workspace/workspace:/workspace \
     -e TMPDIR=/tmp/yocto-build \
     -e BB_ENV_PASSTHROUGH_ADDITIONS=TMPDIR \
