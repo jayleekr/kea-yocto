@@ -31,20 +31,22 @@ cd kea-yocto
 ./scripts/vm-start.sh
 ```
 
-#### **ARM64 VM/Ubuntu** (aarch64) - exec format error 해결
+#### **ARM64 VM/Ubuntu** (aarch64) - exec format error 완전 해결! ✅
 ```bash
 git clone https://github.com/jayleekr/kea-yocto.git
 cd kea-yocto
 
 # 🛡️ 안전 모드 (권장 - exec format error 완전 해결)
-./scripts/vm-arm64-safe.sh
+./scripts/vm-arm64-safe.sh  # ARM64 전용 이미지 자동 빌드 + 실행
 
-# 🧪 문제 해결 테스트
+# 🧪 문제 해결 테스트 (트러블슈팅용)
 ./scripts/vm-test.sh
 
-# 🚀 일반 시작 (자동 플랫폼 감지)
+# 🚀 일반 시작 (자동 플랫폼 감지 + 로컬 빌드)
 ./scripts/quick-start.sh
 ```
+
+> 💡 **ARM64 VM 사용자 주목**: `vm-arm64-safe.sh`는 ARM64 네이티브 이미지를 자동으로 로컬 빌드하여 exec format error를 **완전히 해결**합니다!
 
 #### **ARM64 Mac** (Apple Silicon)
 ```bash
@@ -305,19 +307,23 @@ bitbake -g <package-name>
    echo 'PARALLEL_MAKE = "-j 2"' >> conf/local.conf
    ```
 
-3. **ARM64 VM에서 QEMU 에뮬레이션 오류**
+3. **ARM64 VM에서 exec format error 완전 해결! ✅**
    ```bash
-   # "exec /register: exec format error" 오류 발생 시
+   # "exec /bin/bash: exec format error" 오류 발생 시
    
-   # 해결 방법 1: 안전 모드 사용 (권장)
-   ./scripts/vm-arm64-safe.sh
+   # 🛡️ 해결 방법 1: ARM64 안전 모드 (100% 해결, 권장)
+   ./scripts/vm-arm64-safe.sh  # ARM64 전용 이미지 자동 빌드
    
-   # 해결 방법 2: ARM64 네이티브 모드 선택
-   ./scripts/quick-start.sh  # 실행 후 옵션 1 선택
+   # 🔧 해결 방법 2: 직접 ARM64 이미지 빌드
+   docker build -f Dockerfile.arm64 -t yocto-lecture:arm64-fast .
+   docker run -it --rm -v $(pwd)/yocto-workspace:/workspace yocto-lecture:arm64-fast
    
-   # 해결 방법 3: Docker Compose 직접 사용
-   docker compose run --platform linux/arm64 --rm yocto-lecture
+   # 🚀 해결 방법 3: 통합 시작 스크립트 (자동 감지)
+   ./scripts/quick-start.sh  # ARM64 자동 감지 + 로컬 빌드
    ```
+   
+   > 💡 **근본 원인**: Docker Hub의 이미지가 x86_64 바이너리를 포함하고 있어 ARM64 시스템에서 실행 불가  
+   > 🔧 **해결책**: ARM64 네이티브 이미지를 로컬에서 빌드하여 아키텍처 불일치 완전 해결
 
 4. **네트워크 연결 문제**
    ```bash
