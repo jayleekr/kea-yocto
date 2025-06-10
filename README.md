@@ -31,16 +31,19 @@ cd kea-yocto
 ./scripts/vm-start.sh
 ```
 
-#### **ARM64 VM/Ubuntu** (aarch64)
+#### **ARM64 VM/Ubuntu** (aarch64) - exec format error 해결
 ```bash
 git clone https://github.com/jayleekr/kea-yocto.git
 cd kea-yocto
 
-# 안전 모드 (권장 - QEMU 에뮬레이션 문제 해결)
+# 🛡️ 안전 모드 (권장 - exec format error 완전 해결)
 ./scripts/vm-arm64-safe.sh
 
-# 또는 고급 모드 (x86_64 에뮬레이션 시도)
-./scripts/arm64-vm-fix.sh
+# 🧪 문제 해결 테스트
+./scripts/vm-test.sh
+
+# 🚀 일반 시작 (자동 플랫폼 감지)
+./scripts/quick-start.sh
 ```
 
 #### **ARM64 Mac** (Apple Silicon)

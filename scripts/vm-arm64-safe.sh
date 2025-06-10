@@ -39,20 +39,25 @@ fi
 
 log_info "ARM64 시스템 확인됨: $ARCH"
 
-# 1단계: 캐시 준비
+# 1단계: 플랫폼 설정
 echo
-log_step "1단계: 캐시 다운로드 시도 중..."
+log_step "1단계: ARM64 플랫폼 설정 중..."
+./scripts/setup-platform.sh
+
+# 2단계: 캐시 준비
+echo
+log_step "2단계: 캐시 다운로드 시도 중..."
 ./scripts/prepare-cache.sh
 
-# 2단계: 워크스페이스 생성
+# 3단계: 워크스페이스 생성
 echo
-log_step "2단계: 워크스페이스 생성 중..."
+log_step "3단계: 워크스페이스 생성 중..."
 mkdir -p yocto-workspace/{workspace,downloads,sstate-cache}
 log_info "워크스페이스 준비 완료"
 
-# 3단계: Docker 이미지 확인
+# 4단계: Docker 이미지 확인
 echo
-log_step "3단계: Docker 이미지 준비 중..."
+log_step "4단계: Docker 이미지 준비 중..."
 
 DOCKER_IMAGE="jabang3/yocto-lecture:5.0-lts"
 
@@ -76,48 +81,57 @@ if ! docker image inspect $DOCKER_IMAGE >/dev/null 2>&1; then
     fi
 fi
 
-# 4단계: 컨테이너 실행
+# 5단계: 컨테이너 실행
 echo
-log_step "4단계: ARM64 네이티브 모드로 컨테이너 시작..."
+log_step "5단계: Docker Compose로 컨테이너 시작..."
 
-# 기존 컨테이너 정리
-docker rm -f yocto-lecture-arm64 2>/dev/null || true
+# Docker Compose 사용으로 변경 (더 안정적)
+log_info "Docker Compose 설정 확인 중..."
+if docker compose config >/dev/null 2>&1; then
+    log_info "Docker Compose로 컨테이너 시작..."
+    docker compose run --rm yocto-lecture
+else
+    log_error "Docker Compose 설정 오류. 직접 Docker 실행으로 대체합니다..."
+    
+    # 기존 컨테이너 정리
+    docker rm -f yocto-lecture-arm64 2>/dev/null || true
 
-# ARM64 네이티브 실행 (에뮬레이션 없음)
-docker run -it --privileged \
-    --platform linux/arm64 \
-    -v $(pwd)/yocto-workspace/workspace:/workspace \
-    -v $(pwd)/yocto-workspace/downloads:/opt/yocto/downloads \
-    -v $(pwd)/yocto-workspace/sstate-cache:/opt/yocto/sstate-cache \
-    -e BB_NUMBER_THREADS=8 \
-    -e PARALLEL_MAKE="-j 8" \
-    -e MACHINE=qemux86-64 \
-    -e TMPDIR=/tmp/yocto-build \
-    --name yocto-lecture-arm64 \
-    $DOCKER_IMAGE \
-    /bin/bash -c "
-        echo '🎉 ARM64 Yocto 환경 시작'
-        echo '========================'
-        echo '아키텍처: \$(uname -m)'
-        echo '타겟 머신: qemux86-64 (에뮬레이션됨)'
-        echo
-        echo '📝 주의사항:'
-        echo '- ARM64에서 x86_64 타겟 빌드는 QEMU로 에뮬레이션됩니다'
-        echo '- 빌드는 정상 작동하지만 속도가 느릴 수 있습니다'
-        echo '- 빌드된 이미지는 QEMU x86_64에서 실행됩니다'
-        echo
-        echo '=== 빌드 환경 초기화 ==='
-        source /opt/poky/oe-init-build-env /workspace/build
-        
-        echo
-        echo '=== 빌드 시작 가능 ==='
-        echo '다음 명령어를 사용하세요:'
-        echo '  bitbake core-image-minimal    # 최소 이미지 빌드'
-        echo '  yocto_quick_build            # 편의 함수 사용'
-        echo '  runqemu qemux86-64           # 빌드된 이미지 실행'
-        echo
-        /bin/bash -l
-    "
+    # ARM64 네이티브 실행 (에뮬레이션 없음)
+    docker run -it --privileged \
+        --platform linux/arm64 \
+        -v $(pwd)/yocto-workspace/workspace:/workspace \
+        -v $(pwd)/yocto-workspace/downloads:/opt/yocto/downloads \
+        -v $(pwd)/yocto-workspace/sstate-cache:/opt/yocto/sstate-cache \
+        -e BB_NUMBER_THREADS=8 \
+        -e PARALLEL_MAKE="-j 8" \
+        -e MACHINE=qemux86-64 \
+        -e TMPDIR=/tmp/yocto-build \
+        --name yocto-lecture-arm64 \
+        $DOCKER_IMAGE \
+        /bin/bash -c "
+            echo '🎉 ARM64 Yocto 환경 시작'
+            echo '========================'
+            echo '아키텍처: \$(uname -m)'
+            echo '타겟 머신: qemux86-64 (에뮬레이션됨)'
+            echo
+            echo '📝 주의사항:'
+            echo '- ARM64에서 x86_64 타겟 빌드는 QEMU로 에뮬레이션됩니다'
+            echo '- 빌드는 정상 작동하지만 속도가 느릴 수 있습니다'
+            echo '- 빌드된 이미지는 QEMU x86_64에서 실행됩니다'
+            echo
+            echo '=== 빌드 환경 초기화 ==='
+            source /opt/poky/oe-init-build-env /workspace/build
+            
+            echo
+            echo '=== 빌드 시작 가능 ==='
+            echo '다음 명령어를 사용하세요:'
+            echo '  bitbake core-image-minimal    # 최소 이미지 빌드'
+            echo '  yocto_quick_build            # 편의 함수 사용'
+            echo '  runqemu qemux86-64           # 빌드된 이미지 실행'
+            echo
+            /bin/bash -l
+        "
+fi
 
 echo
 log_info "ARM64 안전 모드 종료"

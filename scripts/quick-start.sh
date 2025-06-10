@@ -53,6 +53,10 @@ check_docker_image() {
 echo "🚀 KEA Yocto 빠른 시작"
 echo "========================"
 
+# 0단계: 플랫폼 설정
+echo "0️⃣  플랫폼 설정 중..."
+./scripts/setup-platform.sh
+
 # 캐시 다운로드 먼저 실행
 echo "1️⃣  캐시 준비 중..."
 ./scripts/prepare-cache.sh

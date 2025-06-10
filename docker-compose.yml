@@ -31,8 +31,6 @@ services:
     networks:
       - yocto-network
     working_dir: /workspace
-    profiles:
-      - dev
 
   # 개발용 컨테이너 (더 많은 리소스)
   yocto-lecture-dev:
