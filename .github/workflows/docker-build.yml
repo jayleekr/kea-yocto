@@ -63,4 +63,13 @@ jobs:
 
     - name: Test Docker image
       run: |
-        docker run --rm ${{ env.REGISTRY }}/jabang3/${{ env.IMAGE_NAME }}:latest bitbake --version 
+        # 기본 이미지 테스트
+        docker run --rm ${{ env.REGISTRY }}/jabang3/${{ env.IMAGE_NAME }}:latest cat /etc/os-release
+        
+        # Yocto 환경 테스트 (환경 초기화 필요)
+        docker run --rm ${{ env.REGISTRY }}/jabang3/${{ env.IMAGE_NAME }}:latest bash -c "
+          source /opt/poky/oe-init-build-env /tmp/test && 
+          bitbake --version
+        "
+        
+        echo "✅ Docker image test completed successfully!" 
