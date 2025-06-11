@@ -18,7 +18,28 @@ materials/
 
 ## 🚀 사용법
 
-### 1. PDF 생성하기 (자동 버전 증가)
+### 방법 1: Docker 컨테이너 사용 (권장 ⭐)
+
+별도 소프트웨어 설치 없이 Docker만 있으면 PDF를 생성할 수 있습니다:
+
+```bash
+# 프로젝트 루트 디렉토리에서 실행
+./scripts/generate-pdf-docker.sh
+
+# 상세 모드로 생성
+./scripts/generate-pdf-docker.sh --verbose
+
+# 컨테이너 재빌드 후 생성 (최초 실행 시)
+./scripts/generate-pdf-docker.sh --rebuild
+
+# 생성 결과:
+# - materials/KEA-Yocto-Project-강의자료-v1.0.X.pdf (새 버전)
+# - materials/KEA-Yocto-Project-강의자료-latest.pdf (최신 링크)
+```
+
+### 방법 2: 로컬 환경 사용
+
+로컬에 pandoc이 설치된 경우:
 
 ```bash
 # materials 디렉토리로 이동
@@ -32,7 +53,7 @@ cd materials
 # - KEA-Yocto-Project-강의자료-latest.pdf (최신 링크)
 ```
 
-### 2. 버전 관리
+### 1. 버전 관리
 
 ```bash
 # 현재 버전 확인
@@ -45,7 +66,7 @@ ls -la KEA-Yocto-Project-강의자료-v*.pdf
 echo "2.0.0" > version.txt
 ```
 
-### 3. 강의 자료 수정하기
+### 2. 강의 자료 수정하기
 
 ```bash
 # 마크다운 파일 편집
@@ -55,7 +76,7 @@ vi lecture-materials.md
 ./generate-pdf.sh
 ```
 
-### 4. 템플릿 커스터마이징
+### 3. 템플릿 커스터마이징
 
 ```bash
 # Pandoc 템플릿 설정 수정
@@ -64,9 +85,13 @@ vi pandoc-template.yaml
 # 폰트, 레이아웃, 스타일 등을 변경할 수 있습니다
 ```
 
-## 📋 필수 의존성
+## 📋 의존성
 
-PDF 생성을 위해 다음 도구들이 필요합니다:
+### Docker 사용 시 (권장)
+- Docker 20.10+ 
+- Docker Compose v2.0+
+
+### 로컬 환경 사용 시
 
 ### Ubuntu/Debian
 ```bash

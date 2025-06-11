@@ -2,8 +2,8 @@
 _Last updated: 2025-06-11_
 
 ## State
-Phase: CONSTRUCT  
-Status: RUNNING  
+Phase: VALIDATE  
+Status: COMPLETED  
 CurrentItem: 강의자료 구조화 및 git 커밋
 
 ## Plan
@@ -113,37 +113,35 @@ Action ▶
 Status: NEEDS_PLAN_APPROVAL
 
 **CONSTRUCT Phase Completed**
-1. ✅ project_config.md 업데이트 완료
-   - KEA Yocto Project 강의 환경에 맞게 전면 개편
-   - 기술 스택, 제약사항, 패턴 등 상세 설정
+✅ 1단계: materials 디렉토리 생성 및 파일 이동 완료
+- lecture-materials.md, pandoc-template.yaml, generate-pdf.sh → materials/
+- 깔끔한 디렉토리 구조화 완료
 
-2. ✅ Mermaid 다이어그램 5개 생성 완료
-   - 시스템 아키텍처 다이어그램 (Host → Docker → Yocto Container)
-   - Yocto 빌드 프로세스 플로우차트 (BitBake → Recipe → Image)
-   - 레이어 구조 다이어그램 (meta-* 계층 관계)
-   - Docker 환경 설정 플로우 (실습 가이드용)
-   - 강의 타임라인 간트 차트 (8시간 일정)
+✅ 2단계: 스크립트 경로 수정 및 버전 관리 시스템 추가
+- generate-pdf.sh 업데이트: materials 디렉토리 내에서 작동
+- 자동 버전 증가 기능 구현 (패치 버전 +1)
+- 버전별 PDF 파일명 생성 (v1.0.X)
+- latest 심볼릭 링크 자동 생성
 
-3. ✅ 완전한 강의 자료 마크다운 문서 생성
-   - 9개 섹션으로 구성된 상세 강의 자료 (lecture-materials.md)
-   - 이론 30% + 실습 60% + 토론 10% 비율 준수
-   - 단계별 실습 가이드 및 명령어 포함
-   - Q&A 섹션 및 부록 자료 포함
+✅ 3단계: materials/README.md 생성
+- 완전한 사용법 가이드 작성
+- 버전 관리 시스템 설명 포함
+- 의존성 설치 방법 및 문제해결 가이드
 
-4. ✅ Pandoc PDF 변환 환경 구축
-   - pandoc-template.yaml: 한글 폰트 지원 및 전문적 레이아웃
-   - generate-pdf.sh: 자동 PDF 생성 스크립트
-   - Mermaid 다이어그램 지원 설정
+✅ 4단계: project_config.md 업데이트
+- Pandoc 빌드 설정 추가
+- Critical Patterns에 문서 버전 관리 및 PDF 생성 표준화 추가
+
+✅ 5단계: git 커밋 완료
+- 모든 변경사항 스테이징 및 커밋
+- 원격 저장소 푸시 완료 (commit: 8f4a97f)
 
 **VALIDATE Phase Completed**
-✅ 모든 강의 자료 제작 완료 검증:
-- lecture-materials.md: 833라인, 24KB 크기의 완전한 강의 자료
-- 5개 Mermaid 다이어그램 성공적으로 생성 및 렌더링
-- project_config.md: KEA Yocto Project에 맞게 완전 업데이트
-- Pandoc PDF 변환 환경 완비 (generate-pdf.sh 스크립트 실행 가능)
-- 8시간 강의 일정에 맞는 체계적 구성 (이론 30% + 실습 60% + 토론 10%)
-
-Status: COMPLETED
+✅ 모든 구조화 작업 및 버전 관리 시스템 구축 완료:
+- materials/ 디렉토리 구조 완벽 구성
+- 자동 버전 관리 시스템 작동 확인 (1.0.0 → 1.0.1)
+- project_config.md에 pandoc 관련 설정 완비
+- git 커밋 및 푸시 완료 (12 files changed, 3143 insertions)
 
 ## ArchiveLog
 <!-- RULE_LOG_ROTATE_01 stores condensed summaries here -->

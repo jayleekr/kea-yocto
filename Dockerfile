@@ -72,9 +72,14 @@ RUN apt-get update && \
     fi && \
     rm -rf /var/lib/apt/lists/*
 
-# Python 도구 설치 (시스템 패키지로)
+# Python 도구 및 문서 생성 도구 설치
 RUN apt-get update && apt-get install -y --no-install-recommends \
     pylint \
+    pandoc \
+    texlive-xetex \
+    texlive-fonts-recommended \
+    texlive-fonts-extra \
+    fonts-noto-cjk \
     && rm -rf /var/lib/apt/lists/*
 
 # QEMU 및 개발 도구 설치

@@ -21,6 +21,7 @@ services:
       - TZ=Asia/Seoul
     volumes:
       - ./workspace:/workspace
+      - ./materials:/materials
       - yocto-downloads:/opt/yocto/downloads
       - yocto-sstate:/opt/yocto/sstate-cache
       - /tmp/.X11-unix:/tmp/.X11-unix:rw
@@ -54,6 +55,7 @@ services:
       - TZ=Asia/Seoul
     volumes:
       - ./yocto-workspace/workspace:/workspace
+      - ./materials:/materials
       - ./yocto-workspace/downloads:/opt/yocto/downloads
       - ./yocto-workspace/sstate-cache:/opt/yocto/sstate-cache
       - /tmp/.X11-unix:/tmp/.X11-unix:rw

@@ -59,5 +59,6 @@ pandoc lecture-materials.md --metadata-file=pandoc-template.yaml \
 ---
 
 ## Changelog
+- 강의자료를 materials/ 디렉토리로 구조화하고 자동 버전 관리 시스템 구축 완료 (pandoc 설정 포함) - 2025-01-21
 - KEA Yocto Project 8시간 강의를 위한 완전한 강의 자료 제작 완료 (Mermaid 다이어그램 5개, PDF 변환 환경 포함) - 2025-01-21
 <!-- The agent prepends the latest summary here as a new list item after each VALIDATE phase -->
