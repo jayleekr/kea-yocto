@@ -19,7 +19,9 @@ git clone https://github.com/jayleekr/kea-yocto.git
 cd kea-yocto
 
 # 🧪 시스템 준비 상태 확인 (권장)
-./scripts/quick-start.sh --dry-run  # 모든 구성 요소 사전 검증
+./scripts/test-basic.sh                # 기본 환경 확인
+./scripts/verify-system.sh --quick    # 빠른 검증
+./scripts/fix-system.sh               # 문제 자동 수정
 
 # 🚀 실제 빠른 시작 실행
 ./scripts/quick-start.sh  # 웹에서 캐시 자동 다운로드 + 컨테이너 실행
@@ -71,6 +73,42 @@ docker compose run --rm yocto-lecture
 > 💡 **문제 발생 시**: [VM 설치 가이드](docs/vm-docker-installation.md) 또는 [문제해결 가이드](docs/troubleshooting.md) 참조
 
 ---
+
+## 🔧 시스템 검증 및 문제해결
+
+### 검증 스크립트
+
+프로젝트에서 제공하는 검증 스크립트들을 사용하여 시스템 상태를 확인하고 문제를 해결할 수 있습니다:
+
+```bash
+# 기본 환경 빠른 확인 (20개 항목)
+./scripts/test-basic.sh
+
+# 전체 시스템 검증 (Docker 빌드 포함)
+./scripts/verify-system.sh
+
+# 빠른 검증 (Docker 빌드 제외)
+./scripts/verify-system.sh --quick
+
+# 시스템 문제 자동 수정
+./scripts/fix-system.sh
+
+# 특정 문제만 수정
+./scripts/fix-system.sh --permissions   # 스크립트 권한 수정
+./scripts/fix-system.sh --docker        # Docker 환경 확인
+```
+
+### 검증 항목
+
+- ✅ Docker 설치 및 실행 상태
+- ✅ 필요한 시스템 도구 (Git, curl 등)
+- ✅ 프로젝트 구조 및 파일 존재
+- ✅ 스크립트 실행 권한
+- ✅ 네트워크 연결 상태
+- ✅ 강의 자료 완성도
+- ✅ Docker 이미지 빌드 가능성
+- ✅ PDF 생성 기능
+- ✅ Yocto 환경 기본 동작
 
 ## 📖 강의 개요
 
