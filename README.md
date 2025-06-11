@@ -17,10 +17,16 @@
 ```bash
 git clone https://github.com/jayleekr/kea-yocto.git
 cd kea-yocto
+
+# 🧪 시스템 준비 상태 확인 (권장)
+./scripts/quick-start.sh --dry-run  # 모든 구성 요소 사전 검증
+
+# 🚀 실제 빠른 시작 실행
 ./scripts/quick-start.sh  # 웹에서 캐시 자동 다운로드 + 컨테이너 실행
 ```
 
-> 💡 여러 미러 서버에서 자동으로 최적 속도로 다운로드합니다
+> 💡 여러 미러 서버에서 자동으로 최적 속도로 다운로드합니다  
+> 🧪 **Dry-run 기능**: 실제 실행 전에 모든 조건을 미리 확인할 수 있습니다
 
 ### 환경별 시작 방법
 
@@ -288,6 +294,31 @@ bitbake -g <package-name>
 ```
 
 ## 🚨 문제해결
+
+### 🧪 문제 진단 도구 (Dry-run)
+
+문제가 발생하기 전에 **dry-run 모드**로 시스템 상태를 미리 확인하세요:
+
+```bash
+# 전체 시스템 준비 상태 확인
+./scripts/quick-start.sh --dry-run
+
+# 캐시 다운로드 가능성 확인
+./scripts/prepare-cache.sh --dry-run
+
+# 강사용 빌드 환경 확인
+./scripts/prepare-instructor-cache.sh --dry-run
+
+# 상세 진단 정보 보기
+./scripts/quick-start.sh --dry-run --verbose
+```
+
+**Dry-run의 장점:**
+- ✅ 실제 실행 없이 모든 조건 검증
+- ✅ 예상 소요 시간과 디스크 사용량 확인
+- ✅ 네트워크 연결 및 미러 서버 상태 테스트
+- ✅ Docker 환경과 이미지 상태 점검
+- ✅ 문제 발생 시 해결 방법 자동 제시
 
 ### 일반적인 문제들
 
