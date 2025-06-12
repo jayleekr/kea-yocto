@@ -13,7 +13,6 @@ Docker 기반 Yocto Project 개발 환경 및 강의 자료
 | `test-basic.sh` | 기본 시스템 검증 | 1분 |
 | `verify-system.sh` | 종합 시스템 검증 | 5분 |
 | `fix-system.sh` | 자동 문제 해결 | 2분 |
-| `generate-html.sh` | 강의 자료 HTML 생성 | 10초 |
 | `test-html-formatting.py` | HTML 포맷팅 자동 테스트 및 수정 | 30초 |
 | `quick-start.sh` | Yocto 환경 빠른 시작 | 3분 |
 
@@ -88,14 +87,11 @@ cd kea-yocto
 - 📖 **온라인 강의 자료**: https://jayleekr.github.io/kea-yocto/
 - 🔄 **자동 업데이트**: main 브랜치 push 시 자동 배포
 
-### 🌐 **HTML 버전 (완벽한 Mermaid 지원)** ⭐
+### 🌐 **온라인 접근** ⭐
 
 ```bash
-# 강의 자료 HTML 생성
-./scripts/generate-html.sh
-
-# 브라우저에서 열기
-open materials/KEA-Yocto-Project-강의자료.html
+# 온라인 강의 자료는 GitHub Pages에서 확인
+# https://jayleekr.github.io/kea-yocto/
 ```
 
 ### ✨ **특징**
@@ -109,14 +105,14 @@ open materials/KEA-Yocto-Project-강의자료.html
 ### 📄 **생성되는 파일**
 - `materials/KEA-Yocto-Project-강의자료.html` - 완성된 강의 자료
 
-### 📝 강의 자료 HTML 생성
+### 📝 강의 자료 확인
 
 ```bash
-# HTML 자료 생성
-cd materials && ../scripts/generate-html.sh
+# 온라인 강의 자료 확인
+# GitHub Pages: https://jayleekr.github.io/kea-yocto/
 
-# 포맷팅 문제 자동 검사 및 수정
-python3 scripts/test-html-formatting.py
+# 로컬에서 markdown 파일 확인
+ls docs/lecture/
 ```
 
 **HTML 포맷팅 테스트 기능:**
@@ -132,7 +128,7 @@ python3 scripts/test-html-formatting.py
 ### 필수 요구사항
 - **Docker**: 20.10+ 
 - **Git**: 2.30+
-- **Pandoc**: 3.0+ (강의 자료 생성용)
+
 
 ### 권장 환경
 - **OS**: macOS (Apple Silicon/Intel), Ubuntu 22.04+
@@ -186,11 +182,11 @@ bitbake core-image-minimal
 | `scripts/upload-split-cache-github.sh` | GitHub 캐시 업로드 (분할) | - / 15분 |
 | `scripts/test-cache-efficiency.py` | 캐시 효율성 분석 | - / 5분 |
 
-### 📚 강의 자료 생성
-| 스크립트 | 용도 | 실행 시간 |
+### 📚 강의 자료 확인
+| 리소스 | 용도 | 접근 방법 |
 |----------|------|-----------|
-| `generate-html.sh` | 강의 자료 HTML 생성 | 10초 |
-| `test-html-formatting.py` | HTML 포맷팅 자동 테스트 및 수정 | 30초 |
+| GitHub Pages | 온라인 강의 자료 | https://jayleekr.github.io/kea-yocto/ |
+| `docs/lecture/` | 로컬 마크다운 파일 | 직접 읽기 |
 
 ---
 
@@ -265,11 +261,8 @@ docker compose restart yocto-lecture
 
 ### 강의 자료 생성 문제
 ```bash
-# Pandoc 설치 (macOS)
-brew install pandoc
-
-# Pandoc 설치 (Ubuntu)
-sudo apt install pandoc
+# 강의 자료는 이제 별도의 도구 없이 생성됩니다
+# HTML 파일은 브라우저에서 직접 열 수 있습니다
 ```
 
 ---

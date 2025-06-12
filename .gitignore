@@ -4,6 +4,7 @@
 yocto-workspace/
 yocto-workspace-*/
 yocto-test-download/
+workspace/
 
 # 캐시 tar ball 파일들 (크기가 커서 Git에서 제외)
 *.tar.gz
@@ -16,6 +17,12 @@ cache-uploads/
 web-cache/
 downloads/
 sstate-cache/
+
+# 캐시 관련 파일들
+full-cache-info.txt*
+full-downloads-cache.tar.gz.*
+mock-cache-test.py
+test-partac*
 
 # 빌드 로그 및 임시 파일
 build-log.txt

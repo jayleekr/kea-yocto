@@ -141,9 +141,7 @@ test_docker_environment() {
         "docker run --rm yocto-test:verify echo 'Container works'" \
         "빌드된 이미지로 컨테이너 실행 가능 확인"
     
-    run_test "pandoc 설치 확인 (컨테이너 내)" \
-        "docker run --rm yocto-test:verify pandoc --version" \
-        "컨테이너 내부에 pandoc이 설치되어 있는지 확인"
+    # pandoc 설치 확인 제거됨
 }
 
 # 스크립트 실행 가능성 검증
@@ -216,9 +214,7 @@ test_network() {
         "curl -s --connect-timeout 10 https://hub.docker.com > /dev/null" \
         "Docker Hub에 접속할 수 있는지 확인"
     
-    run_test "HTML 생성 스크립트 권한 확인" \
-        "[ -x '$PROJECT_DIR/scripts/generate-html.sh' ]" \
-        "HTML 생성 스크립트 실행 권한 확인"
+    # HTML 생성 스크립트 권한 확인 제거됨
 }
 
 # 강의 자료 관련 테스트
@@ -229,18 +225,13 @@ run_test "Markdown 파일 존재 확인" \
     "[ -f '$PROJECT_DIR/materials/lecture-materials.md' ]" \
     "강의 자료 Markdown 파일 확인"
 
-run_test "HTML 생성 스크립트 존재 확인" \
-    "[ -f '$PROJECT_DIR/scripts/generate-html.sh' ]" \
-    "HTML 생성 스크립트 확인"
+# HTML 생성 스크립트 존재 확인 제거됨
 
-run_test "Pandoc 설치 확인" \
-    "command -v pandoc > /dev/null" \
-    "HTML 생성을 위한 Pandoc 확인"
+# Pandoc 설치 확인 제거됨
 
 if [ "$QUICK_MODE" = false ]; then
-    run_test "HTML 생성 테스트" \
-        "cd '$PROJECT_DIR' && timeout 30 ./scripts/generate-html.sh < /dev/null" \
-        "실제 HTML 생성 테스트"
+    # HTML 생성 테스트 제거됨
+    true
 fi
 
 # 결과 요약 출력

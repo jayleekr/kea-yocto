@@ -78,7 +78,7 @@ test_item "materials 디렉토리 존재" "[ -d '$PROJECT_DIR/materials' ]"
 echo -e "\n${BLUE}3. 스크립트 실행 권한 확인${NC}"
 test_item "quick-start.sh 실행 가능" "[ -x '$PROJECT_DIR/scripts/quick-start.sh' ]"
 test_item "prepare-cache.sh 실행 가능" "[ -x '$PROJECT_DIR/scripts/prepare-cache.sh' ]"
-test_item "generate-html.sh 실행 가능" "[ -x '$PROJECT_DIR/scripts/generate-html.sh' ]"
+# generate-html.sh 제거됨
 test_item "verify-system.sh 실행 가능" "[ -x '$PROJECT_DIR/scripts/verify-system.sh' ]"
 
 # 4. Docker 환경 확인
@@ -94,7 +94,7 @@ test_item "Yocto 저장소 연결" "curl -s --connect-timeout 5 https://git.yoct
 # 6. 강의 자료 확인
 echo -e "\n${BLUE}6. 강의 자료 확인${NC}"
 test_item "강의 자료 Markdown 존재" "[ -f '$PROJECT_DIR/materials/lecture-materials.md' ]"
-test_item "HTML 생성 도구 확인" "command -v pandoc > /dev/null"
+# HTML 생성 도구 확인 (pandoc 제거됨)
 
 # 7. 추가 구성 요소 확인
 echo -e "\n${BLUE}7. 추가 구성 요소 확인${NC}"
@@ -111,9 +111,9 @@ echo -e "실패: ${RED}$((test_count - pass_count))${NC}"
 if [ $pass_count -eq $test_count ]; then
     echo -e "\n${GREEN}🎉 모든 기본 테스트가 통과했습니다!${NC}"
     echo "이제 다음 단계를 시도해볼 수 있습니다:"
-    echo "  1. HTML 생성: ./scripts/generate-html.sh"
-    echo "  2. 전체 검증: ./scripts/verify-system.sh"
-    echo "  3. 빠른 시작: ./scripts/quick-start.sh"
+    echo "  1. 전체 검증: ./scripts/verify-system.sh"
+    echo "  2. 빠른 시작: ./scripts/quick-start.sh"
+    echo "  3. 온라인 강의 자료: https://jayleekr.github.io/kea-yocto/"
     exit 0
 else
     echo -e "\n${YELLOW}⚠️  일부 테스트가 실패했습니다.${NC}"
