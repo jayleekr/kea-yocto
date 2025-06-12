@@ -76,8 +76,8 @@ Yocto Project는 **"Create a custom Linux distribution for any hardware"**라는
 **🔧 BitBake (빌드 도구)**
 - **역할**: Yocto의 태스크 실행 엔진
 - **특징**: 
-  - Python과 shell 스크립트로 작성된 레시피를 파싱
-  - 의존성 기반 병렬 빌드 지원
+  - Python과 shell 스크립트로 작성된 레시피를 파싱  
+  - 의존성 기반 병렬 빌드 지원  
   - 공유 상태 캐시(sstate-cache)로 빌드 시간 단축
 - **주요 명령어**: `bitbake core-image-minimal`, `bitbake -c cleanall <package>`
 

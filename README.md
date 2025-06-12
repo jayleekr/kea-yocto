@@ -6,17 +6,16 @@ Docker 기반 Yocto Project 개발 환경 및 강의 자료
 
 ## 🚀 빠른 시작
 
-### 시스템 검증 (권장)
-```bash
-# 20가지 기본 테스트 (1분)
-./scripts/test-basic.sh
+### 자동 스크립트로 시작하기
 
-# 29가지 종합 검증 (5분)
-./scripts/verify-system.sh --quick
-
-# 자동 문제 해결
-./scripts/fix-system.sh
-```
+| 스크립트 | 용도 | 실행 시간 |
+|----------|------|-----------|
+| `test-basic.sh` | 기본 시스템 검증 | 1분 |
+| `verify-system.sh` | 종합 시스템 검증 | 5분 |
+| `fix-system.sh` | 자동 문제 해결 | 2분 |
+| `generate-html.sh` | 강의 자료 HTML 생성 | 10초 |
+| `test-html-formatting.py` | HTML 포맷팅 자동 테스트 및 수정 | 30초 |
+| `quick-start.sh` | Yocto 환경 빠른 시작 | 3분 |
 
 ---
 
@@ -42,6 +41,22 @@ open materials/KEA-Yocto-Project-강의자료.html
 
 ### 📄 **생성되는 파일**
 - `materials/KEA-Yocto-Project-강의자료.html` - 완성된 강의 자료
+
+### 📝 강의 자료 HTML 생성
+
+```bash
+# HTML 자료 생성
+cd materials && ../scripts/generate-html.sh
+
+# 포맷팅 문제 자동 검사 및 수정
+python3 scripts/test-html-formatting.py
+```
+
+**HTML 포맷팅 테스트 기능:**
+- 🔍 **테이블 포맷팅**: 테이블이 올바르게 렌더링되는지 검사
+- 📝 **텍스트 포맷팅**: 연결된 텍스트 항목을 자동 분리
+- 🚀 **자동 수정**: 발견된 문제를 자동으로 수정
+- 📊 **상세 리포트**: 문제 유형별 분류 및 수정 내역 제공
 
 ---
 
@@ -93,6 +108,7 @@ bitbake core-image-minimal
 | `verify-system.sh` | 종합 시스템 검증 | 5분 |
 | `fix-system.sh` | 자동 문제 해결 | 2분 |
 | `generate-html.sh` | 강의 자료 HTML 생성 | 10초 |
+| `test-html-formatting.py` | HTML 포맷팅 자동 테스트 및 수정 | 30초 |
 | `quick-start.sh` | Yocto 환경 빠른 시작 | 3분 |
 
 ---

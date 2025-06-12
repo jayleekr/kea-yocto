@@ -138,18 +138,23 @@ def test_specific_formatting_issues(markdown_content):
     print("🔍 특정 포맷팅 문제 검사 중...")
     problems = []
     
-    # 패턴 1: "항목: 설명 - 항목: 설명" 형태가 한 줄에 있는 경우
-    pattern1 = r'([가-힣]+:\s*[^-\n]{10,}\s*-\s*[가-힣]+:\s*[^-\n]{10,})'
-    matches = re.finditer(pattern1, markdown_content)
-    
-    for match in matches:
-        line_num = markdown_content[:match.start()].count('\n') + 1
-        problems.append({
-            'type': 'inline_descriptions',
-            'content': match.group(0)[:150] + '...' if len(match.group(0)) > 150 else match.group(0),
-            'line': line_num,
-            'issue': '설명 항목들이 한 줄에 연결되어 있어 가독성이 떨어집니다'
-        })
+    # 패턴 1: 실제로 연결된 "항목: 설명 - 항목: 설명" 형태 (한 줄에 있으면서 줄바꿈이 없는 경우)
+    # 이미 올바르게 분리된 것들은 제외
+    lines = markdown_content.split('\n')
+    for i, line in enumerate(lines):
+        # "내용:" in line and "특징:" in line and " - " in line and 
+        # len(line) > 50 and i < len(lines) - 1:
+        if ('내용:' in line and '특징:' in line and ' - ' in line and 
+            len(line) > 50 and i < len(lines) - 1):
+            next_line = lines[i + 1] if i + 1 < len(lines) else ""
+            # 다음 줄이 빈 줄이거나 독립된 불릿 포인트가 아닌 경우만 문제
+            if next_line.strip() != "" and not next_line.strip().startswith('- 특징:'):
+                problems.append({
+                    'type': 'inline_descriptions',
+                    'content': line[:150] + '...' if len(line) > 150 else line,
+                    'line': i + 1,
+                    'issue': '설명 항목들이 한 줄에 연결되어 있어 가독성이 떨어집니다'
+                })
     
     # 패턴 2: 여러 개의 불릿 포인트나 항목이 연결된 경우
     pattern2 = r'- \*\*[^*]+\*\*[^-\n]+ - \*\*[^*]+\*\*'
@@ -164,13 +169,36 @@ def test_specific_formatting_issues(markdown_content):
             'issue': '불릿 포인트가 한 줄에 연결되어 있습니다'
         })
     
-    # 패턴 3: 매우 긴 줄 (100자 이상)에서 여러 항목이 포함된 경우
-    lines = markdown_content.split('\n')
+    # 패턴 3: 불릿 포인트 내 서브 항목들의 줄바꿈 문제 감지
+    for i, line in enumerate(lines):
+        # "- **항목**: 설명" 다음에 서브 항목들이 있는 경우
+        if (line.strip().startswith('- **') and ':' in line and 
+            i + 1 < len(lines) and lines[i + 1].strip().startswith('  -')):
+            
+            # 서브 항목들이 2개 스페이스로 끝나지 않는 경우 확인
+            j = i + 1
+            sub_items_without_linebreak = []
+            while j < len(lines) and lines[j].strip().startswith('  -'):
+                if not lines[j].endswith('  ') and not lines[j].endswith('  \n'):
+                    sub_items_without_linebreak.append(j + 1)
+                j += 1
+            
+            if sub_items_without_linebreak:
+                problems.append({
+                    'type': 'bullet_sub_items_no_linebreak',
+                    'content': f"라인 {i+1}의 서브 항목들 (라인 {sub_items_without_linebreak})",
+                    'line': i + 1,
+                    'issue': '불릿 포인트 서브 항목들이 줄바꿈 없이 연결되어 HTML에서 제대로 렌더링되지 않습니다',
+                    'sub_lines': sub_items_without_linebreak
+                })
+    
+    # 패턴 4: 매우 긴 줄 (150자 이상)에서 여러 항목이 포함된 경우
     for i, line in enumerate(lines, 1):
-        if len(line) > 100 and '-' in line and line.count('-') > 2:
+        if len(line) > 150 and line.count(' ') > 10:
             # 코드 블록이나 특수 구문 제외
             if not (line.strip().startswith('```') or line.strip().startswith('|') or 
-                   line.strip().startswith('#') or '```' in line):
+                   line.strip().startswith('#') or '```' in line or
+                   line.strip().startswith('- ') or line.strip().startswith('  - ')):
                 problems.append({
                     'type': 'multi_item_long_line',
                     'content': line[:150] + '...' if len(line) > 150 else line,
@@ -178,9 +206,9 @@ def test_specific_formatting_issues(markdown_content):
                     'issue': f'긴 줄에 여러 항목이 포함되어 가독성이 떨어집니다 ({len(line)}자)'
                 })
     
-    # 패턴 4: 이모지와 볼드가 섞인 복잡한 형태
-    pattern4 = r'[\U0001F300-\U0001F9FF] \*\*[^*]+\*\* [^-\n]+ - [\U0001F300-\U0001F9FF] \*\*[^*]+\*\*'
-    matches = re.finditer(pattern4, markdown_content)
+    # 패턴 5: 이모지와 볼드가 섞인 복잡한 형태
+    pattern5 = r'[\U0001F300-\U0001F9FF] \*\*[^*]+\*\* [^-\n]+ - [\U0001F300-\U0001F9FF] \*\*[^*]+\*\*'
+    matches = re.finditer(pattern5, markdown_content)
     
     for match in matches:
         line_num = markdown_content[:match.start()].count('\n') + 1
@@ -349,9 +377,9 @@ def auto_fix_problems(markdown_file, problems):
     print("🔧 자동 수정 중...")
     
     with open(markdown_file, 'r', encoding='utf-8') as f:
-        content = f.read()
+        lines = f.readlines()
     
-    original_content = content
+    original_lines = lines.copy()
     fixed_count = 0
     
     # 각 문제 유형별로 수정
@@ -361,22 +389,39 @@ def auto_fix_problems(markdown_file, problems):
             old_text = problem['content']
             # " - " 를 "\n- "로 교체
             new_text = old_text.replace(' - ', '\n- ')
+            content = ''.join(lines)
             if old_text in content:
                 content = content.replace(old_text, new_text)
+                lines = content.split('\n')
+                lines = [line + '\n' if not line.endswith('\n') and line else line for line in lines]
                 fixed_count += 1
         
         elif problem['type'] == 'connected_bullet_points':
             # 연결된 불릿 포인트 분리
             old_text = problem['content']
             new_text = old_text.replace(' - **', '\n- **')
+            content = ''.join(lines)
             if old_text in content:
                 content = content.replace(old_text, new_text)
+                lines = content.split('\n')
+                lines = [line + '\n' if not line.endswith('\n') and line else line for line in lines]
                 fixed_count += 1
+        
+        elif problem['type'] == 'bullet_sub_items_no_linebreak':
+            # 불릿 포인트 서브 항목들에 2개 스페이스 추가
+            if 'sub_lines' in problem:
+                for line_num in problem['sub_lines']:
+                    if line_num - 1 < len(lines):
+                        line = lines[line_num - 1]
+                        if line.strip().startswith('  -') and not line.rstrip().endswith('  '):
+                            # 줄 끝에 2개 스페이스 추가
+                            lines[line_num - 1] = line.rstrip() + '  \n'
+                            fixed_count += 1
     
     # 내용이 변경되었으면 파일에 저장
-    if content != original_content:
+    if lines != original_lines:
         with open(markdown_file, 'w', encoding='utf-8') as f:
-            f.write(content)
+            f.writelines(lines)
         print(f"📝 파일 업데이트 완료: {markdown_file}")
     
     return fixed_count
