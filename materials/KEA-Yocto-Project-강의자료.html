@@ -1,0 +1,1183 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <meta name="author" content="KEA 강의팀" />
+  <title>KEA Yocto Project 5.0 LTS 강의 자료</title>
+  <style>
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+    /* CSS for syntax highlighting */
+    html { -webkit-text-size-adjust: 100%; }
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      {  background-color: #f8f8f8; }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ef2929; } /* Alert */
+    code span.an { color: #8f5902; font-weight: bold; font-style: italic; } /* Annotation */
+    code span.at { color: #204a87; } /* Attribute */
+    code span.bn { color: #0000cf; } /* BaseN */
+    code span.cf { color: #204a87; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #4e9a06; } /* Char */
+    code span.cn { color: #8f5902; } /* Constant */
+    code span.co { color: #8f5902; font-style: italic; } /* Comment */
+    code span.cv { color: #8f5902; font-weight: bold; font-style: italic; } /* CommentVar */
+    code span.do { color: #8f5902; font-weight: bold; font-style: italic; } /* Documentation */
+    code span.dt { color: #204a87; } /* DataType */
+    code span.dv { color: #0000cf; } /* DecVal */
+    code span.er { color: #a40000; font-weight: bold; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #0000cf; } /* Float */
+    code span.fu { color: #204a87; font-weight: bold; } /* Function */
+    code span.im { } /* Import */
+    code span.in { color: #8f5902; font-weight: bold; font-style: italic; } /* Information */
+    code span.kw { color: #204a87; font-weight: bold; } /* Keyword */
+    code span.op { color: #ce5c00; font-weight: bold; } /* Operator */
+    code span.ot { color: #8f5902; } /* Other */
+    code span.pp { color: #8f5902; font-style: italic; } /* Preprocessor */
+    code span.sc { color: #ce5c00; font-weight: bold; } /* SpecialChar */
+    code span.ss { color: #4e9a06; } /* SpecialString */
+    code span.st { color: #4e9a06; } /* String */
+    code span.va { color: #000000; } /* Variable */
+    code span.vs { color: #4e9a06; } /* VerbatimString */
+    code span.wa { color: #8f5902; font-weight: bold; font-style: italic; } /* Warning */
+  </style>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/sindresorhus/github-markdown-css/github-markdown.css" />
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10.6.1/dist/mermaid.min.js"></script>
+  <script>
+      document.addEventListener('DOMContentLoaded', function() {
+          mermaid.initialize({
+              startOnLoad: true,
+              theme: 'default',
+              themeVariables: {
+                  primaryColor: '#0366d6',
+                  primaryTextColor: '#24292e',
+                  primaryBorderColor: '#e1e4e8',
+                  lineColor: '#24292e',
+                  secondaryColor: '#f6f8fa',
+                  tertiaryColor: '#fafbfc'
+              }
+          });
+      });
+  </script>
+  <style>
+      .mermaid { 
+          text-align: center; 
+          margin: 20px 0; 
+          background: #f8f9fa;
+          padding: 15px;
+          border-radius: 6px;
+          border: 1px solid #e1e4e8;
+      }
+      body { 
+          max-width: 900px; 
+          margin: 0 auto; 
+          padding: 20px; 
+          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      }
+      h1, h2, h3 { 
+          color: #24292e; 
+          border-bottom: 1px solid #e1e4e8;
+          padding-bottom: 8px;
+      }
+      .toc { 
+          background: #f6f8fa; 
+          padding: 20px; 
+          border-radius: 6px; 
+          margin: 20px 0;
+          border: 1px solid #e1e4e8;
+      }
+      pre {
+          background: #f6f8fa;
+          padding: 12px;
+          border-radius: 6px;
+          border: 1px solid #e1e4e8;
+      }
+      blockquote {
+          border-left: 4px solid #0366d6;
+          padding-left: 16px;
+          margin-left: 0;
+          color: #586069;
+      }
+  </style>
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">KEA Yocto Project 5.0 LTS 강의 자료</h1>
+<p class="author">KEA 강의팀</p>
+<p class="date">2025년 06월 12일</p>
+</header>
+<nav id="TOC" role="doc-toc">
+<ul>
+<li><a href="#kea-yocto-project-5.0-lts-강의-자료"
+id="toc-kea-yocto-project-5.0-lts-강의-자료"><span
+class="toc-section-number">1</span> KEA Yocto Project 5.0 LTS 강의
+자료</a>
+<ul>
+<li><a href="#강의-목차" id="toc-강의-목차"><span
+class="toc-section-number">1.1</span> 📋 강의 목차</a></li>
+<li><a href="#강의-소개-및-개요" id="toc-강의-소개-및-개요"><span
+class="toc-section-number">1.2</span> 1. 강의 소개 및 개요</a>
+<ul>
+<li><a href="#yocto-project란" id="toc-yocto-project란"><span
+class="toc-section-number">1.2.1</span> 1.1 Yocto Project란?</a></li>
+<li><a href="#강의-목표" id="toc-강의-목표"><span
+class="toc-section-number">1.2.2</span> 1.2 강의 목표</a></li>
+</ul></li>
+<li><a href="#yocto-기본-구조-및-아키텍처"
+id="toc-yocto-기본-구조-및-아키텍처"><span
+class="toc-section-number">1.3</span> 2. Yocto 기본 구조 및 아키텍처</a>
+<ul>
+<li><a href="#시스템-아키텍처" id="toc-시스템-아키텍처"><span
+class="toc-section-number">1.3.1</span> 2.1 시스템 아키텍처</a></li>
+<li><a href="#빌드-프로세스" id="toc-빌드-프로세스"><span
+class="toc-section-number">1.3.2</span> 2.2 빌드 프로세스</a></li>
+<li><a href="#레이어-구조" id="toc-레이어-구조"><span
+class="toc-section-number">1.3.3</span> 2.3 레이어 구조</a></li>
+</ul></li>
+<li><a href="#yocto-빌드-환경-설정" id="toc-yocto-빌드-환경-설정"><span
+class="toc-section-number">1.4</span> 3. Yocto 빌드 환경 설정</a>
+<ul>
+<li><a href="#시스템-요구사항" id="toc-시스템-요구사항"><span
+class="toc-section-number">1.4.1</span> 3.1 시스템 요구사항</a></li>
+<li><a href="#docker-환경-설정-실습"
+id="toc-docker-환경-설정-실습"><span
+class="toc-section-number">1.4.2</span> 3.2 Docker 환경 설정
+실습</a></li>
+<li><a href="#환경-최적화" id="toc-환경-최적화"><span
+class="toc-section-number">1.4.3</span> 3.3 환경 최적화</a></li>
+</ul></li>
+<li><a href="#첫-빌드-코어-이미지-및-빌드-프로세스"
+id="toc-첫-빌드-코어-이미지-및-빌드-프로세스"><span
+class="toc-section-number">1.5</span> 4. 첫 빌드: 코어 이미지 및 빌드
+프로세스</a>
+<ul>
+<li><a href="#yocto-환경-초기화" id="toc-yocto-환경-초기화"><span
+class="toc-section-number">1.5.1</span> 4.1 Yocto 환경 초기화</a></li>
+<li><a href="#빌드-설정-확인" id="toc-빌드-설정-확인"><span
+class="toc-section-number">1.5.2</span> 4.2 빌드 설정 확인</a></li>
+<li><a href="#첫-번째-빌드-실행" id="toc-첫-번째-빌드-실행"><span
+class="toc-section-number">1.5.3</span> 4.3 첫 번째 빌드 실행</a></li>
+<li><a href="#빌드-결과-확인" id="toc-빌드-결과-확인"><span
+class="toc-section-number">1.5.4</span> 4.4 빌드 결과 확인</a></li>
+</ul></li>
+<li><a href="#빌드된-이미지-실행하기"
+id="toc-빌드된-이미지-실행하기"><span
+class="toc-section-number">1.6</span> 5. 빌드된 이미지 실행하기</a>
+<ul>
+<li><a href="#qemu를-사용한-이미지-실행"
+id="toc-qemu를-사용한-이미지-실행"><span
+class="toc-section-number">1.6.1</span> 5.1 QEMU를 사용한 이미지
+실행</a></li>
+<li><a href="#가상-머신-내부-탐색" id="toc-가상-머신-내부-탐색"><span
+class="toc-section-number">1.6.2</span> 5.2 가상 머신 내부 탐색</a></li>
+<li><a href="#네트워크-및-연결-테스트"
+id="toc-네트워크-및-연결-테스트"><span
+class="toc-section-number">1.6.3</span> 5.3 네트워크 및 연결
+테스트</a></li>
+<li><a href="#qemu-종료" id="toc-qemu-종료"><span
+class="toc-section-number">1.6.4</span> 5.4 QEMU 종료</a></li>
+</ul></li>
+<li><a href="#이미지-커스터마이징-패키지-추가"
+id="toc-이미지-커스터마이징-패키지-추가"><span
+class="toc-section-number">1.7</span> 6. 이미지 커스터마이징: 패키지
+추가</a>
+<ul>
+<li><a href="#local.conf를-통한-패키지-추가"
+id="toc-local.conf를-통한-패키지-추가"><span
+class="toc-section-number">1.7.1</span> 6.1 local.conf를 통한 패키지
+추가</a></li>
+<li><a href="#재빌드-및-확인" id="toc-재빌드-및-확인"><span
+class="toc-section-number">1.7.2</span> 6.2 재빌드 및 확인</a></li>
+<li><a href="#고급-이미지-커스터마이징"
+id="toc-고급-이미지-커스터마이징"><span
+class="toc-section-number">1.7.3</span> 6.3 고급 이미지
+커스터마이징</a></li>
+<li><a href="#패키지-검색-및-정보-확인"
+id="toc-패키지-검색-및-정보-확인"><span
+class="toc-section-number">1.7.4</span> 6.4 패키지 검색 및 정보
+확인</a></li>
+</ul></li>
+<li><a href="#커스텀-레이어-및-레시피-생성"
+id="toc-커스텀-레이어-및-레시피-생성"><span
+class="toc-section-number">1.8</span> 7. 커스텀 레이어 및 레시피
+생성</a>
+<ul>
+<li><a href="#새-레이어-생성" id="toc-새-레이어-생성"><span
+class="toc-section-number">1.8.1</span> 7.1 새 레이어 생성</a></li>
+<li><a href="#간단한-애플리케이션-레시피-작성"
+id="toc-간단한-애플리케이션-레시피-작성"><span
+class="toc-section-number">1.8.2</span> 7.2 간단한 애플리케이션 레시피
+작성</a></li>
+<li><a href="#레시피-빌드-및-테스트"
+id="toc-레시피-빌드-및-테스트"><span
+class="toc-section-number">1.8.3</span> 7.3 레시피 빌드 및
+테스트</a></li>
+<li><a href="#커스텀-이미지-레시피-생성"
+id="toc-커스텀-이미지-레시피-생성"><span
+class="toc-section-number">1.8.4</span> 7.4 커스텀 이미지 레시피
+생성</a></li>
+<li><a href="#고급-레시피-기능" id="toc-고급-레시피-기능"><span
+class="toc-section-number">1.8.5</span> 7.5 고급 레시피 기능</a></li>
+</ul></li>
+<li><a href="#yocto-고급-주제-개요" id="toc-yocto-고급-주제-개요"><span
+class="toc-section-number">1.9</span> 8. Yocto 고급 주제 개요</a>
+<ul>
+<li><a href="#개발-워크플로우-최적화"
+id="toc-개발-워크플로우-최적화"><span
+class="toc-section-number">1.9.1</span> 8.1 개발 워크플로우
+최적화</a></li>
+<li><a href="#배포-및-업데이트" id="toc-배포-및-업데이트"><span
+class="toc-section-number">1.9.2</span> 8.2 배포 및 업데이트</a></li>
+<li><a href="#보안-및-최적화" id="toc-보안-및-최적화"><span
+class="toc-section-number">1.9.3</span> 8.3 보안 및 최적화</a></li>
+<li><a href="#멀티플랫폼-지원" id="toc-멀티플랫폼-지원"><span
+class="toc-section-number">1.9.4</span> 8.4 멀티플랫폼 지원</a></li>
+</ul></li>
+<li><a href="#마무리-및-qa" id="toc-마무리-및-qa"><span
+class="toc-section-number">1.10</span> 9. 마무리 및 Q&amp;A</a>
+<ul>
+<li><a href="#강의-요약" id="toc-강의-요약"><span
+class="toc-section-number">1.10.1</span> 9.1 강의 요약</a></li>
+<li><a href="#다음-단계-학습-방향" id="toc-다음-단계-학습-방향"><span
+class="toc-section-number">1.10.2</span> 9.2 다음 단계 학습
+방향</a></li>
+<li><a href="#실습-환경-유지" id="toc-실습-환경-유지"><span
+class="toc-section-number">1.10.3</span> 9.3 실습 환경 유지</a></li>
+<li><a href="#qa-세션" id="toc-qa-세션"><span
+class="toc-section-number">1.10.4</span> 9.4 Q&amp;A 세션</a></li>
+</ul></li>
+<li><a href="#부록" id="toc-부록"><span
+class="toc-section-number">1.11</span> 📚 부록</a>
+<ul>
+<li><a href="#a.1-유용한-bitbake-명령어"
+id="toc-a.1-유용한-bitbake-명령어"><span
+class="toc-section-number">1.11.1</span> A.1 유용한 BitBake
+명령어</a></li>
+<li><a href="#a.2-디버깅-팁" id="toc-a.2-디버깅-팁"><span
+class="toc-section-number">1.11.2</span> A.2 디버깅 팁</a></li>
+<li><a href="#a.3-성능-튜닝" id="toc-a.3-성능-튜닝"><span
+class="toc-section-number">1.11.3</span> A.3 성능 튜닝</a></li>
+</ul></li>
+</ul></li>
+</ul>
+</nav>
+<h1 data-number="1" id="kea-yocto-project-5.0-lts-강의-자료"><span
+class="header-section-number">1</span> KEA Yocto Project 5.0 LTS 강의
+자료</h1>
+<p><strong>강의명</strong>: Yocto Project를 활용한 임베디드 리눅스
+시스템 개발<br />
+<strong>대상</strong>: 임베디드 시스템 개발자, 리눅스 시스템
+엔지니어<br />
+<strong>시간</strong>: 8시간 (휴식 포함)<br />
+<strong>환경</strong>: Docker 기반 Yocto 5.0 LTS (Scarthgap)</p>
+<hr />
+<h2 data-number="1.1" id="강의-목차"><span
+class="header-section-number">1.1</span> 📋 강의 목차</h2>
+<table>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr>
+<th>시간</th>
+<th>내용</th>
+<th>유형</th>
+<th>비고</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>09:00-09:30</td>
+<td><a href="#1-강의-소개-및-개요">강의 소개 및 개요</a></td>
+<td>이론</td>
+<td>30분</td>
+</tr>
+<tr>
+<td>09:30-10:30</td>
+<td><a href="#2-yocto-기본-구조-및-아키텍처">Yocto 기본 구조 및
+아키텍처</a></td>
+<td>이론</td>
+<td>60분</td>
+</tr>
+<tr>
+<td>10:45-11:30</td>
+<td><a href="#3-yocto-빌드-환경-설정">Yocto 빌드 환경 설정</a></td>
+<td>실습</td>
+<td>45분</td>
+</tr>
+<tr>
+<td>11:30-12:30</td>
+<td><a href="#4-첫-빌드-코어-이미지-및-빌드-프로세스">첫 빌드: 코어
+이미지 및 빌드 프로세스</a></td>
+<td>실습+이론</td>
+<td>60분</td>
+</tr>
+<tr>
+<td>13:30-14:00</td>
+<td><a href="#5-빌드된-이미지-실행하기">빌드된 이미지 실행하기</a></td>
+<td>실습</td>
+<td>30분</td>
+</tr>
+<tr>
+<td>14:00-14:30</td>
+<td><a href="#6-이미지-커스터마이징-패키지-추가">이미지 커스터마이징:
+패키지 추가</a></td>
+<td>실습</td>
+<td>30분</td>
+</tr>
+<tr>
+<td>14:45-16:00</td>
+<td><a href="#7-커스텀-레이어-및-레시피-생성">커스텀 레이어 및 레시피
+생성</a></td>
+<td>실습</td>
+<td>75분</td>
+</tr>
+<tr>
+<td>16:00-16:30</td>
+<td><a href="#8-yocto-고급-주제-개요">Yocto 고급 주제 개요</a></td>
+<td>이론</td>
+<td>30분</td>
+</tr>
+<tr>
+<td>16:30-17:00</td>
+<td><a href="#9-마무리-및-qa">마무리 및 Q&amp;A</a></td>
+<td>토론</td>
+<td>30분</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 data-number="1.2" id="강의-소개-및-개요"><span
+class="header-section-number">1.2</span> 1. 강의 소개 및 개요</h2>
+<h3 data-number="1.2.1" id="yocto-project란"><span
+class="header-section-number">1.2.1</span> 1.1 Yocto Project란?</h3>
+<p><strong>Yocto Project</strong>는 임베디드 리눅스 배포판을 만들기 위한
+오픈소스 프로젝트입니다.</p>
+<h4 data-number="1.2.1.1" id="핵심-특징"><span
+class="header-section-number">1.2.1.1</span> 핵심 특징</h4>
+<ul>
+<li>📦 <strong>커스텀 리눅스 배포판</strong> 생성</li>
+<li>🔧 <strong>크로스 컴파일 툴체인</strong> 자동 생성</li>
+<li>📚 <strong>레시피 기반</strong> 패키지 관리</li>
+<li>🎯 <strong>타겟 하드웨어</strong> 최적화</li>
+</ul>
+<h4 data-number="1.2.1.2" id="주요-구성-요소"><span
+class="header-section-number">1.2.1.2</span> 주요 구성 요소</h4>
+<ul>
+<li><strong>Poky</strong>: Yocto의 참조 배포판</li>
+<li><strong>BitBake</strong>: 빌드 도구 및 태스크 실행기</li>
+<li><strong>OpenEmbedded</strong>: 메타데이터 및 레시피 저장소</li>
+</ul>
+<h3 data-number="1.2.2" id="강의-목표"><span
+class="header-section-number">1.2.2</span> 1.2 강의 목표</h3>
+<p>이 강의를 통해 다음을 학습합니다:</p>
+<p>✅ Yocto Project의 기본 개념과 아키텍처 이해<br />
+✅ Docker 환경에서 Yocto 빌드 환경 구축<br />
+✅ 커스텀 리눅스 이미지 생성 및 실행<br />
+✅ 패키지 추가 및 이미지 커스터마이징<br />
+✅ 커스텀 레이어와 레시피 작성<br />
+✅ 실제 프로젝트 적용 가능한 실무 지식 습득</p>
+<hr />
+<h2 data-number="1.3" id="yocto-기본-구조-및-아키텍처"><span
+class="header-section-number">1.3</span> 2. Yocto 기본 구조 및
+아키텍처</h2>
+<h3 data-number="1.3.1" id="시스템-아키텍처"><span
+class="header-section-number">1.3.1</span> 2.1 시스템 아키텍처</h3>
+<p>Yocto 시스템은 다음과 같은 계층 구조로 이루어져 있습니다:</p>
+<div class="mermaid">
+graph TB
+    subgraph &quot;Host System<br/>(Windows, macOS, Linux)&quot;
+        H1[&quot;💻 Host OS&quot;]
+        H2[&quot;🖥️ Terminal/Console&quot;]
+        H3[&quot;📁 Project Directory<br/>kea-yocto/&quot;]
+    end
+    
+    subgraph &quot;Docker Engine Layer&quot;
+        D1[&quot;🐋 Docker Engine&quot;]
+        D2[&quot;📦 Docker Images&quot;]
+        D3[&quot;🔄 Container Runtime&quot;]
+    end
+    
+    subgraph &quot;Yocto Container Environment&quot;
+        subgraph &quot;Ubuntu 24.04 Base System&quot;
+            U1[&quot;🐧 Ubuntu Base&quot;]
+            U2[&quot;📚 Development Tools&quot;]
+            U3[&quot;🛠️ Build Dependencies&quot;]
+        end
+        
+        subgraph &quot;Yocto Project 5.0 LTS&quot;
+            Y1[&quot;📋 Poky Reference<br/>Distribution&quot;]
+            Y2[&quot;⚙️ BitBake Build<br/>System&quot;]
+            Y3[&quot;📦 Meta Layers<br/>(meta-oe, meta-**)&quot;]
+        end
+        
+        subgraph &quot;Build & Runtime&quot;
+            B1[&quot;🏗️ Build Directory<br/>/workspace/build&quot;]
+            B2[&quot;💾 Downloads Cache<br/>/workspace/downloads&quot;]
+            B3[&quot;🎯 QEMU Emulator&quot;]
+            B4[&quot;🖼️ Generated Images<br/>(core-image-minimal)&quot;]
+        end
+    end
+    
+    subgraph &quot;Volume Mounts&quot;
+        V1[&quot;📂 yocto-workspace/<br/>Persistent Storage&quot;]
+        V2[&quot;🗄️ Downloads Cache&quot;]
+        V3[&quot;🔧 Build Artifacts&quot;]
+    end
+    
+    H1 --> D1
+    H2 --> D3
+    H3 --> V1
+    D1 --> D2
+    D2 --> Y1
+    D3 --> U1
+    U1 --> Y1
+    Y1 --> Y2
+    Y2 --> Y3
+    Y2 --> B1
+    B1 --> B2
+    B1 --> B4
+    B4 --> B3
+    V1 --> B1
+    V1 --> V2
+    V1 --> V3
+</div>
+<h3 data-number="1.3.2" id="빌드-프로세스"><span
+class="header-section-number">1.3.2</span> 2.2 빌드 프로세스</h3>
+<p>Yocto의 빌드 프로세스는 다음과 같은 단계로 진행됩니다:</p>
+<div class="mermaid">
+flowchart TD
+    Start([🚀 Yocto Build 시작]) --> Init[📋 BitBake 환경 초기화<br/>source oe-init-build-env]
+    Init --> Config[⚙️ 빌드 설정<br/>local.conf & bblayers.conf]
+    Config --> Parse[📖 Recipe 파싱<br/>BitBake가 .bb 파일들 분석]
+    
+    Parse --> Deps[🔗 의존성 해결<br/>DEPENDS & RDEPENDS 분석]
+    Deps --> Tasks[📋 Task 생성<br/>do_fetch, do_unpack, do_compile...]
+    
+    subgraph &quot;병렬 빌드 프로세스&quot;
+        Tasks --> Fetch[⬇️ do_fetch<br/>소스 코드 다운로드]
+        Fetch --> Unpack[📦 do_unpack<br/>소스 압축 해제]
+        Unpack --> Patch[🔧 do_patch<br/>패치 적용]
+        Patch --> Configure[⚙️ do_configure<br/>빌드 설정]
+        Configure --> Compile[🔨 do_compile<br/>컴파일 실행]
+        Compile --> Install[📁 do_install<br/>파일 설치]
+        Install --> Package[📦 do_package<br/>패키지 생성]
+    end
+    
+    Package --> SState{🗄️ sstate-cache<br/>확인}
+    SState -->|캐시 적중| Reuse[♻️ 캐시 재사용]
+    SState -->|캐시 없음| Build[🏗️ 새로 빌드]
+    
+    Reuse --> Rootfs[🌳 Rootfs 생성<br/>파일시스템 구성]
+    Build --> Rootfs
+    
+    Rootfs --> Image[🖼️ 이미지 생성<br/>core-image-minimal.ext4]
+    Image --> Deploy[📤 Deploy<br/>tmp/deploy/images/]
+    
+    Deploy --> QEMU{🎯 QEMU 실행?}
+    QEMU -->|Yes| Run[🚀 runqemu 실행<br/>이미지 테스트]
+    QEMU -->|No| End([✅ 빌드 완료])
+    Run --> End
+</div>
+<h3 data-number="1.3.3" id="레이어-구조"><span
+class="header-section-number">1.3.3</span> 2.3 레이어 구조</h3>
+<p>Yocto는 레이어 기반 아키텍처를 사용합니다:</p>
+<div class="mermaid">
+graph TB
+    subgraph &quot;Yocto Layer 계층 구조&quot;
+        subgraph &quot;Core Layers (필수)&quot;
+            Meta[&quot;meta<br/>🏗️ Core Layer<br/>• 기본 recipes<br/>• 툴체인<br/>• 기본 이미지&quot;]
+            MetaPoky[&quot;meta-poky<br/>🎯 Distro Layer<br/>• Poky 설정<br/>• 기본 정책<br/>• 버전 관리&quot;]
+            MetaYocto[&quot;meta-yocto-bsp<br/>💻 BSP Layer<br/>• 하드웨어 지원<br/>• 커널 설정<br/>• 부트로더&quot;]
+        end
+        
+        subgraph &quot;OpenEmbedded Layers&quot;
+            MetaOE[&quot;meta-openembedded<br/>📦 확장 패키지<br/>• 추가 소프트웨어<br/>• 라이브러리<br/>• 도구들&quot;]
+            MetaNetworking[&quot;meta-networking<br/>🌐 네트워킹<br/>• 네트워크 도구<br/>• 프로토콜 스택&quot;]
+            MetaPython[&quot;meta-python<br/>🐍 Python<br/>• Python 패키지<br/>• 런타임&quot;]
+        end
+        
+        subgraph &quot;Custom Layers (사용자 정의)&quot;
+            MetaMyApp[&quot;meta-myapp<br/>🚀 앱 Layer<br/>• 커스텀 recipes<br/>• 애플리케이션<br/>• 설정&quot;]
+            MetaCompany[&quot;meta-company<br/>🏢 회사 Layer<br/>• 회사 정책<br/>• 브랜딩<br/>• 특수 설정&quot;]
+        end
+    end
+</div>
+<hr />
+<h2 data-number="1.4" id="yocto-빌드-환경-설정"><span
+class="header-section-number">1.4</span> 3. Yocto 빌드 환경 설정</h2>
+<h3 data-number="1.4.1" id="시스템-요구사항"><span
+class="header-section-number">1.4.1</span> 3.1 시스템 요구사항</h3>
+<h4 data-number="1.4.1.1" id="최소-요구사항"><span
+class="header-section-number">1.4.1.1</span> 최소 요구사항</h4>
+<ul>
+<li><strong>CPU</strong>: 4코어 이상</li>
+<li><strong>RAM</strong>: 8GB (권장 16GB)</li>
+<li><strong>Storage</strong>: 50GB 여유 공간</li>
+<li><strong>Docker</strong>: 20.10 이상</li>
+</ul>
+<h4 data-number="1.4.1.2" id="지원-플랫폼"><span
+class="header-section-number">1.4.1.2</span> 지원 플랫폼</h4>
+<ul>
+<li>✅ x86_64 (Intel/AMD)</li>
+<li>✅ ARM64 (Apple Silicon)</li>
+<li>✅ Virtual Machines</li>
+</ul>
+<h3 data-number="1.4.2" id="docker-환경-설정-실습"><span
+class="header-section-number">1.4.2</span> 3.2 Docker 환경 설정
+실습</h3>
+<p>Docker 환경 설정 과정을 따라해보겠습니다:</p>
+<div class="mermaid">
+flowchart TD
+    Start([🎯 Docker 환경 설정 시작]) --> Check{💻 시스템 확인}
+    Check -->|x86_64 VM| VMSetup[🖥️ VM 환경 설정<br/>./scripts/vm-start.sh]
+    Check -->|ARM64 VM| ARMSetup[🔧 ARM64 특별 설정<br/>./scripts/vm-arm64-safe.sh]
+    Check -->|Mac Apple Silicon| MacSetup[🍎 Mac 설정<br/>./scripts/simple-start.sh]
+    Check -->|일반 환경| GeneralSetup[⚙️ 일반 설정<br/>docker compose]
+    
+    VMSetup --> QuickStart[🚀 빠른 시작<br/>./scripts/quick-start.sh]
+    ARMSetup --> QuickStart
+    MacSetup --> QuickStart
+    GeneralSetup --> QuickStart
+    
+    QuickStart --> Success[✅ 환경 설정 완료]
+</div>
+<h4 data-number="1.4.2.1" id="실습-단계"><span
+class="header-section-number">1.4.2.1</span> 실습 단계</h4>
+<p><strong>1단계: 프로젝트 다운로드</strong></p>
+<div class="sourceCode" id="cb5"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> clone https://github.com/jayleekr/kea-yocto.git</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> kea-yocto</span></code></pre></div>
+<p><strong>2단계: 빠른 시작</strong></p>
+<div class="sourceCode" id="cb6"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 시스템 상태 사전 확인 (권장)</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="ex">./scripts/quick-start.sh</span> <span class="at">--dry-run</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="co"># 실제 환경 설정 및 실행</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a><span class="ex">./scripts/quick-start.sh</span></span></code></pre></div>
+<p><strong>3단계: 컨테이너 진입 확인</strong></p>
+<div class="sourceCode" id="cb7"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 컨테이너 내부에서 실행</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="fu">whoami</span>  <span class="co"># yocto 사용자 확인</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="bu">pwd</span>     <span class="co"># /workspace 디렉토리 확인</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="fu">ls</span> <span class="at">-la</span>  <span class="co"># 파일 구조 확인</span></span></code></pre></div>
+<h3 data-number="1.4.3" id="환경-최적화"><span
+class="header-section-number">1.4.3</span> 3.3 환경 최적화</h3>
+<h4 data-number="1.4.3.1" id="빌드-시간-최적화-전략"><span
+class="header-section-number">1.4.3.1</span> 빌드 시간 최적화 전략</h4>
+<table>
+<thead>
+<tr>
+<th>방법</th>
+<th>첫 빌드 시간</th>
+<th>이후 빌드</th>
+<th>설정 난이도</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>기본 방식</td>
+<td>2-3시간</td>
+<td>30분</td>
+<td>쉬움</td>
+</tr>
+<tr>
+<td><strong>웹 캐시</strong></td>
+<td><strong>30분</strong></td>
+<td><strong>10분</strong></td>
+<td><strong>쉬움</strong> ⭐</td>
+</tr>
+<tr>
+<td>CDN 캐시</td>
+<td>15분</td>
+<td>5분</td>
+<td>보통</td>
+</tr>
+</tbody>
+</table>
+<h4 data-number="1.4.3.2" id="메모리-최적화-설정"><span
+class="header-section-number">1.4.3.2</span> 메모리 최적화 설정</h4>
+<div class="sourceCode" id="cb8"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># local.conf에 추가할 설정들</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="bu">echo</span> <span class="st">&#39;BB_NUMBER_THREADS = &quot;4&quot;&#39;</span> <span class="op">&gt;&gt;</span> conf/local.conf</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="bu">echo</span> <span class="st">&#39;PARALLEL_MAKE = &quot;-j 4&quot;&#39;</span> <span class="op">&gt;&gt;</span> conf/local.conf</span></code></pre></div>
+<hr />
+<h2 data-number="1.5" id="첫-빌드-코어-이미지-및-빌드-프로세스"><span
+class="header-section-number">1.5</span> 4. 첫 빌드: 코어 이미지 및 빌드
+프로세스</h2>
+<h3 data-number="1.5.1" id="yocto-환경-초기화"><span
+class="header-section-number">1.5.1</span> 4.1 Yocto 환경 초기화</h3>
+<p>컨테이너 내에서 Yocto 빌드 환경을 초기화합니다:</p>
+<div class="sourceCode" id="cb9"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Yocto 빌드 환경 초기화</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="bu">source</span> /opt/poky/oe-init-build-env /workspace/build</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="co"># 또는 편의 함수 사용</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a><span class="ex">yocto_init</span></span></code></pre></div>
+<h3 data-number="1.5.2" id="빌드-설정-확인"><span
+class="header-section-number">1.5.2</span> 4.2 빌드 설정 확인</h3>
+<h4 data-number="1.5.2.1" id="local.conf-주요-설정"><span
+class="header-section-number">1.5.2.1</span> local.conf 주요 설정</h4>
+<div class="sourceCode" id="cb10"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 현재 설정 확인</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span> conf/local.conf <span class="kw">|</span> <span class="fu">grep</span> <span class="at">-E</span> <span class="st">&quot;(MACHINE|IMAGE_INSTALL|BB_NUMBER)&quot;</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a><span class="co"># 주요 설정 예시</span></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a><span class="ex">MACHINE</span> <span class="pp">?</span>= <span class="st">&quot;qemux86-64&quot;</span></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a><span class="ex">BB_NUMBER_THREADS</span> <span class="pp">?</span>= <span class="st">&quot;4&quot;</span></span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a><span class="ex">PARALLEL_MAKE</span> <span class="pp">?</span>= <span class="st">&quot;-j 4&quot;</span></span></code></pre></div>
+<h4 data-number="1.5.2.2" id="bblayers.conf-확인"><span
+class="header-section-number">1.5.2.2</span> bblayers.conf 확인</h4>
+<div class="sourceCode" id="cb11"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 레이어 구성 확인</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span> conf/bblayers.conf</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a><span class="co"># 사용 가능한 레이어 목록</span></span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a><span class="ex">bitbake-layers</span> show-layers</span></code></pre></div>
+<h3 data-number="1.5.3" id="첫-번째-빌드-실행"><span
+class="header-section-number">1.5.3</span> 4.3 첫 번째 빌드 실행</h3>
+<h4 data-number="1.5.3.1" id="core-image-minimal-빌드"><span
+class="header-section-number">1.5.3.1</span> core-image-minimal
+빌드</h4>
+<div class="sourceCode" id="cb12"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 첫 빌드 시작 (약 30분-3시간 소요)</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="ex">bitbake</span> core-image-minimal</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a><span class="co"># 또는 편의 함수 사용</span></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a><span class="ex">yocto_quick_build</span></span></code></pre></div>
+<h4 data-number="1.5.3.2" id="빌드-과정-모니터링"><span
+class="header-section-number">1.5.3.2</span> 빌드 과정 모니터링</h4>
+<div class="sourceCode" id="cb13"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 빌드 로그 확인</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="fu">tail</span> <span class="at">-f</span> tmp/log/cooker/console-latest.log</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a><span class="co"># 진행 상황 확인</span></span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a><span class="ex">bitbake</span> <span class="at">-g</span> core-image-minimal</span></code></pre></div>
+<h3 data-number="1.5.4" id="빌드-결과-확인"><span
+class="header-section-number">1.5.4</span> 4.4 빌드 결과 확인</h3>
+<div class="sourceCode" id="cb14"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 생성된 이미지 위치</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ls</span> <span class="at">-la</span> tmp/deploy/images/qemux86-64/</span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a><span class="co"># 주요 파일들</span></span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a><span class="co"># - core-image-minimal-qemux86-64.ext4 (루트 파일시스템)</span></span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a><span class="co"># - bzImage (커널 이미지)</span></span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a><span class="co"># - bootx64.efi (부트로더)</span></span></code></pre></div>
+<hr />
+<h2 data-number="1.6" id="빌드된-이미지-실행하기"><span
+class="header-section-number">1.6</span> 5. 빌드된 이미지 실행하기</h2>
+<h3 data-number="1.6.1" id="qemu를-사용한-이미지-실행"><span
+class="header-section-number">1.6.1</span> 5.1 QEMU를 사용한 이미지
+실행</h3>
+<div class="sourceCode" id="cb15"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="co"># QEMU에서 이미지 실행</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="ex">runqemu</span> qemux86-64 core-image-minimal</span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a><span class="co"># 네트워크 포함 실행</span></span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a><span class="ex">runqemu</span> qemux86-64 core-image-minimal slirp</span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a><span class="co"># 그래픽 인터페이스로 실행</span></span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a><span class="ex">runqemu</span> qemux86-64 core-image-minimal nographic</span></code></pre></div>
+<h3 data-number="1.6.2" id="가상-머신-내부-탐색"><span
+class="header-section-number">1.6.2</span> 5.2 가상 머신 내부 탐색</h3>
+<p>QEMU가 실행되면 다음을 확인해보세요:</p>
+<div class="sourceCode" id="cb16"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 시스템 정보 확인</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="fu">uname</span> <span class="at">-a</span></span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span> /etc/os-release</span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a><span class="co"># 설치된 패키지 확인</span></span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a><span class="ex">opkg</span> list-installed</span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a><span class="co"># 디스크 사용량 확인</span></span>
+<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a><span class="fu">df</span> <span class="at">-h</span></span>
+<span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-11"><a href="#cb16-11" aria-hidden="true" tabindex="-1"></a><span class="co"># 메모리 사용량 확인</span></span>
+<span id="cb16-12"><a href="#cb16-12" aria-hidden="true" tabindex="-1"></a><span class="fu">free</span> <span class="at">-h</span></span>
+<span id="cb16-13"><a href="#cb16-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-14"><a href="#cb16-14" aria-hidden="true" tabindex="-1"></a><span class="co"># 프로세스 확인</span></span>
+<span id="cb16-15"><a href="#cb16-15" aria-hidden="true" tabindex="-1"></a><span class="fu">ps</span> aux</span></code></pre></div>
+<h3 data-number="1.6.3" id="네트워크-및-연결-테스트"><span
+class="header-section-number">1.6.3</span> 5.3 네트워크 및 연결
+테스트</h3>
+<div class="sourceCode" id="cb17"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 네트워크 인터페이스 확인</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="ex">ip</span> addr show</span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a><span class="co"># 인터넷 연결 테스트 (슬립 모드에서)</span></span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a><span class="fu">ping</span> <span class="at">-c</span> 3 8.8.8.8</span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a><span class="co"># SSH 접속 가능 확인 (다른 터미널에서)</span></span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a><span class="fu">ssh</span> <span class="at">-p</span> 2222 root@localhost</span></code></pre></div>
+<h3 data-number="1.6.4" id="qemu-종료"><span
+class="header-section-number">1.6.4</span> 5.4 QEMU 종료</h3>
+<div class="sourceCode" id="cb18"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="co"># QEMU 내부에서 종료</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a><span class="ex">poweroff</span></span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a><span class="co"># 또는 강제 종료 (호스트에서)</span></span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a><span class="ex">Ctrl+A,</span> X</span></code></pre></div>
+<hr />
+<h2 data-number="1.7" id="이미지-커스터마이징-패키지-추가"><span
+class="header-section-number">1.7</span> 6. 이미지 커스터마이징: 패키지
+추가</h2>
+<h3 data-number="1.7.1" id="local.conf를-통한-패키지-추가"><span
+class="header-section-number">1.7.1</span> 6.1 local.conf를 통한 패키지
+추가</h3>
+<p>기본 이미지에 추가 패키지를 포함시켜보겠습니다:</p>
+<div class="sourceCode" id="cb19"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="co"># local.conf 파일 편집</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a><span class="fu">vi</span> conf/local.conf</span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a><span class="co"># 다음 라인 추가</span></span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a><span class="ex">IMAGE_INSTALL:append</span> = <span class="st">&quot; nano vim htop git&quot;</span></span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a><span class="ex">IMAGE_INSTALL:append</span> = <span class="st">&quot; python3 python3-pip&quot;</span></span>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a><span class="ex">IMAGE_INSTALL:append</span> = <span class="st">&quot; openssh-server dropbear&quot;</span></span></code></pre></div>
+<h3 data-number="1.7.2" id="재빌드-및-확인"><span
+class="header-section-number">1.7.2</span> 6.2 재빌드 및 확인</h3>
+<div class="sourceCode" id="cb20"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 수정된 설정으로 재빌드</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a><span class="ex">bitbake</span> core-image-minimal</span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a><span class="co"># 새 이미지로 실행</span></span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a><span class="ex">runqemu</span> qemux86-64 core-image-minimal</span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a><span class="co"># 추가된 패키지 확인</span></span>
+<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a><span class="fu">which</span> nano vim htop git python3</span>
+<span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a><span class="ex">python3</span> <span class="at">--version</span></span></code></pre></div>
+<h3 data-number="1.7.3" id="고급-이미지-커스터마이징"><span
+class="header-section-number">1.7.3</span> 6.3 고급 이미지
+커스터마이징</h3>
+<h4 data-number="1.7.3.1" id="이미지-크기-최적화"><span
+class="header-section-number">1.7.3.1</span> 이미지 크기 최적화</h4>
+<div class="sourceCode" id="cb21"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="co"># local.conf에 추가</span></span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a><span class="ex">IMAGE_FEATURES</span> += <span class="st">&quot;read-only-rootfs&quot;</span></span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a><span class="ex">IMAGE_FEATURES</span> += <span class="st">&quot;package-management&quot;</span></span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a><span class="ex">EXTRA_IMAGE_FEATURES</span> = <span class="st">&quot;debug-tweaks&quot;</span></span></code></pre></div>
+<h4 data-number="1.7.3.2" id="커널-모듈-추가"><span
+class="header-section-number">1.7.3.2</span> 커널 모듈 추가</h4>
+<div class="sourceCode" id="cb22"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 특정 커널 모듈 포함</span></span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a><span class="ex">IMAGE_INSTALL:append</span> = <span class="st">&quot; kernel-modules&quot;</span></span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a><span class="co"># 개발 도구 추가</span></span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a><span class="ex">IMAGE_INSTALL:append</span> = <span class="st">&quot; packagegroup-core-buildessential&quot;</span></span></code></pre></div>
+<h3 data-number="1.7.4" id="패키지-검색-및-정보-확인"><span
+class="header-section-number">1.7.4</span> 6.4 패키지 검색 및 정보
+확인</h3>
+<div class="sourceCode" id="cb23"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 사용 가능한 패키지 검색</span></span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a><span class="ex">bitbake</span> <span class="at">-s</span> <span class="kw">|</span> <span class="fu">grep</span> python</span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a><span class="co"># 패키지 정보 확인</span></span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a><span class="ex">bitbake</span> <span class="at">-e</span> python3 <span class="kw">|</span> <span class="fu">grep</span> ^DESCRIPTION</span>
+<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a><span class="co"># 패키지 의존성 확인</span></span>
+<span id="cb23-8"><a href="#cb23-8" aria-hidden="true" tabindex="-1"></a><span class="ex">bitbake</span> <span class="at">-g</span> python3</span></code></pre></div>
+<hr />
+<h2 data-number="1.8" id="커스텀-레이어-및-레시피-생성"><span
+class="header-section-number">1.8</span> 7. 커스텀 레이어 및 레시피
+생성</h2>
+<h3 data-number="1.8.1" id="새-레이어-생성"><span
+class="header-section-number">1.8.1</span> 7.1 새 레이어 생성</h3>
+<p>커스텀 애플리케이션을 위한 새 레이어를 생성해보겠습니다:</p>
+<div class="sourceCode" id="cb24"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 새 레이어 생성</span></span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a><span class="ex">bitbake-layers</span> create-layer ../meta-myapp</span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a><span class="co"># 생성된 레이어 구조 확인</span></span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a><span class="ex">tree</span> ../meta-myapp</span>
+<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-7"><a href="#cb24-7" aria-hidden="true" tabindex="-1"></a><span class="co"># 레이어를 빌드에 추가</span></span>
+<span id="cb24-8"><a href="#cb24-8" aria-hidden="true" tabindex="-1"></a><span class="ex">bitbake-layers</span> add-layer ../meta-myapp</span>
+<span id="cb24-9"><a href="#cb24-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-10"><a href="#cb24-10" aria-hidden="true" tabindex="-1"></a><span class="co"># 레이어 목록 확인</span></span>
+<span id="cb24-11"><a href="#cb24-11" aria-hidden="true" tabindex="-1"></a><span class="ex">bitbake-layers</span> show-layers</span></code></pre></div>
+<h3 data-number="1.8.2" id="간단한-애플리케이션-레시피-작성"><span
+class="header-section-number">1.8.2</span> 7.2 간단한 애플리케이션
+레시피 작성</h3>
+<h4 data-number="1.8.2.1" id="hello-world-c-프로그램-생성"><span
+class="header-section-number">1.8.2.1</span> Hello World C 프로그램
+생성</h4>
+<div class="sourceCode" id="cb25"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 소스 코드 디렉토리 생성</span></span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a><span class="fu">mkdir</span> <span class="at">-p</span> ../meta-myapp/recipes-myapp/hello-world/files</span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a><span class="co"># C 소스 코드 작성</span></span>
+<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span> <span class="op">&gt;</span> ../meta-myapp/recipes-myapp/hello-world/files/hello.c <span class="op">&lt;&lt; &#39;EOF&#39;</span></span>
+<span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a><span class="st">#include &lt;stdio.h&gt;</span></span>
+<span id="cb25-7"><a href="#cb25-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-8"><a href="#cb25-8" aria-hidden="true" tabindex="-1"></a><span class="st">int main() {</span></span>
+<span id="cb25-9"><a href="#cb25-9" aria-hidden="true" tabindex="-1"></a><span class="st">    printf(&quot;Hello from Yocto Custom Layer!\n&quot;);</span></span>
+<span id="cb25-10"><a href="#cb25-10" aria-hidden="true" tabindex="-1"></a><span class="st">    printf(&quot;This is my first custom application.\n&quot;);</span></span>
+<span id="cb25-11"><a href="#cb25-11" aria-hidden="true" tabindex="-1"></a><span class="st">    return 0;</span></span>
+<span id="cb25-12"><a href="#cb25-12" aria-hidden="true" tabindex="-1"></a><span class="st">}</span></span>
+<span id="cb25-13"><a href="#cb25-13" aria-hidden="true" tabindex="-1"></a><span class="op">EOF</span></span>
+<span id="cb25-14"><a href="#cb25-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-15"><a href="#cb25-15" aria-hidden="true" tabindex="-1"></a><span class="co"># Makefile 작성</span></span>
+<span id="cb25-16"><a href="#cb25-16" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span> <span class="op">&gt;</span> ../meta-myapp/recipes-myapp/hello-world/files/Makefile <span class="op">&lt;&lt; &#39;EOF&#39;</span></span>
+<span id="cb25-17"><a href="#cb25-17" aria-hidden="true" tabindex="-1"></a><span class="st">CC ?= gcc</span></span>
+<span id="cb25-18"><a href="#cb25-18" aria-hidden="true" tabindex="-1"></a><span class="st">CFLAGS ?= -Wall -O2</span></span>
+<span id="cb25-19"><a href="#cb25-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-20"><a href="#cb25-20" aria-hidden="true" tabindex="-1"></a><span class="st">TARGET = hello</span></span>
+<span id="cb25-21"><a href="#cb25-21" aria-hidden="true" tabindex="-1"></a><span class="st">SOURCE = hello.c</span></span>
+<span id="cb25-22"><a href="#cb25-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-23"><a href="#cb25-23" aria-hidden="true" tabindex="-1"></a><span class="st">$(TARGET): $(SOURCE)</span></span>
+<span id="cb25-24"><a href="#cb25-24" aria-hidden="true" tabindex="-1"></a><span class="st">    $(CC) $(CFLAGS) -o $(TARGET) $(SOURCE)</span></span>
+<span id="cb25-25"><a href="#cb25-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-26"><a href="#cb25-26" aria-hidden="true" tabindex="-1"></a><span class="st">install:</span></span>
+<span id="cb25-27"><a href="#cb25-27" aria-hidden="true" tabindex="-1"></a><span class="st">    install -d $(DESTDIR)/usr/bin</span></span>
+<span id="cb25-28"><a href="#cb25-28" aria-hidden="true" tabindex="-1"></a><span class="st">    install -m 755 $(TARGET) $(DESTDIR)/usr/bin/</span></span>
+<span id="cb25-29"><a href="#cb25-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-30"><a href="#cb25-30" aria-hidden="true" tabindex="-1"></a><span class="st">clean:</span></span>
+<span id="cb25-31"><a href="#cb25-31" aria-hidden="true" tabindex="-1"></a><span class="st">    rm -f $(TARGET)</span></span>
+<span id="cb25-32"><a href="#cb25-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-33"><a href="#cb25-33" aria-hidden="true" tabindex="-1"></a><span class="st">.PHONY: install clean</span></span>
+<span id="cb25-34"><a href="#cb25-34" aria-hidden="true" tabindex="-1"></a><span class="op">EOF</span></span></code></pre></div>
+<h4 data-number="1.8.2.2" id="레시피-파일-작성"><span
+class="header-section-number">1.8.2.2</span> 레시피 파일 작성</h4>
+<div class="sourceCode" id="cb26"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 레시피 파일 생성</span></span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span> <span class="op">&gt;</span> ../meta-myapp/recipes-myapp/hello-world/hello-world_1.0.bb <span class="op">&lt;&lt; &#39;EOF&#39;</span></span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a><span class="st">SUMMARY = &quot;Hello World application for Yocto&quot;</span></span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a><span class="st">DESCRIPTION = &quot;A simple Hello World C application demonstrating custom layer creation&quot;</span></span>
+<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a><span class="st">LICENSE = &quot;MIT&quot;</span></span>
+<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a><span class="st">LIC_FILES_CHKSUM = &quot;file://${COMMON_LICENSE_DIR}/MIT;md5=0835ade698e0bcf8506ecda2f7b4f302&quot;</span></span>
+<span id="cb26-7"><a href="#cb26-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-8"><a href="#cb26-8" aria-hidden="true" tabindex="-1"></a><span class="st">SRC_URI = &quot;file://hello.c \</span></span>
+<span id="cb26-9"><a href="#cb26-9" aria-hidden="true" tabindex="-1"></a><span class="st">           file://Makefile&quot;</span></span>
+<span id="cb26-10"><a href="#cb26-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-11"><a href="#cb26-11" aria-hidden="true" tabindex="-1"></a><span class="st">S = &quot;${WORKDIR}&quot;</span></span>
+<span id="cb26-12"><a href="#cb26-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-13"><a href="#cb26-13" aria-hidden="true" tabindex="-1"></a><span class="st">do_compile() {</span></span>
+<span id="cb26-14"><a href="#cb26-14" aria-hidden="true" tabindex="-1"></a><span class="st">    oe_runmake</span></span>
+<span id="cb26-15"><a href="#cb26-15" aria-hidden="true" tabindex="-1"></a><span class="st">}</span></span>
+<span id="cb26-16"><a href="#cb26-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-17"><a href="#cb26-17" aria-hidden="true" tabindex="-1"></a><span class="st">do_install() {</span></span>
+<span id="cb26-18"><a href="#cb26-18" aria-hidden="true" tabindex="-1"></a><span class="st">    oe_runmake install DESTDIR=${D}</span></span>
+<span id="cb26-19"><a href="#cb26-19" aria-hidden="true" tabindex="-1"></a><span class="st">}</span></span>
+<span id="cb26-20"><a href="#cb26-20" aria-hidden="true" tabindex="-1"></a><span class="op">EOF</span></span></code></pre></div>
+<h3 data-number="1.8.3" id="레시피-빌드-및-테스트"><span
+class="header-section-number">1.8.3</span> 7.3 레시피 빌드 및
+테스트</h3>
+<div class="sourceCode" id="cb27"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 레시피만 빌드</span></span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a><span class="ex">bitbake</span> hello-world</span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a><span class="co"># 생성된 패키지 확인</span></span>
+<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a><span class="fu">find</span> tmp/deploy <span class="at">-name</span> <span class="st">&quot;*hello-world*&quot;</span></span>
+<span id="cb27-6"><a href="#cb27-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-7"><a href="#cb27-7" aria-hidden="true" tabindex="-1"></a><span class="co"># 이미지에 포함시키기</span></span>
+<span id="cb27-8"><a href="#cb27-8" aria-hidden="true" tabindex="-1"></a><span class="bu">echo</span> <span class="st">&#39;IMAGE_INSTALL:append = &quot; hello-world&quot;&#39;</span> <span class="op">&gt;&gt;</span> conf/local.conf</span>
+<span id="cb27-9"><a href="#cb27-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-10"><a href="#cb27-10" aria-hidden="true" tabindex="-1"></a><span class="co"># 전체 이미지 재빌드</span></span>
+<span id="cb27-11"><a href="#cb27-11" aria-hidden="true" tabindex="-1"></a><span class="ex">bitbake</span> core-image-minimal</span></code></pre></div>
+<h3 data-number="1.8.4" id="커스텀-이미지-레시피-생성"><span
+class="header-section-number">1.8.4</span> 7.4 커스텀 이미지 레시피
+생성</h3>
+<div class="sourceCode" id="cb28"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 커스텀 이미지 레시피 생성</span></span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a><span class="fu">mkdir</span> <span class="at">-p</span> ../meta-myapp/recipes-core/images</span>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span> <span class="op">&gt;</span> ../meta-myapp/recipes-core/images/my-custom-image.bb <span class="op">&lt;&lt; &#39;EOF&#39;</span></span>
+<span id="cb28-5"><a href="#cb28-5" aria-hidden="true" tabindex="-1"></a><span class="st">SUMMARY = &quot;My custom image with additional tools&quot;</span></span>
+<span id="cb28-6"><a href="#cb28-6" aria-hidden="true" tabindex="-1"></a><span class="st">LICENSE = &quot;MIT&quot;</span></span>
+<span id="cb28-7"><a href="#cb28-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-8"><a href="#cb28-8" aria-hidden="true" tabindex="-1"></a><span class="st">inherit core-image</span></span>
+<span id="cb28-9"><a href="#cb28-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-10"><a href="#cb28-10" aria-hidden="true" tabindex="-1"></a><span class="st">IMAGE_FEATURES += &quot;ssh-server-openssh package-management&quot;</span></span>
+<span id="cb28-11"><a href="#cb28-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-12"><a href="#cb28-12" aria-hidden="true" tabindex="-1"></a><span class="st">IMAGE_INSTALL = &quot;packagegroup-core-boot \</span></span>
+<span id="cb28-13"><a href="#cb28-13" aria-hidden="true" tabindex="-1"></a><span class="st">                 packagegroup-base-extended \</span></span>
+<span id="cb28-14"><a href="#cb28-14" aria-hidden="true" tabindex="-1"></a><span class="st">                 hello-world \</span></span>
+<span id="cb28-15"><a href="#cb28-15" aria-hidden="true" tabindex="-1"></a><span class="st">                 nano \</span></span>
+<span id="cb28-16"><a href="#cb28-16" aria-hidden="true" tabindex="-1"></a><span class="st">                 vim \</span></span>
+<span id="cb28-17"><a href="#cb28-17" aria-hidden="true" tabindex="-1"></a><span class="st">                 htop \</span></span>
+<span id="cb28-18"><a href="#cb28-18" aria-hidden="true" tabindex="-1"></a><span class="st">                 git \</span></span>
+<span id="cb28-19"><a href="#cb28-19" aria-hidden="true" tabindex="-1"></a><span class="st">                 python3 \</span></span>
+<span id="cb28-20"><a href="#cb28-20" aria-hidden="true" tabindex="-1"></a><span class="st">                 python3-pip \</span></span>
+<span id="cb28-21"><a href="#cb28-21" aria-hidden="true" tabindex="-1"></a><span class="st">                 ${CORE_IMAGE_EXTRA_INSTALL}&quot;</span></span>
+<span id="cb28-22"><a href="#cb28-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-23"><a href="#cb28-23" aria-hidden="true" tabindex="-1"></a><span class="st">export IMAGE_BASENAME = &quot;my-custom-image&quot;</span></span>
+<span id="cb28-24"><a href="#cb28-24" aria-hidden="true" tabindex="-1"></a><span class="op">EOF</span></span>
+<span id="cb28-25"><a href="#cb28-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-26"><a href="#cb28-26" aria-hidden="true" tabindex="-1"></a><span class="co"># 커스텀 이미지 빌드</span></span>
+<span id="cb28-27"><a href="#cb28-27" aria-hidden="true" tabindex="-1"></a><span class="ex">bitbake</span> my-custom-image</span></code></pre></div>
+<h3 data-number="1.8.5" id="고급-레시피-기능"><span
+class="header-section-number">1.8.5</span> 7.5 고급 레시피 기능</h3>
+<h4 data-number="1.8.5.1" id="패치-적용"><span
+class="header-section-number">1.8.5.1</span> 패치 적용</h4>
+<div class="sourceCode" id="cb29"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 패치 파일 추가</span></span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a><span class="fu">mkdir</span> <span class="at">-p</span> ../meta-myapp/recipes-myapp/hello-world/files</span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span> <span class="op">&gt;</span> ../meta-myapp/recipes-myapp/hello-world/files/add-timestamp.patch <span class="op">&lt;&lt; &#39;EOF&#39;</span></span>
+<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a><span class="st">--- a/hello.c</span></span>
+<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a><span class="st">+++ b/hello.c</span></span>
+<span id="cb29-6"><a href="#cb29-6" aria-hidden="true" tabindex="-1"></a><span class="st">@@ -1,7 +1,9 @@</span></span>
+<span id="cb29-7"><a href="#cb29-7" aria-hidden="true" tabindex="-1"></a><span class="st"> #include &lt;stdio.h&gt;</span></span>
+<span id="cb29-8"><a href="#cb29-8" aria-hidden="true" tabindex="-1"></a><span class="st">+#include &lt;time.h&gt;</span></span>
+<span id="cb29-9"><a href="#cb29-9" aria-hidden="true" tabindex="-1"></a><span class="st"> </span></span>
+<span id="cb29-10"><a href="#cb29-10" aria-hidden="true" tabindex="-1"></a><span class="st"> int main() {</span></span>
+<span id="cb29-11"><a href="#cb29-11" aria-hidden="true" tabindex="-1"></a><span class="st">     printf(&quot;Hello from Yocto Custom Layer!\n&quot;);</span></span>
+<span id="cb29-12"><a href="#cb29-12" aria-hidden="true" tabindex="-1"></a><span class="st">     printf(&quot;This is my first custom application.\n&quot;);</span></span>
+<span id="cb29-13"><a href="#cb29-13" aria-hidden="true" tabindex="-1"></a><span class="st">+    printf(&quot;Built at: %s&quot;, __DATE__ &quot; &quot; __TIME__ &quot;\n&quot;);</span></span>
+<span id="cb29-14"><a href="#cb29-14" aria-hidden="true" tabindex="-1"></a><span class="st">     return 0;</span></span>
+<span id="cb29-15"><a href="#cb29-15" aria-hidden="true" tabindex="-1"></a><span class="st"> }</span></span>
+<span id="cb29-16"><a href="#cb29-16" aria-hidden="true" tabindex="-1"></a><span class="op">EOF</span></span>
+<span id="cb29-17"><a href="#cb29-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-18"><a href="#cb29-18" aria-hidden="true" tabindex="-1"></a><span class="co"># 레시피에 패치 추가</span></span>
+<span id="cb29-19"><a href="#cb29-19" aria-hidden="true" tabindex="-1"></a><span class="bu">echo</span> <span class="st">&#39;SRC_URI += &quot;file://add-timestamp.patch&quot;&#39;</span> <span class="op">&gt;&gt;</span> ../meta-myapp/recipes-myapp/hello-world/hello-world_1.0.bb</span></code></pre></div>
+<hr />
+<h2 data-number="1.9" id="yocto-고급-주제-개요"><span
+class="header-section-number">1.9</span> 8. Yocto 고급 주제 개요</h2>
+<h3 data-number="1.9.1" id="개발-워크플로우-최적화"><span
+class="header-section-number">1.9.1</span> 8.1 개발 워크플로우
+최적화</h3>
+<h4 data-number="1.9.1.1" id="devtool-사용"><span
+class="header-section-number">1.9.1.1</span> devtool 사용</h4>
+<div class="sourceCode" id="cb30"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 개발용 워크스페이스 생성</span></span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a><span class="ex">devtool</span> create-workspace ../workspace</span>
+<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a><span class="co"># 기존 레시피 수정</span></span>
+<span id="cb30-5"><a href="#cb30-5" aria-hidden="true" tabindex="-1"></a><span class="ex">devtool</span> modify hello-world</span>
+<span id="cb30-6"><a href="#cb30-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-7"><a href="#cb30-7" aria-hidden="true" tabindex="-1"></a><span class="co"># 변경사항 적용</span></span>
+<span id="cb30-8"><a href="#cb30-8" aria-hidden="true" tabindex="-1"></a><span class="ex">devtool</span> build hello-world</span>
+<span id="cb30-9"><a href="#cb30-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-10"><a href="#cb30-10" aria-hidden="true" tabindex="-1"></a><span class="co"># 레시피에 변경사항 반영</span></span>
+<span id="cb30-11"><a href="#cb30-11" aria-hidden="true" tabindex="-1"></a><span class="ex">devtool</span> finish hello-world ../meta-myapp</span></code></pre></div>
+<h4 data-number="1.9.1.2" id="증분-빌드-활용"><span
+class="header-section-number">1.9.1.2</span> 증분 빌드 활용</h4>
+<div class="sourceCode" id="cb31"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 특정 태스크만 재실행</span></span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a><span class="ex">bitbake</span> <span class="at">-c</span> compile hello-world</span>
+<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a><span class="ex">bitbake</span> <span class="at">-c</span> install hello-world</span>
+<span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-5"><a href="#cb31-5" aria-hidden="true" tabindex="-1"></a><span class="co"># 캐시 상태 확인</span></span>
+<span id="cb31-6"><a href="#cb31-6" aria-hidden="true" tabindex="-1"></a><span class="ex">bitbake-diffsigs</span> tmp/stamps/<span class="pp">*</span>/hello-world/</span></code></pre></div>
+<h3 data-number="1.9.2" id="배포-및-업데이트"><span
+class="header-section-number">1.9.2</span> 8.2 배포 및 업데이트</h3>
+<h4 data-number="1.9.2.1" id="업데이트-시스템"><span
+class="header-section-number">1.9.2.1</span> 업데이트 시스템</h4>
+<ul>
+<li><strong>SWUpdate</strong>: 안전한 시스템 업데이트</li>
+<li><strong>Mender</strong>: OTA(Over-The-Air) 업데이트</li>
+<li><strong>OSTree</strong>: 원자적 업데이트</li>
+</ul>
+<h4 data-number="1.9.2.2" id="이미지-형식"><span
+class="header-section-number">1.9.2.2</span> 이미지 형식</h4>
+<div class="sourceCode" id="cb32"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 다양한 이미지 형식 생성</span></span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a><span class="ex">IMAGE_FSTYPES</span> += <span class="st">&quot;ext4 tar.gz wic&quot;</span></span>
+<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a><span class="co"># 압축 이미지</span></span>
+<span id="cb32-5"><a href="#cb32-5" aria-hidden="true" tabindex="-1"></a><span class="ex">IMAGE_FSTYPES</span> += <span class="st">&quot;ext4.gz tar.bz2&quot;</span></span>
+<span id="cb32-6"><a href="#cb32-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-7"><a href="#cb32-7" aria-hidden="true" tabindex="-1"></a><span class="co"># SD 카드 이미지</span></span>
+<span id="cb32-8"><a href="#cb32-8" aria-hidden="true" tabindex="-1"></a><span class="ex">IMAGE_FSTYPES</span> += <span class="st">&quot;wic.gz&quot;</span></span></code></pre></div>
+<h3 data-number="1.9.3" id="보안-및-최적화"><span
+class="header-section-number">1.9.3</span> 8.3 보안 및 최적화</h3>
+<h4 data-number="1.9.3.1" id="보안-강화"><span
+class="header-section-number">1.9.3.1</span> 보안 강화</h4>
+<div class="sourceCode" id="cb33"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 보안 기능 활성화</span></span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a><span class="ex">IMAGE_FEATURES</span> += <span class="st">&quot;read-only-rootfs&quot;</span></span>
+<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a><span class="ex">EXTRA_IMAGE_FEATURES</span> += <span class="st">&quot;empty-root-password&quot;</span></span>
+<span id="cb33-4"><a href="#cb33-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-5"><a href="#cb33-5" aria-hidden="true" tabindex="-1"></a><span class="co"># SELinux 지원</span></span>
+<span id="cb33-6"><a href="#cb33-6" aria-hidden="true" tabindex="-1"></a><span class="ex">DISTRO_FEATURES:append</span> = <span class="st">&quot; selinux&quot;</span></span></code></pre></div>
+<h4 data-number="1.9.3.2" id="크기-최적화"><span
+class="header-section-number">1.9.3.2</span> 크기 최적화</h4>
+<div class="sourceCode" id="cb34"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 불필요한 기능 제거</span></span>
+<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a><span class="ex">IMAGE_FEATURES:remove</span> = <span class="st">&quot;package-management&quot;</span></span>
+<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a><span class="ex">DISTRO_FEATURES:remove</span> = <span class="st">&quot;x11&quot;</span></span>
+<span id="cb34-4"><a href="#cb34-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-5"><a href="#cb34-5" aria-hidden="true" tabindex="-1"></a><span class="co"># 언어 설정 최적화</span></span>
+<span id="cb34-6"><a href="#cb34-6" aria-hidden="true" tabindex="-1"></a><span class="ex">IMAGE_LINGUAS</span> = <span class="st">&quot;ko&quot;</span></span></code></pre></div>
+<h3 data-number="1.9.4" id="멀티플랫폼-지원"><span
+class="header-section-number">1.9.4</span> 8.4 멀티플랫폼 지원</h3>
+<h4 data-number="1.9.4.1" id="다중-머신-설정"><span
+class="header-section-number">1.9.4.1</span> 다중 머신 설정</h4>
+<div class="sourceCode" id="cb35"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="co"># ARM 타겟 빌드</span></span>
+<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a><span class="ex">MACHINE</span> = <span class="st">&quot;qemuarm64&quot;</span></span>
+<span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a><span class="ex">bitbake</span> core-image-minimal</span>
+<span id="cb35-4"><a href="#cb35-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-5"><a href="#cb35-5" aria-hidden="true" tabindex="-1"></a><span class="co"># 라즈베리파이 지원</span></span>
+<span id="cb35-6"><a href="#cb35-6" aria-hidden="true" tabindex="-1"></a><span class="ex">MACHINE</span> = <span class="st">&quot;raspberrypi4&quot;</span></span>
+<span id="cb35-7"><a href="#cb35-7" aria-hidden="true" tabindex="-1"></a><span class="ex">bitbake</span> core-image-minimal</span></code></pre></div>
+<h4 data-number="1.9.4.2" id="교차-컴파일-sdk"><span
+class="header-section-number">1.9.4.2</span> 교차 컴파일 SDK</h4>
+<div class="sourceCode" id="cb36"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="co"># SDK 생성</span></span>
+<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a><span class="ex">bitbake</span> core-image-minimal <span class="at">-c</span> populate_sdk</span>
+<span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb36-4"><a href="#cb36-4" aria-hidden="true" tabindex="-1"></a><span class="co"># 생성된 SDK 설치</span></span>
+<span id="cb36-5"><a href="#cb36-5" aria-hidden="true" tabindex="-1"></a><span class="ex">./tmp/deploy/sdk/poky-glibc-x86_64-core-image-minimal-cortexa57-qemuarm64-toolchain-5.0.sh</span></span></code></pre></div>
+<hr />
+<h2 data-number="1.10" id="마무리-및-qa"><span
+class="header-section-number">1.10</span> 9. 마무리 및 Q&amp;A</h2>
+<h3 data-number="1.10.1" id="강의-요약"><span
+class="header-section-number">1.10.1</span> 9.1 강의 요약</h3>
+<p>오늘 강의에서 다룬 내용:</p>
+<p>✅ <strong>Yocto Project 기본 개념</strong> 이해<br />
+✅ <strong>Docker 기반 개발 환경</strong> 구축<br />
+✅ <strong>첫 번째 리눅스 이미지</strong> 빌드 및 실행<br />
+✅ <strong>패키지 추가 및 커스터마이징</strong> 실습<br />
+✅ <strong>커스텀 레이어 및 레시피</strong> 생성<br />
+✅ <strong>고급 주제</strong> 개요 학습</p>
+<h3 data-number="1.10.2" id="다음-단계-학습-방향"><span
+class="header-section-number">1.10.2</span> 9.2 다음 단계 학습 방향</h3>
+<h4 data-number="1.10.2.1" id="추천-학습-경로"><span
+class="header-section-number">1.10.2.1</span> 추천 학습 경로</h4>
+<ol type="1">
+<li><strong>실제 하드웨어 타겟팅</strong> (라즈베리파이, BeagleBone
+등)</li>
+<li><strong>BSP(Board Support Package) 개발</strong></li>
+<li><strong>멀티미디어 및 그래픽 스택</strong> 통합</li>
+<li><strong>실시간 시스템</strong> 구성</li>
+<li><strong>보안 강화</strong> 및 <strong>업데이트 시스템</strong>
+구축</li>
+</ol>
+<h4 data-number="1.10.2.2" id="유용한-리소스"><span
+class="header-section-number">1.10.2.2</span> 유용한 리소스</h4>
+<ul>
+<li>📚 <a href="https://docs.yoctoproject.org/">Yocto Project 공식
+문서</a></li>
+<li>🌐 <a href="https://layers.openembedded.org/">OpenEmbedded Layer
+Index</a></li>
+<li>💬 <a href="https://lists.yoctoproject.org/">Yocto Project 메일링
+리스트</a></li>
+<li>🐛 <a href="https://bugzilla.yoctoproject.org/">Bugzilla 이슈
+트래커</a></li>
+</ul>
+<h3 data-number="1.10.3" id="실습-환경-유지"><span
+class="header-section-number">1.10.3</span> 9.3 실습 환경 유지</h3>
+<p>강의 후에도 계속 학습하실 수 있도록:</p>
+<div class="sourceCode" id="cb37"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 컨테이너 중지 (데이터는 보존됨)</span></span>
+<span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a><span class="ex">docker</span> compose down</span>
+<span id="cb37-3"><a href="#cb37-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-4"><a href="#cb37-4" aria-hidden="true" tabindex="-1"></a><span class="co"># 나중에 다시 시작</span></span>
+<span id="cb37-5"><a href="#cb37-5" aria-hidden="true" tabindex="-1"></a><span class="ex">docker</span> compose run <span class="at">--rm</span> yocto-lecture</span>
+<span id="cb37-6"><a href="#cb37-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-7"><a href="#cb37-7" aria-hidden="true" tabindex="-1"></a><span class="co"># 빌드 캐시 확인</span></span>
+<span id="cb37-8"><a href="#cb37-8" aria-hidden="true" tabindex="-1"></a><span class="fu">ls</span> <span class="at">-la</span> yocto-workspace/</span></code></pre></div>
+<h3 data-number="1.10.4" id="qa-세션"><span
+class="header-section-number">1.10.4</span> 9.4 Q&amp;A 세션</h3>
+<p><strong>자주 묻는 질문들:</strong></p>
+<p><strong>Q: 빌드 시간을 더 줄일 수 있는 방법은?</strong> A:
+sstate-cache와 DL_DIR을 공유하고, BB_NUMBER_THREADS와 PARALLEL_MAKE를
+시스템에 맞게 조정하세요.</p>
+<p><strong>Q: 상용 제품에 Yocto를 적용할 때 주의사항은?</strong> A:
+라이선스 관리, 보안 업데이트 계획, 장기 지원(LTS) 버전 사용을
+고려하세요.</p>
+<p><strong>Q: 기존 패키지를 Yocto에 포팅하는 방법은?</strong> A:
+recipetool을 사용하여 자동 생성하거나, devtool을 활용한 점진적 개발을
+추천합니다.</p>
+<p><strong>Q: ARM64와 x86_64 동시 지원 방법은?</strong> A: MACHINE
+변수를 통한 멀티플랫폼 설정과 교차 컴파일 툴체인을 활용하세요.</p>
+<hr />
+<h2 data-number="1.11" id="부록"><span
+class="header-section-number">1.11</span> 📚 부록</h2>
+<h3 data-number="1.11.1" id="a.1-유용한-bitbake-명령어"><span
+class="header-section-number">1.11.1</span> A.1 유용한 BitBake
+명령어</h3>
+<div class="sourceCode" id="cb38"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 레시피 검색</span></span>
+<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a><span class="ex">bitbake</span> <span class="at">-s</span> <span class="kw">|</span> <span class="fu">grep</span> <span class="op">&lt;</span>pattern<span class="op">&gt;</span></span>
+<span id="cb38-3"><a href="#cb38-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-4"><a href="#cb38-4" aria-hidden="true" tabindex="-1"></a><span class="co"># 레시피 정보 확인</span></span>
+<span id="cb38-5"><a href="#cb38-5" aria-hidden="true" tabindex="-1"></a><span class="ex">bitbake</span> <span class="at">-e</span> <span class="op">&lt;</span>recipe<span class="op">&gt;</span></span>
+<span id="cb38-6"><a href="#cb38-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-7"><a href="#cb38-7" aria-hidden="true" tabindex="-1"></a><span class="co"># 의존성 그래프 생성</span></span>
+<span id="cb38-8"><a href="#cb38-8" aria-hidden="true" tabindex="-1"></a><span class="ex">bitbake</span> <span class="at">-g</span> <span class="op">&lt;</span>recipe<span class="op">&gt;</span></span>
+<span id="cb38-9"><a href="#cb38-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-10"><a href="#cb38-10" aria-hidden="true" tabindex="-1"></a><span class="co"># 특정 태스크 실행</span></span>
+<span id="cb38-11"><a href="#cb38-11" aria-hidden="true" tabindex="-1"></a><span class="ex">bitbake</span> <span class="at">-c</span> <span class="op">&lt;</span>task<span class="op">&gt;</span> <span class="op">&lt;</span>recipe<span class="op">&gt;</span></span>
+<span id="cb38-12"><a href="#cb38-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-13"><a href="#cb38-13" aria-hidden="true" tabindex="-1"></a><span class="co"># 패키지 내용 확인</span></span>
+<span id="cb38-14"><a href="#cb38-14" aria-hidden="true" tabindex="-1"></a><span class="ex">oe-pkgdata-util</span> list-pkg-files <span class="op">&lt;</span>package<span class="op">&gt;</span></span></code></pre></div>
+<h3 data-number="1.11.2" id="a.2-디버깅-팁"><span
+class="header-section-number">1.11.2</span> A.2 디버깅 팁</h3>
+<div class="sourceCode" id="cb39"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 빌드 로그 확인</span></span>
+<span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a><span class="ex">bitbake</span> <span class="at">-v</span> <span class="op">&lt;</span>recipe<span class="op">&gt;</span></span>
+<span id="cb39-3"><a href="#cb39-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-4"><a href="#cb39-4" aria-hidden="true" tabindex="-1"></a><span class="co"># 작업 디렉토리 확인</span></span>
+<span id="cb39-5"><a href="#cb39-5" aria-hidden="true" tabindex="-1"></a><span class="ex">bitbake</span> <span class="at">-c</span> devshell <span class="op">&lt;</span>recipe<span class="op">&gt;</span></span>
+<span id="cb39-6"><a href="#cb39-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-7"><a href="#cb39-7" aria-hidden="true" tabindex="-1"></a><span class="co"># 패키지 의존성 문제 해결</span></span>
+<span id="cb39-8"><a href="#cb39-8" aria-hidden="true" tabindex="-1"></a><span class="ex">bitbake</span> <span class="at">-k</span> <span class="op">&lt;</span>recipe<span class="op">&gt;</span></span>
+<span id="cb39-9"><a href="#cb39-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-10"><a href="#cb39-10" aria-hidden="true" tabindex="-1"></a><span class="co"># 캐시 정리</span></span>
+<span id="cb39-11"><a href="#cb39-11" aria-hidden="true" tabindex="-1"></a><span class="ex">bitbake</span> <span class="at">-c</span> cleanall <span class="op">&lt;</span>recipe<span class="op">&gt;</span></span></code></pre></div>
+<h3 data-number="1.11.3" id="a.3-성능-튜닝"><span
+class="header-section-number">1.11.3</span> A.3 성능 튜닝</h3>
+<div class="sourceCode" id="cb40"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a><span class="co"># local.conf 최적화 설정</span></span>
+<span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a><span class="ex">BB_NUMBER_THREADS</span> = <span class="st">&quot;8&quot;</span></span>
+<span id="cb40-3"><a href="#cb40-3" aria-hidden="true" tabindex="-1"></a><span class="ex">PARALLEL_MAKE</span> = <span class="st">&quot;-j 8&quot;</span></span>
+<span id="cb40-4"><a href="#cb40-4" aria-hidden="true" tabindex="-1"></a><span class="ex">BB_HASHBASE_WHITELIST:append</span> = <span class="st">&quot; BB_NUMBER_THREADS PARALLEL_MAKE&quot;</span></span>
+<span id="cb40-5"><a href="#cb40-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb40-6"><a href="#cb40-6" aria-hidden="true" tabindex="-1"></a><span class="co"># 디스크 I/O 최적화</span></span>
+<span id="cb40-7"><a href="#cb40-7" aria-hidden="true" tabindex="-1"></a><span class="ex">SSTATE_DIR</span> = <span class="st">&quot;/fast-storage/sstate-cache&quot;</span></span>
+<span id="cb40-8"><a href="#cb40-8" aria-hidden="true" tabindex="-1"></a><span class="ex">DL_DIR</span> = <span class="st">&quot;/fast-storage/downloads&quot;</span></span></code></pre></div>
+<hr />
+<p><strong>강의 자료 끝</strong></p>
+<p>이 자료는 KEA Yocto Project 강의를 위해 제작되었습니다.<br />
+문의사항이 있으시면 언제든지 질문해주세요! 🚀</p>
+</body>
+</html>

@@ -153,7 +153,7 @@ test_scripts() {
     local scripts=(
         "quick-start.sh"
         "prepare-cache.sh"
-        "generate-pdf-docker.sh"
+        "generate-html.sh"
         "verify-system.sh"
     )
     
@@ -170,17 +170,17 @@ test_scripts() {
     done
 }
 
-# PDF 생성 테스트
-test_pdf_generation() {
-    echo -e "${BLUE}=== PDF 생성 테스트 ===${NC}"
-    
-    run_test "PDF 생성 스크립트 실행" \
-        "cd '$PROJECT_DIR' && ./scripts/generate-pdf-docker.sh" \
-        "Docker 컨테이너에서 PDF 생성 테스트"
-    
-    run_test "PDF 파일 생성 확인" \
-        "find '$PROJECT_DIR/materials' -name '*.pdf' -type f | head -1 | xargs test -f" \
-        "실제로 PDF 파일이 생성되었는지 확인"
+# HTML 생성 테스트
+test_html_generation() {
+    echo -e "${BLUE}=== HTML 생성 테스트 ===${NC}"
+
+    run_test "HTML 생성 스크립트 실행" \
+        "cd '$PROJECT_DIR' && ./scripts/generate-html.sh < /dev/null" \
+        "HTML 생성 테스트"
+
+    run_test "HTML 파일 생성 확인" \
+        "[ -f '$PROJECT_DIR/materials/KEA-Yocto-Project-강의자료.html' ]" \
+        "실제로 HTML 파일이 생성되었는지 확인"
 }
 
 # Yocto 환경 기본 테스트
@@ -215,7 +215,33 @@ test_network() {
     run_test "Docker Hub 연결 확인" \
         "curl -s --connect-timeout 10 https://hub.docker.com > /dev/null" \
         "Docker Hub에 접속할 수 있는지 확인"
+    
+    run_test "HTML 생성 스크립트 권한 확인" \
+        "[ -x '$PROJECT_DIR/scripts/generate-html.sh' ]" \
+        "HTML 생성 스크립트 실행 권한 확인"
 }
+
+# 강의 자료 관련 테스트
+echo ""
+log "📚 강의 자료 테스트"
+
+run_test "Markdown 파일 존재 확인" \
+    "[ -f '$PROJECT_DIR/materials/lecture-materials.md' ]" \
+    "강의 자료 Markdown 파일 확인"
+
+run_test "HTML 생성 스크립트 존재 확인" \
+    "[ -f '$PROJECT_DIR/scripts/generate-html.sh' ]" \
+    "HTML 생성 스크립트 확인"
+
+run_test "Pandoc 설치 확인" \
+    "command -v pandoc > /dev/null" \
+    "HTML 생성을 위한 Pandoc 확인"
+
+if [ "$QUICK_MODE" = false ]; then
+    run_test "HTML 생성 테스트" \
+        "cd '$PROJECT_DIR' && timeout 30 ./scripts/generate-html.sh < /dev/null" \
+        "실제 HTML 생성 테스트"
+fi
 
 # 결과 요약 출력
 show_summary() {
@@ -322,7 +348,7 @@ main() {
     
     if [ "$quick_mode" = false ]; then
         test_docker_environment
-        test_pdf_generation
+        test_html_generation
         test_yocto_environment
     else
         warn "빠른 모드: Docker 빌드 및 Yocto 테스트 건너뜀"
