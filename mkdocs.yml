@@ -1,0 +1,109 @@
+site_name: KEA Yocto Project 5.0 LTS 강의
+site_description: Yocto Project를 활용한 임베디드 리눅스 시스템 개발 강의 자료
+site_author: KEA
+
+# Repository
+repo_name: jayleekr/yocto-lecture
+repo_url: https://github.com/jayleekr/yocto-lecture
+
+# Theme
+theme:
+  name: material
+  palette:
+    # Light mode
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: blue
+      accent: blue
+      toggle:
+        icon: material/weather-night
+        name: 다크 모드로 전환
+    # Dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: blue
+      accent: blue
+      toggle:
+        icon: material/weather-sunny
+        name: 라이트 모드로 전환
+  
+  features:
+    - navigation.tabs
+    - navigation.tabs.sticky
+    - navigation.sections
+    - navigation.expand
+    - navigation.path
+    - navigation.top
+    - search.highlight
+    - search.share
+    - content.code.copy
+    - content.code.select
+    - content.tabs.link
+
+  icon:
+    logo: material/chip
+    repo: fontawesome/brands/github
+
+# Extensions
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+  - tables
+  - def_list
+  - pymdownx.tasklist:
+      custom_checkbox: true
+  - attr_list
+  - md_in_html
+  - toc:
+      permalink: true
+
+# Plugins
+plugins:
+  - search:
+      lang: 
+        - ko
+        - en
+  - minify:
+      minify_html: true
+
+# Navigation
+nav:
+  - 홈: index.md
+  - 강의 자료:
+    - lecture/intro.md
+    - lecture/architecture.md
+    - lecture/setup.md
+    - lecture/first-build.md
+    - lecture/run-image.md
+    - lecture/customize.md
+    - lecture/custom-layer.md
+    - lecture/advanced.md
+    - lecture/conclusion.md
+
+# Extra
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/jayleekr/yocto-lecture
+  version:
+    provider: mike
+
+# CSS
+extra_css:
+  - stylesheets/extra.css 

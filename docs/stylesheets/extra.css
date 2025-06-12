@@ -1,0 +1,154 @@
+/* Custom styles for Yocto lecture documentation */
+
+/* Center images */
+.center {
+  display: block;
+  margin: 0 auto;
+}
+
+/* Code blocks with better styling */
+.highlight {
+  border-radius: 8px;
+  margin: 1em 0;
+}
+
+/* Custom admonition colors */
+.md-typeset .admonition.note {
+  border-left: 4px solid #448aff;
+}
+
+.md-typeset .admonition.tip {
+  border-left: 4px solid #00c853;
+}
+
+.md-typeset .admonition.warning {
+  border-left: 4px solid #ff9100;
+}
+
+.md-typeset .admonition.info {
+  border-left: 4px solid #00b0ff;
+}
+
+.md-typeset .admonition.success {
+  border-left: 4px solid #00c853;
+}
+
+/* Table styling improvements */
+.md-typeset table:not([class]) {
+  border: 1px solid var(--md-default-fg-color--lightest);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.md-typeset table:not([class]) th {
+  background-color: var(--md-default-fg-color--lightest);
+  font-weight: 600;
+}
+
+/* Custom navigation styling */
+.md-nav__title {
+  font-weight: 600;
+}
+
+/* Code copy button enhancement */
+.md-clipboard {
+  color: var(--md-default-fg-color--light);
+}
+
+/* Mermaid diagram styling */
+.mermaid {
+  text-align: center;
+  margin: 2em 0;
+}
+
+/* Custom button styling */
+.md-button {
+  border-radius: 6px;
+  padding: 0.5em 1em;
+  font-weight: 500;
+}
+
+/* Command line styling */
+.highlight .gp {
+  color: #00c853;
+  font-weight: bold;
+}
+
+/* Better spacing for content */
+.md-typeset h2 {
+  margin-top: 2em;
+}
+
+.md-typeset h3 {
+  margin-top: 1.5em;
+}
+
+/* Progress indicators */
+.progress-indicator {
+  display: flex;
+  align-items: center;
+  gap: 0.5em;
+  margin: 1em 0;
+}
+
+.progress-step {
+  width: 2em;
+  height: 2em;
+  border-radius: 50%;
+  background-color: var(--md-primary-fg-color);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 0.9em;
+}
+
+.progress-step.active {
+  background-color: var(--md-accent-fg-color);
+}
+
+.progress-line {
+  flex: 1;
+  height: 2px;
+  background-color: var(--md-default-fg-color--lightest);
+}
+
+/* Custom list styling for better readability */
+.md-typeset ul li {
+  margin-bottom: 0.5em;
+}
+
+.md-typeset ol li {
+  margin-bottom: 0.5em;
+}
+
+/* Better code block titles */
+.md-typeset .highlight .filename {
+  background-color: var(--md-code-bg-color);
+  color: var(--md-code-fg-color);
+  padding: 0.5em 1em;
+  border-radius: 6px 6px 0 0;
+  font-family: var(--md-code-font);
+  font-size: 0.85em;
+  margin: 0;
+  display: block;
+}
+
+/* Responsive improvements */
+@media screen and (max-width: 768px) {
+  .md-typeset table:not([class]) {
+    font-size: 0.85em;
+  }
+  
+  .progress-indicator {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .progress-line {
+    width: 2px;
+    height: 1em;
+    margin: 0 auto;
+  }
+} 

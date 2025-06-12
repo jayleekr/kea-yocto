@@ -186,4 +186,186 @@ sudo apt install pandoc
 
 ---
 
-**Happy Yocto Building! 🚀** 
+**Happy Yocto Building! 🚀**
+
+# KEA Yocto Project 5.0 LTS 강의 문서
+
+이 저장소는 KEA(한국전자기술연구원) Yocto Project 강의 자료와 문서화 시스템을 포함합니다.
+
+## 📚 문서 구조
+
+```
+├── docs/                    # MkDocs 문서 소스
+│   ├── index.md            # 홈페이지
+│   ├── lecture/            # 강의 자료들
+│   └── stylesheets/        # 커스텀 CSS
+├── materials/              # 원본 강의 자료
+├── mkdocs.yml             # MkDocs 설정
+├── requirements.txt       # Python 의존성
+└── build-docs.sh         # 문서 빌드 스크립트
+```
+
+## 🚀 빠른 시작
+
+### 1. 문서 빌드하기
+
+```bash
+# 자동 빌드 (권장)
+./build-docs.sh
+
+# 또는 수동으로
+python3 -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+mkdocs build
+```
+
+### 2. 로컬 개발 서버 실행
+
+```bash
+# 가상환경 활성화 후
+mkdocs serve
+
+# 브라우저에서 http://localhost:8000 접속
+```
+
+### 3. 문서 수정하기
+
+1. `docs/` 디렉토리 내의 마크다운 파일 수정
+2. `mkdocs serve`로 실시간 미리보기
+3. 만족스러우면 `mkdocs build`로 최종 빌드
+
+## 🎨 특징
+
+### Material Design 테마
+
+- 🌙 **다크/라이트 모드** 자동 전환
+- 📱 **반응형 디자인** 모바일 최적화
+- 🔍 **강력한 검색** 기능
+- 📖 **목차 자동 생성**
+- 🎯 **코드 복사** 버튼
+
+### 고급 마크다운 기능
+
+!!! tip "지원하는 확장 기능"
+    - ✅ **Admonitions** (팁, 경고, 노트 박스)
+    - ✅ **Mermaid 다이어그램**
+    - ✅ **코드 하이라이팅**
+    - ✅ **탭 그룹**
+    - ✅ **작업 목록**
+    - ✅ **이모지 지원**
+
+### 예시: 탭 그룹
+
+=== "Ubuntu/Debian"
+    ```bash
+    sudo apt update
+    sudo apt install python3-pip
+    ```
+
+=== "macOS"
+    ```bash
+    brew install python3
+    ```
+
+=== "Windows"
+    ```powershell
+    python -m pip install --upgrade pip
+    ```
+
+## 📖 문서 작성 가이드
+
+### Admonitions 사용법
+
+```markdown
+!!! note "제목"
+    내용을 여기에 작성합니다.
+
+!!! tip "팁"
+    유용한 정보
+
+!!! warning "주의"
+    주의사항
+
+!!! danger "위험"
+    중요한 경고
+```
+
+### Mermaid 다이어그램
+
+```markdown
+```mermaid
+graph TD
+    A[시작] --> B[처리]
+    B --> C[완료]
+` ``
+```
+
+## 🚀 배포
+
+### GitHub Pages
+
+```bash
+# gh-pages 브랜치에 배포
+mkdocs gh-deploy
+```
+
+### 수동 배포
+
+```bash
+# site/ 디렉토리를 웹서버에 업로드
+mkdocs build
+rsync -av site/ user@server:/var/www/html/
+```
+
+## 🔧 커스터마이징
+
+### 테마 설정
+
+`mkdocs.yml`에서 다음을 수정:
+
+```yaml
+theme:
+  name: material
+  palette:
+    primary: blue     # 기본 색상
+    accent: blue      # 강조 색상
+```
+
+### 플러그인 추가
+
+`requirements.txt`에 플러그인 추가 후:
+
+```yaml
+plugins:
+  - search
+  - minify
+  - your-plugin
+```
+
+## 🆚 다른 도구들과 비교
+
+| 도구 | 장점 | 단점 | 적합성 |
+|------|------|------|--------|
+| **MkDocs** | 간단, 빠름, 문서 특화 | 블로그 기능 제한 | ⭐⭐⭐⭐⭐ |
+| Jekyll | GitHub Pages 공식 지원 | Ruby 의존성, 느림 | ⭐⭐⭐ |
+| Hugo | 매우 빠름, 강력함 | 복잡한 설정 | ⭐⭐⭐⭐ |
+| Sphinx | 전문적, 강력함 | 복잡함, 학습곡선 | ⭐⭐⭐ |
+
+## 📞 도움말
+
+- [MkDocs 공식 문서](https://www.mkdocs.org/)
+- [Material 테마 문서](https://squidfunk.github.io/mkdocs-material/)
+- [Mermaid 다이어그램 문법](https://mermaid.js.org/)
+
+---
+
+## 🎓 Yocto 강의 관련
+
+실제 Yocto 강의 및 실습은 별도의 Docker 환경에서 진행됩니다:
+
+```bash
+git clone https://github.com/jayleekr/kea-yocto.git
+cd kea-yocto
+./scripts/quick-start.sh
+``` 
