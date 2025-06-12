@@ -82,6 +82,12 @@ cd kea-yocto
 
 ## 📚 강의 자료 생성
 
+### 🌐 **온라인 강의 자료** ⭐
+
+**GitHub Pages에서 바로 확인하기:**
+- 📖 **온라인 강의 자료**: https://jayleekr.github.io/kea-yocto/
+- 🔄 **자동 업데이트**: main 브랜치 push 시 자동 배포
+
 ### 🌐 **HTML 버전 (완벽한 Mermaid 지원)** ⭐
 
 ```bash
@@ -291,6 +297,7 @@ sudo apt install pandoc
 
 ## 📞 지원
 
+- 📖 **온라인 강의 자료**: [GitHub Pages](https://jayleekr.github.io/kea-yocto/)
 - 📧 이슈: [GitHub Issues](https://github.com/jayleekr/kea-yocto/issues)
 - 📚 문서: [Wiki](https://github.com/jayleekr/kea-yocto/wiki)
 - 💬 토론: [Discussions](https://github.com/jayleekr/kea-yocto/discussions)
