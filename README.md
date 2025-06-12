@@ -19,6 +19,67 @@ Docker 기반 Yocto Project 개발 환경 및 강의 자료
 
 ---
 
+## 📦 Yocto 캐시 배포 시스템 ⭐ 
+
+### 🌐 **GitHub 캐시 다운로드 (권장)** 
+
+미리 빌드된 캐시를 다운로드하여 **80-90% 빌드 시간 단축**:
+
+```bash
+# 프로젝트 클론
+git clone https://github.com/jayleekr/kea-yocto.git
+cd kea-yocto
+
+# 자동 캐시 다운로드 및 설정
+./download-cache.sh
+```
+
+**다운로드 내용:**
+- ✅ **6.7GB 완전한 빌드 캐시** (downloads + sstate)
+- ✅ **88개 소스 패키지** 사전 다운로드
+- ✅ **257개 빌드 상태** 캐시
+- ✅ **검증된 무결성** (MD5/SHA256 체크섬)
+
+### 🔧 **캐시 생성 및 업로드**
+
+새로운 캐시를 생성하거나 기존 캐시를 업데이트:
+
+```bash
+# 전체 이미지 캐시 생성 (6.7GB)
+./scripts/build-full-image-cache.sh
+
+# 간단한 모듈 캐시 생성 (테스트용)
+./scripts/build-simple-module.sh
+
+# GitHub에 캐시 업로드 (자동 파일 분할)
+./scripts/upload-split-cache-github.sh
+```
+
+### 📊 **캐시 시스템 특징**
+
+| 기능 | 설명 | 성능 |
+|------|------|------|
+| **자동 분할** | 2GB GitHub 제한 자동 처리 | ✅ |
+| **무결성 검증** | MD5/SHA256 체크섬 | ✅ |
+| **재구성** | 분할 파일 자동 병합 | ✅ |
+| **빌드 가속** | 80-90% 시간 단축 | 🚀 |
+| **글로벌 배포** | GitHub Releases 기반 | 🌍 |
+
+### 🧪 **캐시 테스트 도구**
+
+```bash
+# 캐시 효율성 테스트
+./scripts/test-cache-efficiency.py
+
+# 최소 캐시 테스트  
+./scripts/test-minimal-cache.sh
+
+# 업로드/다운로드 테스트
+./scripts/test-cache-upload-download.sh
+```
+
+---
+
 ## 📚 강의 자료 생성
 
 ### 🌐 **HTML 버전 (완벽한 Mermaid 지원)** ⭐
@@ -102,14 +163,28 @@ bitbake core-image-minimal
 
 ## 📋 주요 스크립트
 
+### 🚀 시스템 및 환경 설정
 | 스크립트 | 용도 | 실행 시간 |
 |----------|------|-----------|
 | `test-basic.sh` | 기본 시스템 검증 | 1분 |
 | `verify-system.sh` | 종합 시스템 검증 | 5분 |
 | `fix-system.sh` | 자동 문제 해결 | 2분 |
+| `quick-start.sh` | Yocto 환경 빠른 시작 | 3분 |
+
+### 📦 캐시 배포 시스템
+| 스크립트 | 용도 | 크기/시간 |
+|----------|------|-----------|
+| `download-cache.sh` | GitHub 캐시 자동 다운로드 | 6.7GB / 15분 |
+| `scripts/build-full-image-cache.sh` | 완전한 이미지 캐시 생성 | 6.7GB / 2시간 |
+| `scripts/build-simple-module.sh` | 간단한 모듈 캐시 생성 | 40MB / 10분 |
+| `scripts/upload-split-cache-github.sh` | GitHub 캐시 업로드 (분할) | - / 15분 |
+| `scripts/test-cache-efficiency.py` | 캐시 효율성 분석 | - / 5분 |
+
+### 📚 강의 자료 생성
+| 스크립트 | 용도 | 실행 시간 |
+|----------|------|-----------|
 | `generate-html.sh` | 강의 자료 HTML 생성 | 10초 |
 | `test-html-formatting.py` | HTML 포맷팅 자동 테스트 및 수정 | 30초 |
-| `quick-start.sh` | Yocto 환경 빠른 시작 | 3분 |
 
 ---
 
@@ -368,4 +443,4 @@ plugins:
 git clone https://github.com/jayleekr/kea-yocto.git
 cd kea-yocto
 ./scripts/quick-start.sh
-``` # GitHub Pages 설정 변경 후 테스트용 커밋
+```
