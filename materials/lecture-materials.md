@@ -317,10 +317,14 @@ Yocto는 **계층화된 레이어 아키텍처**를 통해 모듈성과 확장�
 **🌐 확장 레이어 (선택적)**
 - **meta-openembedded**:  
   확장 소프트웨어 컬렉션
-  - meta-oe: 일반적인 오픈소스 소프트웨어
-  - meta-python: Python 패키지 및 런타임
-  - meta-networking: 네트워킹 도구 및 프로토콜
-  - meta-multimedia: 멀티미디어 라이브러리 및 도구
+meta-oe:
+일반적인 오픈소스 소프트웨어
+meta-python:
+Python 패키지 및 런타임
+meta-networking:
+네트워킹 도구 및 프로토콜
+meta-multimedia:
+멀티미디어 라이브러리 및 도구
 
 **🏗️ 커스텀 레이어**
 - **meta-company**:  
@@ -1065,7 +1069,8 @@ bitbake core-image-minimal -c populate_sdk
 
 #### 유용한 리소스
 - 📚 [Yocto Project 공식 문서](https://docs.yoctoproject.org/)
-- 🌐 [OpenEmbedded Layer Index](https://layers.openembedded.org/)
+- 🌐 [OpenEmbedded Layer Index](https:  
+  //layers.openembedded.org/)
 - 💬 [Yocto Project 메일링 리스트](https://lists.yoctoproject.org/)
 - 🐛 [Bugzilla 이슈 트래커](https://bugzilla.yoctoproject.org/)
 

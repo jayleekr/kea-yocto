@@ -151,73 +151,58 @@ def test_specific_formatting_issues(markdown_content):
             if next_line.strip() != "" and not next_line.strip().startswith('- 특징:'):
                 problems.append({
                     'type': 'inline_descriptions',
-                    'content': line[:150] + '...' if len(line) > 150 else line,
+                    'content': line.strip(),
                     'line': i + 1,
-                    'issue': '설명 항목들이 한 줄에 연결되어 있어 가독성이 떨어집니다'
+                    'issue': '설명 항목들이 한 줄에 연결되어 있습니다'
                 })
     
-    # 패턴 2: 여러 개의 불릿 포인트나 항목이 연결된 경우
-    pattern2 = r'- \*\*[^*]+\*\*[^-\n]+ - \*\*[^*]+\*\*'
-    matches = re.finditer(pattern2, markdown_content)
-    
-    for match in matches:
-        line_num = markdown_content[:match.start()].count('\n') + 1
-        problems.append({
-            'type': 'connected_bullet_points',
-            'content': match.group(0),
-            'line': line_num,
-            'issue': '불릿 포인트가 한 줄에 연결되어 있습니다'
-        })
-    
-    # 패턴 3: 불릿 포인트 내 서브 항목들의 줄바꿈 문제 감지
+    # 패턴 2: 연결된 불릿 포인트들 - "text - **item**:" 형태
     for i, line in enumerate(lines):
-        # "- **항목**: 설명" 다음에 서브 항목들이 있는 경우
-        if (line.strip().startswith('- **') and ':' in line and 
-            i + 1 < len(lines) and lines[i + 1].strip().startswith('  -')):
-            
-            # 서브 항목들이 2개 스페이스로 끝나지 않는 경우 확인
-            j = i + 1
-            sub_items_without_linebreak = []
-            while j < len(lines) and lines[j].strip().startswith('  -'):
-                if not lines[j].endswith('  ') and not lines[j].endswith('  \n'):
-                    sub_items_without_linebreak.append(j + 1)
-                j += 1
-            
-            if sub_items_without_linebreak:
-                problems.append({
-                    'type': 'bullet_sub_items_no_linebreak',
-                    'content': f"라인 {i+1}의 서브 항목들 (라인 {sub_items_without_linebreak})",
-                    'line': i + 1,
-                    'issue': '불릿 포인트 서브 항목들이 줄바꿈 없이 연결되어 HTML에서 제대로 렌더링되지 않습니다',
-                    'sub_lines': sub_items_without_linebreak
-                })
+        if ' - **' in line and not line.strip().startswith('- **'):
+            problems.append({
+                'type': 'connected_bullet_points',
+                'content': line.strip(),
+                'line': i + 1,
+                'issue': '불릿 포인트가 다른 텍스트와 연결되어 있습니다'
+            })
     
-    # 패턴 4: 매우 긴 줄 (150자 이상)에서 여러 항목이 포함된 경우
+    # 패턴 3: 매우 긴 줄 (150자 이상)에서 여러 항목이 포함된 경우
     for i, line in enumerate(lines, 1):
         if len(line) > 150 and line.count(' ') > 10:
-            # 코드 블록이나 특수 구문 제외
-            if not (line.strip().startswith('```') or line.strip().startswith('|') or 
-                   line.strip().startswith('#') or '```' in line or
-                   line.strip().startswith('- ') or line.strip().startswith('  - ')):
+            problems.append({
+                'type': 'multi_item_long_line',
+                'content': line.strip()[:100] + "...",
+                'line': i,
+                'issue': f'매우 긴 줄 ({len(line)}자)에 여러 항목이 포함되어 있습니다'
+            })
+    
+    # 패턴 4: 불릿 포인트 서브 항목들이 줄바꿈 없이 연결된 경우
+    for i, line in enumerate(lines):
+        if (line.strip().startswith('  -') and 
+            not line.rstrip().endswith('  ') and 
+            len(line.strip()) > 40):
+            # 다음 줄이 같은 레벨의 서브 항목인지 확인
+            next_line = lines[i + 1] if i + 1 < len(lines) else ""
+            if next_line.strip().startswith('  -'):
                 problems.append({
-                    'type': 'multi_item_long_line',
-                    'content': line[:150] + '...' if len(line) > 150 else line,
-                    'line': i,
-                    'issue': f'긴 줄에 여러 항목이 포함되어 가독성이 떨어집니다 ({len(line)}자)'
+                    'type': 'bullet_sub_items_no_linebreak',
+                    'content': line.strip(),
+                    'line': i + 1,
+                    'issue': '불릿 포인트 서브 항목에 줄바꿈이 필요합니다',
+                    'sub_lines': [i + 1]
                 })
     
-    # 패턴 5: 이모지와 볼드가 섞인 복잡한 형태
-    pattern5 = r'[\U0001F300-\U0001F9FF] \*\*[^*]+\*\* [^-\n]+ - [\U0001F300-\U0001F9FF] \*\*[^*]+\*\*'
-    matches = re.finditer(pattern5, markdown_content)
-    
-    for match in matches:
-        line_num = markdown_content[:match.start()].count('\n') + 1
-        problems.append({
-            'type': 'emoji_bold_mixed',
-            'content': match.group(0),
-            'line': line_num,
-            'issue': '이모지와 볼드가 섞인 항목들이 한 줄에 연결되어 있습니다'
-        })
+    # 패턴 5: 불릿 포인트 안의 긴 설명들 - 콜론 뒤 설명이 긴 경우
+    for i, line in enumerate(lines):
+        if (line.strip().startswith('- ') and ':' in line and 
+            not line.strip().startswith('- **') and
+            len(line.strip()) > 60):
+            problems.append({
+                'type': 'long_bullet_description',
+                'content': line.strip(),
+                'line': i + 1,
+                'issue': '불릿 포인트 내 긴 설명이 줄바꿈 없이 연결되어 있습니다'
+            })
     
     # 패턴 6: "- **항목**: 설명" 형태에서 설명 부분이 긴 경우 줄바꿈 추가
     for i, line in enumerate(lines):
@@ -234,6 +219,22 @@ def test_specific_formatting_issues(markdown_content):
                     'content': line.strip(),
                     'line': i + 1,
                     'issue': '불릿 포인트 항목의 설명이 긴 경우 줄바꿈이 필요합니다'
+                })
+    
+    # 패턴 7: 레이어 이름 뒤 콜론 문제 - "meta:", "meta-poky:" 등
+    for i, line in enumerate(lines):
+        # "meta-xxx:" 패턴이나 단순 "meta:" 패턴 찾기
+        if (('meta' in line.lower() and ':' in line and 
+             not line.strip().startswith('#') and 
+             not line.strip().startswith('- **meta') and
+             len(line.strip()) > 10)):
+            # 콜론 뒤에 바로 설명이 오는 경우
+            if re.search(r'meta[^:]*:\s*[가-힣a-zA-Z]', line):
+                problems.append({
+                    'type': 'layer_name_colon_issue',
+                    'content': line.strip(),
+                    'line': i + 1,
+                    'issue': '레이어 이름 뒤 콜론 다음에 바로 설명이 붙어있습니다'
                 })
     
     return problems
@@ -454,6 +455,39 @@ def auto_fix_problems(markdown_file, problems):
                         if line.strip().startswith('  -') and not line.rstrip().endswith('  '):
                             # 줄 끝에 2개 스페이스 추가
                             lines[line_num - 1] = line.rstrip() + '  \n'
+                            fixed_count += 1
+        
+        elif problem['type'] == 'layer_name_colon_issue':
+            # 레이어 이름 뒤 콜론 문제 수정
+            line_num = problem['line']
+            if line_num - 1 < len(lines):
+                line = lines[line_num - 1]
+                # "meta-xxx: 설명" → "meta-xxx:\n  설명" 형태로 변경
+                if re.search(r'meta[^:]*:\s*[가-힣a-zA-Z]', line):
+                    # 콜론 뒤의 공백과 텍스트를 찾아서 분리
+                    match = re.search(r'(meta[^:]*:)\s*(.+)', line)
+                    if match:
+                        layer_name = match.group(1)
+                        description = match.group(2)
+                        # 줄바꿈으로 분리
+                        lines[line_num - 1] = layer_name + '\n' + description + '\n'
+                        fixed_count += 1
+        
+        elif problem['type'] == 'long_bullet_description':
+            # 긴 불릿 포인트 설명 줄바꿈 추가
+            line_num = problem['line']
+            if line_num - 1 < len(lines):
+                line = lines[line_num - 1]
+                if ':' in line and len(line.strip()) > 60:
+                    # 콜론 뒤에서 분리
+                    colon_pos = line.find(':')
+                    if colon_pos != -1:
+                        before_colon = line[:colon_pos + 1]  # "- 항목:" 부분
+                        after_colon = line[colon_pos + 1:].strip()  # 설명 부분
+                        
+                        if after_colon:  # 설명이 있는 경우만 처리
+                            # 줄바꿈으로 분리
+                            lines[line_num - 1] = before_colon + '  \n  ' + after_colon + '\n'
                             fixed_count += 1
     
     # 내용이 변경되었으면 파일에 저장

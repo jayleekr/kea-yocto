@@ -1,15 +1,36 @@
 #!/bin/bash
 
-# 📚 KEA Yocto Project HTML 생성
-# =============================
+# 📚 KEA Yocto Project HTML 생성 (버전 관리 포함)
+# ====================================================
 
 set -e
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_DIR="$(dirname "$SCRIPT_DIR")"
 
-echo "📚 KEA Yocto Project HTML 생성"
-echo "=============================="
+echo "📚 KEA Yocto Project HTML 생성 (버전 관리 포함)"
+echo "=============================================="
+echo ""
+
+# 버전 정보 생성
+CURRENT_DATE=$(date '+%Y년 %m월 %d일 %H:%M')
+BUILD_TIMESTAMP=$(date '+%Y%m%d_%H%M%S')
+
+# Git 정보 가져오기 (가능한 경우)
+if git rev-parse --git-dir > /dev/null 2>&1; then
+    GIT_HASH=$(git rev-parse --short HEAD 2>/dev/null || echo "unknown")
+    GIT_BRANCH=$(git branch --show-current 2>/dev/null || echo "unknown")
+    GIT_COMMIT_COUNT=$(git rev-list --count HEAD 2>/dev/null || echo "0")
+    VERSION="v1.${GIT_COMMIT_COUNT}.${BUILD_TIMESTAMP}"
+    GIT_INFO="Git: ${GIT_BRANCH}@${GIT_HASH}"
+else
+    VERSION="v1.0.${BUILD_TIMESTAMP}"
+    GIT_INFO="Git: 정보 없음"
+fi
+
+echo "📝 문서 버전: ${VERSION}"
+echo "🔄 ${GIT_INFO}"
+echo "📅 생성 시간: ${CURRENT_DATE}"
 echo ""
 
 # Pandoc 설치 확인
