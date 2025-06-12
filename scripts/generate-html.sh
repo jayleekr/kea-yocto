@@ -32,6 +32,11 @@ cat > header.html << 'EOF'
         mermaid.initialize({
             startOnLoad: true,
             theme: 'default',
+            // 확대/축소 및 인터랙티브 기능 활성화
+            securityLevel: 'loose',
+            maxTextSize: 90000,
+            maxEdges: 1000,
+            // SVG 렌더링 설정
             themeVariables: {
                 primaryColor: '#0366d6',
                 primaryTextColor: '#24292e',
@@ -39,7 +44,73 @@ cat > header.html << 'EOF'
                 lineColor: '#24292e',
                 secondaryColor: '#f6f8fa',
                 tertiaryColor: '#fafbfc'
+            },
+            // 다이어그램별 설정
+            flowchart: {
+                useMaxWidth: false,
+                htmlLabels: true,
+                curve: 'basis'
+            },
+            gantt: {
+                useMaxWidth: false
+            },
+            journey: {
+                useMaxWidth: false
             }
+        });
+        
+        // 렌더링 완료 후 확대/축소 기능 추가
+        mermaid.init(undefined, '.mermaid').then(() => {
+            document.querySelectorAll('.mermaid svg').forEach(svg => {
+                // SVG에 확대/축소 기능 추가
+                svg.style.cursor = 'grab';
+                svg.style.maxWidth = 'none';
+                svg.style.height = 'auto';
+                
+                // 확대/축소 이벤트 리스너
+                let scale = 1;
+                let isDragging = false;
+                let startX, startY, translateX = 0, translateY = 0;
+                
+                // 휠 이벤트 (확대/축소)
+                svg.addEventListener('wheel', (e) => {
+                    e.preventDefault();
+                    const delta = e.deltaY > 0 ? 0.9 : 1.1;
+                    scale *= delta;
+                    scale = Math.max(0.1, Math.min(scale, 5)); // 최소 10%, 최대 500%
+                    svg.style.transform = `translate(${translateX}px, ${translateY}px) scale(${scale})`;
+                });
+                
+                // 드래그 시작
+                svg.addEventListener('mousedown', (e) => {
+                    isDragging = true;
+                    startX = e.clientX - translateX;
+                    startY = e.clientY - translateY;
+                    svg.style.cursor = 'grabbing';
+                });
+                
+                // 드래그 중
+                document.addEventListener('mousemove', (e) => {
+                    if (!isDragging) return;
+                    translateX = e.clientX - startX;
+                    translateY = e.clientY - startY;
+                    svg.style.transform = `translate(${translateX}px, ${translateY}px) scale(${scale})`;
+                });
+                
+                // 드래그 종료
+                document.addEventListener('mouseup', () => {
+                    isDragging = false;
+                    svg.style.cursor = 'grab';
+                });
+                
+                // 더블클릭으로 리셋
+                svg.addEventListener('dblclick', () => {
+                    scale = 1;
+                    translateX = 0;
+                    translateY = 0;
+                    svg.style.transform = `translate(0px, 0px) scale(1)`;
+                });
+            });
         });
     });
 </script>
@@ -51,6 +122,31 @@ cat > header.html << 'EOF'
         padding: 15px;
         border-radius: 6px;
         border: 1px solid #e1e4e8;
+        overflow: hidden; /* 확대 시 스크롤바 방지 */
+        position: relative;
+    }
+    .mermaid svg {
+        max-width: 100%;
+        height: auto;
+        transition: transform 0.1s ease;
+    }
+    .mermaid::before {
+        content: "💡 사용법: 마우스 휠로 확대/축소, 드래그로 이동, 더블클릭으로 리셋";
+        position: absolute;
+        top: 5px;
+        right: 10px;
+        font-size: 10px;
+        color: #666;
+        background: rgba(255,255,255,0.8);
+        padding: 2px 6px;
+        border-radius: 3px;
+        opacity: 0;
+        transition: opacity 0.3s;
+        pointer-events: none;
+        z-index: 10;
+    }
+    .mermaid:hover::before {
+        opacity: 1;
     }
     body { 
         max-width: 900px; 
