@@ -582,11 +582,43 @@ class="header-section-number">1.3.1.1</span> 2.1.1 Yocto Project의 핵심
 hardware”</strong>라는 목표를 가지고 설계되었습니다. 전통적인 Linux
 배포판과 달리, Yocto는 <strong>빌드 시스템 접근 방식</strong>을
 택했습니다:</p>
-<p><strong>전통적인 배포판 vs Yocto Project</strong> | 구분 | 전통적인
-배포판 | Yocto Project | |——|—————-|—————| | 접근 방법 | 미리 빌드된
-패키지 | 소스에서 빌드 | | 패키지 관리 | APT, YUM 등 | 레시피 기반 | |
-커스터마이징 | 제한적 | 완전한 제어 | | 크기 최적화 | 어려움 | 필요한
-것만 포함 | | 크로스 컴파일 | 복잡함 | 자동 지원 |</p>
+<p><strong>전통적인 배포판 vs Yocto Project</strong></p>
+<table>
+<thead>
+<tr>
+<th>구분</th>
+<th>전통적인 배포판</th>
+<th>Yocto Project</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>접근 방법</td>
+<td>미리 빌드된 패키지</td>
+<td>소스에서 빌드</td>
+</tr>
+<tr>
+<td>패키지 관리</td>
+<td>APT, YUM 등</td>
+<td>레시피 기반</td>
+</tr>
+<tr>
+<td>커스터마이징</td>
+<td>제한적</td>
+<td>완전한 제어</td>
+</tr>
+<tr>
+<td>크기 최적화</td>
+<td>어려움</td>
+<td>필요한 것만 포함</td>
+</tr>
+<tr>
+<td>크로스 컴파일</td>
+<td>복잡함</td>
+<td>자동 지원</td>
+</tr>
+</tbody>
+</table>
 <h4 data-number="1.3.1.2" id="핵심-구성-요소-상세-설명"><span
 class="header-section-number">1.3.1.2</span> 2.1.2 핵심 구성 요소 상세
 설명</h4>
@@ -701,15 +733,61 @@ class="header-section-number">1.3.3.1</span> 2.3.1 BitBake 작업 흐름
 빌드 순서 결정 3. <strong>태스크 그래프 생성</strong>: 각 패키지별 do_*
 태스크들의 실행 순서 계획 4. <strong>병렬 실행</strong>: CPU 코어 수에
 맞춰 독립적인 태스크들을 동시 실행</p>
-<p><strong>주요 태스크 타입 설명</strong> | 태스크 | 목적 | 입력 | 출력
-| |——–|——|——|——| | <code>do_fetch</code> | 소스 다운로드 | SRC_URI |
-DL_DIR/*.tar.gz | | <code>do_unpack</code> | 압축 해제 | 다운로드된 파일
-| WORKDIR/source | | <code>do_patch</code> | 패치 적용 | 소스 + 패치
-파일 | 패치된 소스 | | <code>do_configure</code> | 빌드 설정 | 소스 |
-Makefile/CMake | | <code>do_compile</code> | 컴파일 | 설정된 소스 |
-바이너리 | | <code>do_install</code> | 파일 설치 | 바이너리 | image/
-디렉토리 | | <code>do_package</code> | 패키지 생성 | 설치된 파일 |
-.deb/.rpm 등 |</p>
+<p><strong>주요 태스크 타입 설명</strong></p>
+<table>
+<thead>
+<tr>
+<th>태스크</th>
+<th>목적</th>
+<th>입력</th>
+<th>출력</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>do_fetch</code></td>
+<td>소스 다운로드</td>
+<td>SRC_URI</td>
+<td>DL_DIR/*.tar.gz</td>
+</tr>
+<tr>
+<td><code>do_unpack</code></td>
+<td>압축 해제</td>
+<td>다운로드된 파일</td>
+<td>WORKDIR/source</td>
+</tr>
+<tr>
+<td><code>do_patch</code></td>
+<td>패치 적용</td>
+<td>소스 + 패치 파일</td>
+<td>패치된 소스</td>
+</tr>
+<tr>
+<td><code>do_configure</code></td>
+<td>빌드 설정</td>
+<td>소스</td>
+<td>Makefile/CMake</td>
+</tr>
+<tr>
+<td><code>do_compile</code></td>
+<td>컴파일</td>
+<td>설정된 소스</td>
+<td>바이너리</td>
+</tr>
+<tr>
+<td><code>do_install</code></td>
+<td>파일 설치</td>
+<td>바이너리</td>
+<td>image/ 디렉토리</td>
+</tr>
+<tr>
+<td><code>do_package</code></td>
+<td>패키지 생성</td>
+<td>설치된 파일</td>
+<td>.deb/.rpm 등</td>
+</tr>
+</tbody>
+</table>
 <h4 data-number="1.3.3.2"
 id="공유-상태-캐시-sstate-cache-메커니즘"><span
 class="header-section-number">1.3.3.2</span> 2.3.2 공유 상태 캐시
@@ -929,13 +1007,48 @@ class="sourceCode bash"><code class="sourceCode bash"><span id="cb12-1"><a href=
 <span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a><span class="co"># 최종 결과: &quot;앞에추가 QEMU x86-64용 값 추가값&quot;</span></span></code></pre></div>
 <h4 data-number="1.3.5.3" id="빌드-출력물-이해"><span
 class="header-section-number">1.3.5.3</span> 2.5.3 빌드 출력물 이해</h4>
-<p><strong>주요 빌드 결과물</strong> | 디렉토리 | 내용 | 설명 |
-|———-|——|——| | <code>tmp/deploy/images/</code> | 최종 이미지 | 부팅
-가능한 루트 파일시스템 | | <code>tmp/deploy/ipk/</code> | 패키지 파일 |
-개별 소프트웨어 패키지 | | <code>tmp/deploy/sdk/</code> | SDK | 크로스
-컴파일 개발 환경 | | <code>tmp/work/</code> | 빌드 작업공간 | 소스 코드,
-빌드 로그 | | <code>sstate-cache/</code> | 상태 캐시 | 빌드 캐시 파일 |
-| <code>downloads/</code> | 다운로드 | 원본 소스 아카이브 |</p>
+<p><strong>주요 빌드 결과물</strong></p>
+<table>
+<thead>
+<tr>
+<th>디렉토리</th>
+<th>내용</th>
+<th>설명</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>tmp/deploy/images/</code></td>
+<td>최종 이미지</td>
+<td>부팅 가능한 루트 파일시스템</td>
+</tr>
+<tr>
+<td><code>tmp/deploy/ipk/</code></td>
+<td>패키지 파일</td>
+<td>개별 소프트웨어 패키지</td>
+</tr>
+<tr>
+<td><code>tmp/deploy/sdk/</code></td>
+<td>SDK</td>
+<td>크로스 컴파일 개발 환경</td>
+</tr>
+<tr>
+<td><code>tmp/work/</code></td>
+<td>빌드 작업공간</td>
+<td>소스 코드, 빌드 로그</td>
+</tr>
+<tr>
+<td><code>sstate-cache/</code></td>
+<td>상태 캐시</td>
+<td>빌드 캐시 파일</td>
+</tr>
+<tr>
+<td><code>downloads/</code></td>
+<td>다운로드</td>
+<td>원본 소스 아카이브</td>
+</tr>
+</tbody>
+</table>
 <p><strong>이미지 타입별 특징</strong> - <strong>.ext4</strong>: Linux
 ext4 파일시스템 (개발용) - <strong>.wic</strong>: 부팅 가능한 디스크
 이미지 (실제 하드웨어) - <strong>.tar.bz2</strong>: 압축된 루트

@@ -62,6 +62,7 @@
 Yocto Project는 **"Create a custom Linux distribution for any hardware"**라는 목표를 가지고 설계되었습니다. 전통적인 Linux 배포판과 달리, Yocto는 **빌드 시스템 접근 방식**을 택했습니다:
 
 **전통적인 배포판 vs Yocto Project**
+
 | 구분 | 전통적인 배포판 | Yocto Project |
 |------|----------------|---------------|
 | 접근 방법 | 미리 빌드된 패키지 | 소스에서 빌드 |
