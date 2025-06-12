@@ -1,64 +1,61 @@
-# project_config.md
-Last-Updated: 2025-01-21
+# Project Configuration: Yocto 강의 프로젝트
 
-## Project Goal
-KEA Yocto Project 강의를 위한 완전한 Docker 기반 개발 환경 구축 및 8시간 집중 강의 자료 제작. Yocto 5.0 LTS (Scarthgap) 기반으로 임베디드 리눅스 시스템 개발 교육을 제공한다.
+## 프로젝트 개요
 
-## Tech Stack
-- **Language(s):** Markdown, Shell Script, YAML
-- **Framework(s):** Yocto Project 5.0 LTS (Scarthgap), Docker, Pandoc
-- **Build / Tooling:** Docker Compose, BitBake, QEMU, Mermaid
-- **Documentation:** Pandoc, Mermaid Diagrams, Korean Typography Support
-- **Base System:** Ubuntu 24.04 LTS, Poky Reference Distribution
+8시간 Yocto 강의를 위한 Docker 기반 환경과 자료를 제공하는 프로젝트입니다.
 
-## Critical Patterns & Conventions
-- **강의 자료 구조화**: 이론 30% + 실습 60% + 토론 10% 비율 유지
-- **시각적 학습 지원**: Mermaid 다이어그램을 활용한 복잡한 개념 시각화
-- **단계별 실습**: 환경 설정 → 기본 빌드 → 커스터마이징 → 고급 주제 순서
-- **Docker 환경 일관성**: 모든 실습이 동일한 컨테이너 환경에서 실행
-- **한글 문서화**: 모든 강의 자료는 한글로 작성, PDF 변환 시 한글 폰트 지원
-- **빌드 시간 최적화**: 캐시 활용으로 첫 빌드 시간을 90% 단축 (2-3시간 → 15-30분)
-- **문서 버전 관리**: 자동 버전 증가 시스템으로 각 빌드마다 고유 버전 부여
-- **PDF 생성 표준화**: Pandoc + XeLaTeX + Mermaid 조합으로 일관된 문서 품질 보장
+## 목표
+- 임베디드 시스템 개발자들에게 Yocto 프로젝트 실무 지식 전달
+- 실습 중심의 체계적인 학습 경험 제공
+- Docker 기반 일관된 개발 환경 제공
 
-### Pandoc 빌드 설정
-```yaml
-# pandoc-template.yaml 기본 설정
-title: "KEA Yocto Project 5.0 LTS 강의 자료"
-author: "KEA 강의팀"
-mainfont: "Noto Sans CJK KR"
-monofont: "D2Coding"
-pdf-engine: xelatex
-toc: true
-number-sections: true
-```
+## 기술 스택
+- **컨테이너**: Docker, Docker Compose
+- **빌드 시스템**: Yocto Project 5.0 LTS (Scarthgap)
+- **가상화**: QEMU
+- **문서화**: MkDocs, Markdown
 
-### 빌드 명령어
-```bash
-# PDF 생성 (materials 디렉토리에서)
-cd materials && ./generate-pdf.sh
+## 현재 진행상황
+- ✅ Docker 환경 설정 완료
+- ✅ Yocto 5.0 LTS 빌드 환경 구축
+- ✅ 강의 자료 작성 완료
+- ✅ MkDocs 웹 서버 설정
+- ✅ GitHub 배포 완료
 
-# 수동 빌드
-pandoc lecture-materials.md --metadata-file=pandoc-template.yaml \
-  --pdf-engine=xelatex -o KEA-Yocto-Project-강의자료-v{VERSION}.pdf
-```
+## 주요 구성요소
 
-## Constraints
-- **강의 시간**: 정확히 8시간 내 완료 (휴식 시간 포함)
-- **시스템 요구사항**: 최소 8GB RAM, 권장 16GB, 50GB 여유 공간
-- **Docker 의존성**: 모든 실습은 Docker 컨테이너 내에서 실행
-- **네트워크 제약**: 안정적인 인터넷 연결 필수 (소스 다운로드용)
-- **플랫폼 호환성**: x86_64, ARM64 (Apple Silicon) 모두 지원
-- **빌드 성공률**: 90% 이상의 학습자가 성공적으로 첫 빌드 완료
+### 1. Docker 환경
+- **기본 이미지**: Ubuntu 24.04
+- **Yocto 버전**: 5.0 LTS (Scarthgap)
+- **타겟 아키텍처**: x86_64 (QEMU)
 
-## Tokenization Settings
-- Estimated chars-per-token: 3.5  
-- Max tokens per message: 8 000
-- Plan for summary when **workflow_state.md** exceeds ~12 K chars.
+### 2. 강의 자료
+- 833라인 마크다운 강의 자료
+- 5개 섹션으로 구성된 체계적 커리큘럼
+- 이론과 실습의 균형있는 구성
 
----
+### 3. 실습 환경
+- Docker 컨테이너 기반 격리된 환경
+- 사전 설정된 Yocto 빌드 도구
+- QEMU를 통한 이미지 테스트 환경
 
-## Changelog
-- 강의자료를 materials/ 디렉토리로 구조화하고 자동 버전 관리 시스템 구축 완료 (pandoc 설정 포함) - 2025-01-21
-- KEA Yocto Project 8시간 강의를 위한 완전한 강의 자료 제작 완료 (Mermaid 다이어그램 5개, PDF 변환 환경 포함) - 2025-01-21
-<!-- The agent prepends the latest summary here as a new list item after each VALIDATE phase -->
+### 4. 성능 최적화
+- ccache를 통한 빌드 속도 향상
+- sstate-cache 공유를 통한 효율성 증대
+- Docker 볼륨을 통한 데이터 지속성
+
+## 사용자 대상
+- 임베디드 시스템 개발자
+- Linux 커널/드라이버 개발자
+- 시스템 엔지니어
+- DevOps 엔지니어
+
+## 학습 성과
+강의 완료 후 학습자는 다음을 할 수 있습니다:
+- Yocto 기반 커스텀 Linux 배포판 생성
+- BitBake 레시피 작성 및 수정
+- 임베디드 시스템 개발 워크플로우 구축
+- Docker 기반 개발 환경 활용
+
+## 라이선스
+이 프로젝트는 교육 목적으로 제작되었으며, 자유롭게 사용 및 수정 가능합니다.
