@@ -132,6 +132,10 @@ RUN echo '#!/bin/bash' > /etc/profile.d/yocto-env.sh && \
     echo 'yocto_init() {' >> /etc/profile.d/yocto-env.sh && \
     echo '    if [ -d "$POKY_DIR" ]; then' >> /etc/profile.d/yocto-env.sh && \
     echo '        source $POKY_DIR/oe-init-build-env ${1:-/workspace/build}' >> /etc/profile.d/yocto-env.sh && \
+    echo '        # Auto-configure cache paths' >> /etc/profile.d/yocto-env.sh && \
+    echo '        if [ -f "/opt/scripts/setup-yocto-cache.sh" ]; then' >> /etc/profile.d/yocto-env.sh && \
+    echo '            /opt/scripts/setup-yocto-cache.sh' >> /etc/profile.d/yocto-env.sh && \
+    echo '        fi' >> /etc/profile.d/yocto-env.sh && \
     echo '    else' >> /etc/profile.d/yocto-env.sh && \
     echo '        echo "Error: Poky directory not found at $POKY_DIR"' >> /etc/profile.d/yocto-env.sh && \
     echo '    fi' >> /etc/profile.d/yocto-env.sh && \
