@@ -378,8 +378,11 @@ build_target() {
         -e MACHINE=qemux86-64 \
         "$DOCKER_IMAGE" \
         /bin/bash -c "
-            set -euo pipefail
+            set -eo pipefail
+            # Temporarily disable unset variable checking for Yocto environment setup
+            set +u
             source /opt/poky/oe-init-build-env /tmp/cache-build
+            set -u
             
             # 빌드 시작 시간 기록
             start_time=\$(date +%s)
@@ -461,8 +464,45 @@ else
     exit 1
 fi
 
-# 8단계: 최종 검증
-log_step "8단계: 최종 검증 중..."
+# 8단계: 캐시 효율성 검증
+log_step "8단계: 캐시 효율성 검증 중..."
+
+# 캐시 효율성 테스트 실행
+if [ -f "./scripts/test-cache-efficiency.py" ]; then
+    log_info "캐시 효율성 테스트를 실행하여 재사용 가능성을 검증합니다..."
+    
+    if python3 ./scripts/test-cache-efficiency.py \
+        --workspace "$WORKSPACE_DIR" \
+        --image "$DOCKER_IMAGE" \
+        --targets core-image-minimal \
+        --iterations 2 \
+        --output cache_verification_test.json; then
+        
+        log_info "✅ 캐시 효율성 검증 완료"
+        
+        # jq가 있으면 간단한 결과 표시
+        if command -v jq >/dev/null 2>&1; then
+            EFFICIENCY=$(jq -r '.performance_analysis."core-image-minimal".efficiency_percentage // 0' cache_verification_test.json 2>/dev/null || echo "0")
+            if [ "$EFFICIENCY" != "0" ] && [ "$EFFICIENCY" != "null" ]; then
+                EFFICIENCY_INT=${EFFICIENCY%.*}
+                if [ "$EFFICIENCY_INT" -ge 80 ]; then
+                    log_info "🎉 캐시 재사용률: ${EFFICIENCY_INT}% (매우 우수)"
+                elif [ "$EFFICIENCY_INT" -ge 60 ]; then
+                    log_info "✅ 캐시 재사용률: ${EFFICIENCY_INT}% (양호)"
+                else
+                    log_warn "⚠️  캐시 재사용률: ${EFFICIENCY_INT}% (개선 필요)"
+                fi
+            fi
+        fi
+    else
+        log_warn "캐시 효율성 테스트에 실패했지만 캐시 생성은 계속 진행합니다."
+    fi
+else
+    log_warn "캐시 효율성 테스트 스크립트를 찾을 수 없습니다."
+fi
+
+# 9단계: 최종 검증
+log_step "9단계: 최종 검증 중..."
 
 # 압축 파일 크기 확인
 downloads_final_kb=$(du -k downloads-cache.tar.gz | cut -f1)
