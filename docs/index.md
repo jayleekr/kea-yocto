@@ -1,6 +1,9 @@
 # KEA Yocto Project 5.0 LTS 강의
 
-![Yocto Project](https://www.yoctoproject.org/wp-content/uploads/sites/32/2023/07/YoctoProject_Logo_RGB_White_small.png){ .center width="300" }
+<div align="center">
+  <h2>🏗️ Yocto Project</h2>
+  <p><em>Custom Linux Distribution Builder</em></p>
+</div>
 
 **강의명**: Yocto Project를 활용한 임베디드 리눅스 시스템 개발  
 **대상**: 임베디드 시스템 개발자, 리눅스 시스템 엔지니어  
