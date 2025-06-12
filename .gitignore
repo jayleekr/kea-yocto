@@ -2,6 +2,31 @@
 
 # Yocto 작업 디렉토리 (빌드 결과물은 Git에서 제외)
 yocto-workspace/
+yocto-workspace-*/
+yocto-test-download/
+
+# 캐시 tar ball 파일들 (크기가 커서 Git에서 제외)
+*.tar.gz
+*.tar.xz
+*.tar.bz2
+!scripts/*.tar.gz  # 스크립트 폴더의 필요한 압축파일은 예외
+
+# 캐시 디렉토리들
+cache-uploads/
+web-cache/
+downloads/
+sstate-cache/
+
+# 빌드 로그 및 임시 파일
+build-log.txt
+cache-test.log
+*-cache-*.tar.gz
+*-cache-*.json
+
+# 체크섬 파일들 (tar ball과 함께 생성됨)
+*.md5
+*.sha256
+*.sig
 
 # 로그 파일
 *.log
