@@ -1,14 +1,16 @@
 # KEA Yocto Project 5.0 LTS 강의
 
-<div align="center">
-  <h2>🏗️ Yocto Project</h2>
-  <p><em>Custom Linux Distribution Builder</em></p>
+<div class="hero-section">
+  <div class="hero-icon">🏗️</div>
+  <h2 class="hero-title">Yocto Project</h2>
+  <p class="hero-subtitle"><strong>Custom Linux Distribution Builder</strong></p>
 </div>
 
-**강의명**: Yocto Project를 활용한 임베디드 리눅스 시스템 개발  
-**대상**: 임베디드 시스템 개발자, 리눅스 시스템 엔지니어  
-**시간**: 8시간 (휴식 포함)  
-**환경**: Docker 기반 Yocto 5.0 LTS (Scarthgap)  
+!!! info "강의 정보"
+    - **강의명**: Yocto Project를 활용한 임베디드 리눅스 시스템 개발  
+    - **대상**: 임베디드 시스템 개발자, 리눅스 시스템 엔지니어  
+    - **시간**: 8시간 (휴식 포함)  
+    - **환경**: Docker 기반 Yocto 5.0 LTS (Scarthgap)  
 
 ---
 

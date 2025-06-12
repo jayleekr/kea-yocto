@@ -151,4 +151,64 @@
     height: 1em;
     margin: 0 auto;
   }
+}
+
+/* 기존 스타일 유지 */
+:root {
+  --md-primary-fg-color: #2196F3;
+  --md-primary-fg-color--light: #42A5F5;
+  --md-primary-fg-color--dark: #1976D2;
+  --md-accent-fg-color: #FF5722;
+}
+
+.md-header {
+  background: linear-gradient(135deg, #1976D2 0%, #2196F3 100%);
+}
+
+.md-nav__item--active > .md-nav__link {
+  color: var(--md-primary-fg-color);
+}
+
+.md-footer {
+  background: linear-gradient(135deg, #263238 0%, #37474F 100%);
+}
+
+/* 새로운 히어로 섹션 스타일 */
+.hero-section {
+  text-align: center;
+  margin: 2rem 0;
+  padding: 2rem;
+  background: linear-gradient(135deg, #f5f5f5 0%, #e3f2fd 100%);
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.hero-icon {
+  font-size: 4rem;
+  margin-bottom: 1rem;
+  display: block;
+  text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+}
+
+.hero-title {
+  color: #1976d2 !important;
+  margin: 0.5rem 0 !important;
+  font-weight: 600;
+}
+
+.hero-subtitle {
+  font-style: italic;
+  color: #666 !important;
+  margin: 0 !important;
+  font-size: 1.1rem;
+}
+
+/* 깨진 이미지 숨기기 */
+img[src*="yoctoproject.org"] {
+  display: none !important;
+}
+
+/* 빈 이미지 alt 텍스트 숨기기 */
+img[alt="Yocto Project"] {
+  display: none !important;
 } 
