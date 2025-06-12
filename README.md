@@ -236,6 +236,27 @@ docker compose exec yocto-lecture sudo chown -R yocto:yocto /workspace
 docker compose exec yocto-lecture bash -c "sudo chown -R yocto:yocto /workspace && bash"
 ```
 
+### Ubuntu 24.04 User Namespace 문제
+
+**증상**: BitBake 실행 시 user namespace 에러
+
+```bash
+ERROR: User namespaces are not usable by BitBake, possibly due to AppArmor.
+```
+
+**해결책**: 호스트에서 user namespace 제한 해제
+```bash
+# 임시 해결 (재부팅 시 리셋)
+sudo sysctl kernel.apparmor_restrict_unprivileged_userns=0
+
+# 영구 해결
+echo 'kernel.apparmor_restrict_unprivileged_userns = 0' | sudo tee -a /etc/sysctl.conf
+sudo sysctl -p
+
+# 컨테이너 재시작
+docker compose restart yocto-lecture
+```
+
 ### 강의 자료 생성 문제
 ```bash
 # Pandoc 설치 (macOS)

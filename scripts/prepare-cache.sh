@@ -103,6 +103,7 @@ mkdir -p yocto-workspace/{downloads,sstate-cache}
 
 # 캐시 미러 서버 목록 (우선순위순)
 MIRRORS=(
+    "https://github.com/jayleekr/kea-yocto/releases/download/split-cache-20250612-153704"
     "https://github.com/jayleekr/kea-yocto-cache/releases/download/5.0-lts-v1"
     "https://your-cdn.example.com/yocto-cache/5.0-lts-v1"
     "https://drive.google.com/uc?id=DOWNLOAD_ID&export=download"
@@ -344,14 +345,31 @@ fi
 log_info "디스크 공간 확인: ${available_space_gb}GB 사용 가능 ✓"
 
 # 기존 캐시 상태 확인
+HAVE_DOWNLOADS=false
+HAVE_SSTATE=false
+
 if [ -d "yocto-workspace/downloads" ] && [ "$(ls -A yocto-workspace/downloads 2>/dev/null)" ]; then
     existing_downloads=$(du -sh yocto-workspace/downloads | cut -f1)
     log_info "기존 downloads 캐시: $existing_downloads"
+    HAVE_DOWNLOADS=true
 fi
 
 if [ -d "yocto-workspace/sstate-cache" ] && [ "$(ls -A yocto-workspace/sstate-cache 2>/dev/null)" ]; then
     existing_sstate=$(du -sh yocto-workspace/sstate-cache | cut -f1)
     log_info "기존 sstate 캐시: $existing_sstate"
+    HAVE_SSTATE=true
+fi
+
+# 캐시가 이미 충분히 있다면 다운로드 건너뛰기
+if [ "$HAVE_DOWNLOADS" = true ] && [ "$HAVE_SSTATE" = true ]; then
+    log_info "✅ 기존 캐시가 충분합니다. 다운로드를 건너뜁니다."
+    log_info "📊 캐시 상태:"
+    echo "   ✅ Downloads 캐시: $existing_downloads"
+    echo "   ✅ sstate 캐시: $existing_sstate"
+    echo ""
+    log_info "💡 예상 빌드 시간: 15-30분 (풀 캐시)"
+    log_info "캐시 준비가 완료되었습니다!"
+    exit 0
 fi
 
 # Dry-run 모드 결과 요약

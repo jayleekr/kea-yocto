@@ -233,6 +233,37 @@ find sstate-cache/ -atime +30 -delete
     sudo chown -R yocto:yocto /workspace/build
     ```
 
+### User Namespace 문제 (Ubuntu 24.04)
+
+!!! danger "User namespaces are not usable by BitBake"
+    **증상**: Ubuntu 24.04에서 BitBake 실행 시 user namespace 에러
+    ```
+    ERROR: User namespaces are not usable by BitBake, possibly due to AppArmor.
+    ```
+    
+    **원인**: Ubuntu 24.04의 보안 정책으로 unprivileged user namespace 제한
+    
+    **해결책**:
+    ```bash
+    # 호스트 시스템에서 실행 (컨테이너 외부)
+    echo 'kernel.apparmor_restrict_unprivileged_userns = 0' | sudo tee -a /etc/sysctl.conf
+    sudo sysctl -p
+    
+    # 또는 임시로 활성화
+    sudo sysctl kernel.apparmor_restrict_unprivileged_userns=0
+    
+    # 컨테이너 재시작
+    docker compose restart yocto-lecture
+    ```
+
+!!! tip "Alternative: BB_NO_NETWORK 설정"
+    User namespace를 사용하지 않고 빌드하려면:
+    ```bash
+    # local.conf에 추가
+    echo 'BB_NO_NETWORK = "1"' >> conf/local.conf
+    echo 'BB_FETCH_PREMIRRORONLY = "1"' >> conf/local.conf
+    ```
+
 ### 네트워크 문제
 
 ```bash
