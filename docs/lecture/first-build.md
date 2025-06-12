@@ -4,6 +4,16 @@
 
 컨테이너 내에서 Yocto 빌드 환경을 초기화합니다:
 
+!!! warning "권한 확인 필수"
+    환경 초기화 전에 워크스페이스 권한을 확인하세요:
+    ```bash
+    # 권한 확인
+    ls -la /workspace
+    
+    # 권한이 root로 되어있다면 수정
+    sudo chown -R yocto:yocto /workspace
+    ```
+
 ```bash
 # Yocto 빌드 환경 초기화
 source /opt/poky/oe-init-build-env /workspace/build
@@ -197,6 +207,31 @@ rm -rf tmp/
 # 오래된 sstate 파일 정리
 find sstate-cache/ -atime +30 -delete
 ```
+
+### 권한 관련 문제
+
+!!! danger "mkdir: cannot create directory '/workspace/build': Permission denied"
+    **해결책**:
+    ```bash
+    # 컨테이너 내부에서 권한 수정
+    sudo chown -R yocto:yocto /workspace
+    
+    # 빌드 디렉토리 생성 후 재시도
+    mkdir -p /workspace/build
+    source /opt/poky/oe-init-build-env /workspace/build
+    ```
+
+!!! warning "파일 생성 권한 에러"
+    **증상**: conf 파일 생성 시 권한 에러
+    
+    **해결책**:
+    ```bash
+    # 빌드 디렉토리 권한 확인
+    ls -la /workspace/build
+    
+    # 필요시 권한 수정
+    sudo chown -R yocto:yocto /workspace/build
+    ```
 
 ### 네트워크 문제
 

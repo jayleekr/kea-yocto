@@ -182,6 +182,32 @@ docker compose up -d
 docker compose exec yocto-lecture bash
 ```
 
+### Docker 컨테이너 권한 문제 해결
+
+!!! danger "Permission Denied 에러"
+    **증상**: `/workspace/build` 디렉토리 생성 시 "Permission denied" 에러
+    
+    **원인**: Docker 컨테이너의 `/workspace` 디렉토리가 root 소유로 설정됨
+    
+    **해결책**:
+    ```bash
+    # 컨테이너 내부에서 실행
+    docker compose exec yocto-lecture bash
+    
+    # 워크스페이스 권한 수정
+    sudo chown -R yocto:yocto /workspace
+    
+    # 또는 컨테이너 외부에서 한 번에 실행
+    docker compose exec yocto-lecture sudo chown -R yocto:yocto /workspace
+    ```
+
+!!! tip "자동화된 권한 수정"
+    매번 수동으로 권한을 수정하는 것을 피하려면:
+    ```bash
+    # 컨테이너 시작 시 자동으로 권한 수정
+    docker compose exec yocto-lecture bash -c "sudo chown -R yocto:yocto /workspace && bash"
+    ```
+
 ---
 
 ← [아키텍처](architecture.md) | [첫 빌드](first-build.md) → 

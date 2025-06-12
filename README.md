@@ -214,11 +214,26 @@ bitbake core-image-minimal
 # Docker 관련 문제
 docker system prune -a
 
-# 권한 문제
+# 권한 문제 (호스트)
 sudo chown -R $USER:$USER .
 
 # 스크립트 권한
 chmod +x scripts/*.sh
+```
+
+### Docker 컨테이너 권한 문제
+
+**가장 흔한 문제**: Docker 컨테이너에서 `/workspace/build` 디렉토리 생성 시 권한 에러
+
+```bash
+# 증상: Permission denied 에러
+mkdir: cannot create directory '/workspace/build': Permission denied
+
+# 해결책: 컨테이너 내부에서 권한 수정
+docker compose exec yocto-lecture sudo chown -R yocto:yocto /workspace
+
+# 또는 컨테이너 진입 시 자동 권한 수정
+docker compose exec yocto-lecture bash -c "sudo chown -R yocto:yocto /workspace && bash"
 ```
 
 ### 강의 자료 생성 문제
