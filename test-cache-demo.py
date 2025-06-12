@@ -5,10 +5,13 @@ KEA Yocto Cache Test Demo
 This script demonstrates the cache download and build test functionality
 without downloading large cache files. It validates the test infrastructure
 and shows what the full test would do.
+
+Cross-platform compatible (Linux, macOS).
 """
 
 import sys
 import os
+import platform
 from pathlib import Path
 
 # Add the scripts directory to the path
@@ -30,6 +33,17 @@ def demo_test_infrastructure():
     """Demo the test infrastructure without downloading files"""
     print("🧪 KEA Yocto Cache Test Infrastructure Demo")
     print("=" * 50)
+    print()
+    
+    # Detect platform
+    is_macos = platform.system() == "Darwin"
+    is_linux = platform.system() == "Linux"
+    
+    print(f"🖥️  Platform: {platform.system()} ({platform.machine()})")
+    if is_macos:
+        print("   macOS compatibility mode enabled")
+    elif is_linux:
+        print("   Linux compatibility mode enabled")
     print()
     
     # Create test instance

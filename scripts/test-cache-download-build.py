@@ -10,6 +10,7 @@ This script comprehensively tests:
 5. Performance comparison (cached vs uncached builds)
 
 Based on README.md specifications and existing test patterns.
+Cross-platform compatible (Linux, macOS).
 """
 
 import os
@@ -23,6 +24,7 @@ import hashlib
 import shutil
 import requests
 import tempfile
+import platform
 from pathlib import Path
 from datetime import datetime, timedelta
 from typing import Dict, List, Tuple, Optional, Any
@@ -50,6 +52,10 @@ class CacheDownloadBuildTest:
         self.workspace_dir = Path(workspace_dir).resolve()
         self.docker_image = docker_image
         self.github_base_url = github_base_url
+        
+        # Detect platform for cross-platform compatibility
+        self.is_macos = platform.system() == "Darwin"
+        self.is_linux = platform.system() == "Linux"
         
         # Cache directories
         self.downloads_dir = self.workspace_dir / "downloads"
@@ -340,8 +346,10 @@ class CacheDownloadBuildTest:
     def _verify_tarball(self, file_path: Path) -> bool:
         """Verify a tarball can be opened and list contents"""
         try:
+            # Use gtar on macOS if available (GNU tar), otherwise use built-in tar
+            tar_cmd = "gtar" if self.is_macos and shutil.which("gtar") else "tar"
             result = subprocess.run(
-                ["tar", "-tzf", str(file_path)],
+                [tar_cmd, "-tzf", str(file_path)],
                 capture_output=True, text=True, check=True
             )
             file_count = len(result.stdout.strip().split('\n'))
@@ -351,6 +359,28 @@ class CacheDownloadBuildTest:
             logger.error(f"❌ {file_path.name}: Corrupted archive - {e}")
             return False
 
+    def _set_cache_permissions(self) -> bool:
+        """Set appropriate permissions for cache directories (cross-platform)"""
+        try:
+            if self.is_macos:
+                # On macOS, be more conservative with permissions
+                # and handle potential permission issues with Docker volume mounting
+                for cache_dir in [self.downloads_dir, self.sstate_dir]:
+                    if cache_dir.exists():
+                        subprocess.run(["chmod", "-R", "755", str(cache_dir)], check=True)
+                        # Ensure current user owns the directories
+                        subprocess.run(["chown", "-R", f"{os.getuid()}:{os.getgid()}", str(cache_dir)], 
+                                     check=False)  # Don't fail if chown fails
+            else:
+                # Linux - use original approach
+                subprocess.run(["chmod", "-R", "777", str(self.downloads_dir)], check=True)
+                subprocess.run(["chmod", "-R", "777", str(self.sstate_dir)], check=True)
+            
+            return True
+        except Exception as e:
+            logger.warning(f"Could not set optimal permissions: {e}")
+            return False
+
     def extract_caches(self) -> bool:
         """Extract cache archives to proper directories"""
         logger.info("📦 Extracting cache archives...")
@@ -358,12 +388,15 @@ class CacheDownloadBuildTest:
         extraction_start = time.time()
         
         try:
+            # Use appropriate tar command for platform
+            tar_cmd = "gtar" if self.is_macos and shutil.which("gtar") else "tar"
+            
             # Extract downloads cache
             downloads_archive = self.workspace_dir / "full-downloads-cache.tar.gz"
             if downloads_archive.exists():
                 logger.info("Extracting downloads cache...")
                 subprocess.run([
-                    "tar", "-xzf", str(downloads_archive), 
+                    tar_cmd, "-xzf", str(downloads_archive), 
                     "-C", str(self.workspace_dir)
                 ], check=True)
                 logger.info("✅ Downloads cache extracted")
@@ -373,15 +406,14 @@ class CacheDownloadBuildTest:
             if sstate_archive.exists():
                 logger.info("Extracting sstate cache...")
                 subprocess.run([
-                    "tar", "-xzf", str(sstate_archive),
+                    tar_cmd, "-xzf", str(sstate_archive),
                     "-C", str(self.workspace_dir)
                 ], check=True)
                 logger.info("✅ sstate cache extracted")
             
-            # Set permissions as mentioned in README
+            # Set permissions as mentioned in README (cross-platform)
             logger.info("Setting permissions...")
-            subprocess.run(["chmod", "-R", "777", str(self.downloads_dir)], check=True)
-            subprocess.run(["chmod", "-R", "777", str(self.sstate_dir)], check=True)
+            self._set_cache_permissions()
             
             # Verify extracted content
             downloads_files = len(list(self.downloads_dir.rglob("*"))) if self.downloads_dir.exists() else 0
@@ -422,11 +454,20 @@ class CacheDownloadBuildTest:
         build_start = time.time()
         
         try:
-            # Docker run command as per README pattern
+            # Docker run command with cross-platform volume mounting
+            downloads_mount = str(self.downloads_dir)
+            sstate_mount = str(self.sstate_dir)
+            
+            # On macOS, ensure proper volume mounting format
+            if self.is_macos:
+                # macOS Docker Desktop may need explicit path resolution
+                downloads_mount = str(self.downloads_dir.resolve())
+                sstate_mount = str(self.sstate_dir.resolve())
+            
             docker_cmd = [
                 "docker", "run", "--rm",
-                "-v", f"{self.downloads_dir}:/opt/yocto/downloads",
-                "-v", f"{self.sstate_dir}:/opt/yocto/sstate-cache",
+                "-v", f"{downloads_mount}:/opt/yocto/downloads",
+                "-v", f"{sstate_mount}:/opt/yocto/sstate-cache",
                 "-e", "BB_NUMBER_THREADS=4",
                 "-e", "PARALLEL_MAKE=-j 4", 
                 "-e", "MACHINE=qemux86-64",

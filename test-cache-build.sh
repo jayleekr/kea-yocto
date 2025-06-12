@@ -2,8 +2,16 @@
 
 # KEA Yocto Cache Download and Build Test Runner
 # This script runs comprehensive tests as described in README.md
+# Cross-platform compatible (Linux, macOS)
 
 set -euo pipefail
+
+# Detect platform
+if [[ "$OSTYPE" == "darwin"* ]]; then
+    IS_MACOS=true
+else
+    IS_MACOS=false
+fi
 
 # Colors for output
 RED='\033[0;31m'
@@ -101,10 +109,24 @@ if [ ! -f "scripts/test-cache-download-build.py" ]; then
     exit 1
 fi
 
-# Check Python requirements
+# Check Python requirements (cross-platform)
 if ! python3 -c "import requests" 2>/dev/null; then
     log_warn "Python 'requests' module not found, installing..."
-    pip3 install requests
+    if $IS_MACOS; then
+        # On macOS, try pip3 first, then python3 -m pip
+        if command -v pip3 >/dev/null 2>&1; then
+            pip3 install requests
+        elif python3 -m pip --version >/dev/null 2>&1; then
+            python3 -m pip install requests
+        else
+            log_error "Could not find pip3 or python3 -m pip. Please install requests manually:"
+            log_error "  python3 -m pip install requests"
+            exit 1
+        fi
+    else
+        # Linux
+        pip3 install requests
+    fi
 fi
 
 log_step "Starting comprehensive cache test..."
@@ -146,9 +168,17 @@ else
     echo ""
     echo "🔧 Troubleshooting:"
     echo "  • Check Docker is running: docker --version"
+    if $IS_MACOS; then
+        echo "  • macOS: Ensure Docker Desktop is running and configured"
+        echo "  • macOS: Check Docker Desktop settings > Resources > File Sharing"
+        echo "  • macOS: If using Homebrew: brew install gnu-tar (for gtar)"
+    fi
     echo "  • Check internet connection"
     echo "  • Ensure sufficient disk space (>10GB)"
     echo "  • Run with --verbose for more details"
+    if $IS_MACOS; then
+        echo "  • macOS: Try 'python3 -m pip install requests' if pip3 fails"
+    fi
     
     exit 1
 fi 

@@ -4,6 +4,8 @@
 
 This implementation provides comprehensive testing for the Yocto cache download and build system as described in README.md. It validates the entire workflow from cache download to successful build execution.
 
+**✅ Cross-Platform Compatible**: Supports both **Linux** and **macOS** with automatic platform detection and optimization.
+
 ## 📦 Files Created
 
 ### 1. `scripts/test-cache-download-build.py`
@@ -26,12 +28,19 @@ This implementation provides comprehensive testing for the Yocto cache download 
 ### 3. `test-cache-demo.py`
 **Demo script** that shows the test infrastructure without downloading large files
 
-### 4. `CACHE_TEST_IMPLEMENTATION.md`
+### 4. `scripts/platform-compat.py`
+**Platform compatibility helper** that provides:
+- Cross-platform Docker volume mounting
+- Appropriate tar command selection (gtar on macOS)
+- Platform-specific permission handling
+- Python package installation methods
+
+### 5. `CACHE_TEST_IMPLEMENTATION.md`
 **This documentation** explaining the implementation
 
 ## 🚀 Usage
 
-### Quick Start
+### Quick Start (Linux & macOS)
 ```bash
 # Run comprehensive test with defaults
 ./test-cache-build.sh
@@ -44,6 +53,19 @@ This implementation provides comprehensive testing for the Yocto cache download 
 
 # Save detailed results
 ./test-cache-build.sh --save-results test-results.json
+```
+
+### macOS-Specific Setup
+```bash
+# Install GNU tar for better compatibility (optional but recommended)
+brew install gnu-tar
+
+# Ensure Docker Desktop is running
+open -a Docker
+
+# Check Docker Desktop file sharing settings
+# Docker Desktop > Preferences > Resources > File Sharing
+# Ensure your project directory is included
 ```
 
 ### Advanced Usage
@@ -190,23 +212,32 @@ The test validates all claims from README.md:
 
 ### Automatic Recovery
 - **Missing Docker image**: Automatically pulls from registry
-- **Missing Python deps**: Installs `requests` if needed
+- **Missing Python deps**: Installs `requests` if needed (cross-platform)
 - **Partial downloads**: Validates each file before proceeding
-- **Permission issues**: Sets proper cache permissions
+- **Permission issues**: Sets proper cache permissions (platform-aware)
+- **macOS tar issues**: Automatically uses `gtar` if available
 
 ### Detailed Diagnostics
 - **Network issues**: Tests GitHub connectivity
 - **Disk space**: Validates available space before download
 - **Build failures**: Captures and analyzes build logs
 - **Timeout handling**: 1-hour timeout for build operations
+- **Platform detection**: Automatic macOS/Linux detection and optimization
+
+### macOS-Specific Error Handling
+- **Docker Desktop issues**: Provides specific macOS troubleshooting
+- **File sharing problems**: Guides through Docker Desktop settings
+- **Permission conflicts**: Uses conservative permissions (755 vs 777)
+- **Package installation**: Multiple fallback methods for pip/pip3
 
 ## 📁 File Structure
 
 ```
 kea-yocto/
 ├── scripts/
-│   └── test-cache-download-build.py    # Main test implementation
-├── test-cache-build.sh                 # Wrapper script
+│   ├── test-cache-download-build.py    # Main test implementation (cross-platform)
+│   └── platform-compat.py              # Platform compatibility helper
+├── test-cache-build.sh                 # Wrapper script (Linux/macOS)
 ├── test-cache-demo.py                  # Demo/validation script
 ├── CACHE_TEST_IMPLEMENTATION.md        # This documentation
 └── yocto-workspace-test/               # Test workspace (created)
