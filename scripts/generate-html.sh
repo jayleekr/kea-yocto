@@ -178,12 +178,48 @@ cat > header.html << 'EOF'
         margin-left: 0;
         color: #586069;
     }
+    /* 테이블 스타일링 강화 */
+    table {
+        border-collapse: collapse;
+        margin: 20px 0;
+        width: 100%;
+        background: white;
+        border: 1px solid #d0d7de;
+        border-radius: 6px;
+        overflow: hidden;
+    }
+    th, td {
+        border: 1px solid #d0d7de;
+        padding: 8px 12px;
+        text-align: left;
+        vertical-align: top;
+    }
+    th {
+        background: #f6f8fa;
+        font-weight: 600;
+        color: #24292f;
+    }
+    tr:nth-child(even) {
+        background: #f6f8fa;
+    }
+    tr:hover {
+        background: #fff8c5;
+    }
+    /* 모바일 반응형 테이블 */
+    @media (max-width: 768px) {
+        table {
+            font-size: 14px;
+        }
+        th, td {
+            padding: 6px 8px;
+        }
+    }
 </style>
 EOF
 
-# Pandoc으로 HTML5 생성 (Mermaid 완벽 지원)
+# Pandoc으로 HTML5 생성 (Mermaid 완벽 지원, 테이블 완벽 지원)
 pandoc \
-    --from markdown \
+    --from markdown+pipe_tables+simple_tables+multiline_tables+grid_tables \
     --to html5 \
     --standalone \
     --metadata title="KEA Yocto Project 5.0 LTS 강의 자료" \
@@ -242,15 +278,7 @@ if [ -f "KEA-Yocto-Project-강의자료.html" ]; then
     MERMAID_COUNT=$(grep -c '```mermaid' lecture-materials.md || echo "0")
     echo "📊 Mermaid 다이어그램: ${MERMAID_COUNT}개"
     
-    # 브라우저에서 열기 (macOS)
-    if [[ "$OSTYPE" == "darwin"* ]]; then
-        echo ""
-        echo "🚀 브라우저에서 열까요? (y/N)"
-        read -r response
-        if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]]; then
-            open "KEA-Yocto-Project-강의자료.html"
-        fi
-    fi
+    # 브라우저 자동 열기 제거됨 (사용자 요청)
     
     echo ""
     echo "💡 사용 팁:"
