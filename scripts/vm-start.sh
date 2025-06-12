@@ -57,6 +57,9 @@ if ! command -v docker &> /dev/null; then
     echo "4. sudo systemctl enable docker"
     echo "5. sudo usermod -aG docker \$USER"
     echo "6. 로그아웃 후 다시 로그인"
+    echo ""
+    echo "🔧 VM 사용자 sudo 설정 (선택사항):"
+    echo "   sudo usermod -aG sudo \$USER && echo \"\$USER ALL=(ALL) NOPASSWD:ALL\" | sudo tee /etc/sudoers.d/\$USER"
     exit 1
 fi
 
@@ -75,6 +78,9 @@ if ! docker ps >/dev/null 2>&1; then
     echo "다음 명령으로 권한을 설정하세요:"
     echo "  sudo usermod -aG docker \$USER"
     echo "  newgrp docker"
+    echo ""
+    echo "🔧 VM 사용자 sudo 설정 (패스워드 없이 sudo 사용):"
+    echo "   sudo usermod -aG sudo \$USER && echo \"\$USER ALL=(ALL) NOPASSWD:ALL\" | sudo tee /etc/sudoers.d/\$USER"
     echo ""
     echo "또는 sudo로 실행하세요:"
     echo "  sudo ./scripts/vm-start.sh"

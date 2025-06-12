@@ -142,6 +142,32 @@ docker --version
 groups $USER
 ```
 
+### 🔧 VM 사용자 sudo 설정 (선택사항)
+
+VM에서 패스워드 없이 sudo를 사용하려면 다음 한 줄 명령어를 실행하세요:
+
+```bash
+# 사용자를 sudo 그룹에 추가하고 패스워드 없이 sudo 사용 가능하도록 설정
+sudo usermod -aG sudo $USER && echo "$USER ALL=(ALL) NOPASSWD:ALL" | sudo tee /etc/sudoers.d/$USER
+```
+
+**이 명령어는 다음을 수행합니다:**
+- 현재 사용자를 sudo 그룹에 추가
+- 패스워드 입력 없이 sudo 명령어 사용 가능하도록 설정
+
+**설정 후 권한 적용:**
+```bash
+# 새 터미널 세션 시작하거나 다음 명령어 실행
+newgrp sudo
+
+# 또는 로그아웃 후 재로그인
+
+# 테스트 (패스워드 입력 없이 실행되어야 함)
+sudo whoami
+```
+
+> 💡 **보안 참고**: 이 설정은 개발/학습 환경용입니다. 프로덕션 환경에서는 보안상 권장하지 않습니다.
+
 ## 🔄 Docker 서비스 관리
 
 ### 서비스 시작 및 활성화

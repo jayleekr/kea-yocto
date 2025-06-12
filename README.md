@@ -172,6 +172,7 @@ bitbake core-image-minimal
 | `verify-system.sh` | 종합 시스템 검증 | 5분 |
 | `fix-system.sh` | 자동 문제 해결 | 2분 |
 | `quick-start.sh` | Yocto 환경 빠른 시작 | 3분 |
+| `scripts/vm-user-setup.sh` | VM 사용자 sudo 설정 (패스워드 없이) | 30초 |
 
 ### 📦 캐시 배포 시스템
 | 스크립트 | 용도 | 크기/시간 |
