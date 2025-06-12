@@ -55,7 +55,67 @@
 
 ## 2. Yocto 기본 구조 및 아키텍처
 
-### 2.1 시스템 아키텍처
+### 2.1 Yocto Project 개념적 이해
+
+#### 2.1.1 Yocto Project의 핵심 철학
+
+Yocto Project는 **"Create a custom Linux distribution for any hardware"**라는 목표를 가지고 설계되었습니다. 전통적인 Linux 배포판과 달리, Yocto는 **빌드 시스템 접근 방식**을 택했습니다:
+
+**전통적인 배포판 vs Yocto Project**
+| 구분 | 전통적인 배포판 | Yocto Project |
+|------|----------------|---------------|
+| 접근 방법 | 미리 빌드된 패키지 | 소스에서 빌드 |
+| 패키지 관리 | APT, YUM 등 | 레시피 기반 |
+| 커스터마이징 | 제한적 | 완전한 제어 |
+| 크기 최적화 | 어려움 | 필요한 것만 포함 |
+| 크로스 컴파일 | 복잡함 | 자동 지원 |
+
+#### 2.1.2 핵심 구성 요소 상세 설명
+
+**🔧 BitBake (빌드 도구)**
+- **역할**: Yocto의 태스크 실행 엔진
+- **특징**: 
+  - Python과 shell 스크립트로 작성된 레시피를 파싱
+  - 의존성 기반 병렬 빌드 지원
+  - 공유 상태 캐시(sstate-cache)로 빌드 시간 단축
+- **주요 명령어**: `bitbake core-image-minimal`, `bitbake -c cleanall <package>`
+
+**📦 Poky (참조 배포판)**
+- **역할**: Yocto Project의 참조 구현체
+- **구성 요소**:
+  - OpenEmbedded-Core (OE-Core): 핵심 메타데이터
+  - BitBake: 빌드 도구
+  - 문서 및 개발 도구
+- **특징**: 최소한의 Linux 배포판을 만들기 위한 기본 설정 제공
+
+**🧩 OpenEmbedded (메타데이터 프레임워크)**
+- **역할**: 패키지 빌드를 위한 메타데이터 제공
+- **구성 요소**:
+  - **레시피 (.bb)**: 개별 소프트웨어 패키지 빌드 방법 정의
+  - **클래스 (.bbclass)**: 공통 빌드 로직 재사용
+  - **설정 (.conf)**: 빌드 환경 및 정책 정의
+  - **어펜드 (.bbappend)**: 기존 레시피 확장
+
+#### 2.1.3 레이어 모델의 이해
+
+Yocto의 **레이어 모델**은 모듈성과 재사용성을 제공하는 핵심 아키텍처입니다:
+
+**레이어의 목적과 장점**
+- ✅ **모듈성**: 기능별로 분리된 독립적인 구성
+- ✅ **재사용성**: 다른 프로젝트에서 레이어 재활용 가능
+- ✅ **유지보수**: 각 레이어별 독립적 업데이트
+- ✅ **협업**: 팀별 레이어 분담 개발
+
+**레이어 우선순위 시스템**
+```
+BBFILE_PRIORITY_meta-custom = "10"
+BBFILE_PRIORITY_meta-oe = "6" 
+BBFILE_PRIORITY_meta = "5"
+```
+- 높은 숫자 = 높은 우선순위
+- 같은 레시피가 여러 레이어에 있을 경우 우선순위가 높은 레이어의 레시피 사용
+
+### 2.2 시스템 아키텍처
 
 Yocto 시스템은 다음과 같은 계층 구조로 이루어져 있습니다:
 
@@ -118,7 +178,59 @@ graph TB
     V1 --> V3
 ```
 
-### 2.2 빌드 프로세스
+### 2.3 빌드 프로세스 심화 이해
+
+#### 2.3.1 BitBake 작업 흐름 개념
+
+Yocto의 빌드 프로세스는 **의존성 기반 태스크 그래프**를 생성하고 실행하는 복잡한 과정입니다:
+
+**빌드 프로세스의 핵심 단계**
+1. **파싱 단계**: 모든 레시피와 클래스 파일을 읽어 메타데이터 데이터베이스 구축
+2. **의존성 해결**: DEPENDS, RDEPENDS 관계를 분석하여 빌드 순서 결정
+3. **태스크 그래프 생성**: 각 패키지별 do_* 태스크들의 실행 순서 계획
+4. **병렬 실행**: CPU 코어 수에 맞춰 독립적인 태스크들을 동시 실행
+
+**주요 태스크 타입 설명**
+| 태스크 | 목적 | 입력 | 출력 |
+|--------|------|------|------|
+| `do_fetch` | 소스 다운로드 | SRC_URI | DL_DIR/*.tar.gz |
+| `do_unpack` | 압축 해제 | 다운로드된 파일 | WORKDIR/source |
+| `do_patch` | 패치 적용 | 소스 + 패치 파일 | 패치된 소스 |
+| `do_configure` | 빌드 설정 | 소스 | Makefile/CMake |
+| `do_compile` | 컴파일 | 설정된 소스 | 바이너리 |
+| `do_install` | 파일 설치 | 바이너리 | image/ 디렉토리 |
+| `do_package` | 패키지 생성 | 설치된 파일 | .deb/.rpm 등 |
+
+#### 2.3.2 공유 상태 캐시 (sstate-cache) 메커니즘
+
+**sstate-cache의 중요성**
+- 🚀 **빌드 속도 향상**: 이미 빌드된 결과를 재사용
+- 💾 **저장 공간 효율**: 해시 기반 중복 제거
+- 🔄 **증분 빌드**: 변경된 부분만 다시 빌드
+
+**캐시 작동 원리**
+```
+패키지 입력(소스+설정) → SHA256 해시 → 캐시 키 생성
+캐시 키 존재 확인 → 있으면 재사용, 없으면 새로 빌드
+```
+
+#### 2.3.3 크로스 컴파일 툴체인
+
+Yocto는 **타겟 하드웨어용 크로스 컴파일 툴체인**을 자동으로 생성합니다:
+
+**툴체인 구성 요소**
+- **gcc-cross**: 크로스 컴파일러 (호스트에서 타겟용 바이너리 생성)
+- **binutils-cross**: 링커, 어셈블러 등 바이너리 도구
+- **glibc**: 타겟용 C 라이브러리
+- **kernel-headers**: 커널 헤더 파일
+
+**타겟 아키텍처 예시**
+```bash
+# x86_64 호스트에서 ARM용 빌드
+MACHINE = "beaglebone-yocto"
+TARGET_ARCH = "arm"
+TUNE_FEATURES = "arm armv7a neon"
+```
 
 Yocto의 빌드 프로세스는 다음과 같은 단계로 진행됩니다:
 
@@ -157,7 +269,91 @@ flowchart TD
     Run --> End
 ```
 
-### 2.3 레이어 구조
+### 2.4 레이어 구조 상세 분석
+
+#### 2.4.1 레이어 계층 구조와 역할
+
+Yocto는 **계층화된 레이어 아키텍처**를 통해 모듈성과 확장성을 제공합니다:
+
+**레이어 분류와 특징**
+
+**📚 Core Layers (필수 레이어)**
+- **meta**: OpenEmbedded-Core 레이어
+  - 역할: 기본 빌드 시스템과 핵심 레시피 제공
+  - 포함 내용: gcc, glibc, busybox, linux-yocto 등
+  - 특징: 모든 Yocto 빌드에 필수
+
+- **meta-poky**: Poky 배포판 정책 레이어
+  - 역할: Poky 배포판의 기본 설정과 정책 정의
+  - 포함 내용: 기본 이미지, 배포판 설정, 툴체인 설정
+  - 특징: 다른 배포판으로 교체 가능
+
+- **meta-yocto-bsp**: 하드웨어 지원 레이어
+  - 역할: 특정 하드웨어에 대한 지원 제공
+  - 포함 내용: 보드별 커널 설정, 부트로더, 하드웨어 드라이버
+  - 특징: MACHINE 변수와 연동
+
+**🌐 확장 레이어 (선택적)**
+- **meta-openembedded**: 확장 소프트웨어 컬렉션
+  - meta-oe: 일반적인 오픈소스 소프트웨어
+  - meta-python: Python 패키지 및 런타임
+  - meta-networking: 네트워킹 도구 및 프로토콜
+  - meta-multimedia: 멀티미디어 라이브러리 및 도구
+
+**🏗️ 커스텀 레이어**
+- **meta-company**: 회사별 특화 레이어
+- **meta-product**: 제품별 특화 레이어
+- **meta-application**: 애플리케이션별 레이어
+
+#### 2.4.2 레이어 구성 파일 구조
+
+**표준 레이어 디렉토리 구조**
+```
+meta-mylayer/
+├── conf/
+│   ├── layer.conf          # 레이어 기본 설정
+│   └── machine/            # 머신 설정 파일들
+├── recipes-kernel/         # 커널 관련 레시피
+├── recipes-core/          # 핵심 시스템 레시피
+├── recipes-extended/      # 확장 기능 레시피
+├── recipes-connectivity/  # 네트워킹 레시피
+├── classes/               # 공통 클래스 파일들
+├── files/                 # 레시피에서 사용할 파일들
+└── README                 # 레이어 설명서
+```
+
+**layer.conf 설정 예시**
+```bash
+# 레이어 호환성 정의
+BBPATH .= ":${LAYERDIR}"
+BBFILES += "${LAYERDIR}/recipes-*/*/*.bb ${LAYERDIR}/recipes-*/*/*.bbappend"
+BBFILE_COLLECTIONS += "mylayer"
+BBFILE_PATTERN_mylayer = "^${LAYERDIR}/"
+BBFILE_PRIORITY_mylayer = "6"
+
+# 의존성 레이어 정의
+LAYERDEPENDS_mylayer = "core openembedded-layer"
+
+# Yocto 버전 호환성
+LAYERSERIES_COMPAT_mylayer = "scarthgap"
+```
+
+#### 2.4.3 레이어 간 상호작용
+
+**의존성 관리**
+- **LAYERDEPENDS**: 필수 의존 레이어 정의
+- **LAYERRECOMMENDS**: 권장 레이어 정의
+- **LAYERSERIES_COMPAT**: 지원 Yocto 버전 명시
+
+**레시피 오버라이드 메커니즘**
+```bash
+# 기본 레시피: meta/recipes-core/busybox/busybox_1.36.bb
+# 확장 레시피: meta-mylayer/recipes-core/busybox/busybox_1.36.bbappend
+
+# bbappend 파일에서 기본 레시피 확장
+FILESEXTRAPATHS:prepend := "${THISDIR}/files:"
+SRC_URI += "file://custom-config.cfg"
+```
 
 Yocto는 레이어 기반 아키텍처를 사용합니다:
 
@@ -182,6 +378,97 @@ graph TB
         end
     end
 ```
+
+#### 2.4.4 실제 레이어 활용 예시
+
+**레이어 추가 과정**
+```bash
+# 1. 레이어 다운로드/복제
+git clone https://github.com/openembedded/meta-openembedded.git
+
+# 2. bblayers.conf에 레이어 경로 추가
+echo 'BBLAYERS += "/path/to/meta-openembedded/meta-oe"' >> conf/bblayers.conf
+
+# 3. 레이어 의존성 확인
+bitbake-layers show-layers
+bitbake-layers show-dependencies
+```
+
+### 2.5 핵심 개념 정리
+
+#### 2.5.1 메타데이터의 이해
+
+**메타데이터 계층 구조**
+```
+📋 메타데이터 (Metadata)
+├── 🔧 Configuration (.conf)
+│   ├── Machine 설정 (hardware 특성)
+│   ├── Distribution 설정 (배포판 정책)
+│   └── Local 설정 (개발자 환경)
+├── 📦 Recipes (.bb, .bbappend)
+│   ├── 소스 위치 (SRC_URI)
+│   ├── 의존성 (DEPENDS, RDEPENDS)
+│   ├── 빌드 방법 (do_* tasks)
+│   └── 패키지 정보 (PACKAGES, FILES)
+└── 🏗️ Classes (.bbclass)
+    ├── 공통 빌드 로직
+    ├── 언어별 빌드 (autotools, cmake, python)
+    └── 패키지 타입별 처리
+```
+
+#### 2.5.2 변수 시스템과 오버라이드
+
+**BitBake 변수 시스템의 특징**
+- **🔄 지연 확장**: `${변수명}` 형태로 런타임에 해석
+- **📊 조건부 설정**: `VARIABLE:append = "값"`, `VARIABLE:prepend = "값"`
+- **🎯 오버라이드**: 머신, 아키텍처, 배포판별 조건부 설정
+
+**변수 우선순위 예시**
+```bash
+# 기본값
+VARIABLE = "기본값"
+
+# 머신별 오버라이드
+VARIABLE:qemux86-64 = "QEMU x86-64용 값"
+
+# 조건부 추가
+VARIABLE:append = " 추가값"
+VARIABLE:prepend = "앞에추가 "
+
+# 최종 결과: "앞에추가 QEMU x86-64용 값 추가값"
+```
+
+#### 2.5.3 빌드 출력물 이해
+
+**주요 빌드 결과물**
+| 디렉토리 | 내용 | 설명 |
+|----------|------|------|
+| `tmp/deploy/images/` | 최종 이미지 | 부팅 가능한 루트 파일시스템 |
+| `tmp/deploy/ipk/` | 패키지 파일 | 개별 소프트웨어 패키지 |
+| `tmp/deploy/sdk/` | SDK | 크로스 컴파일 개발 환경 |
+| `tmp/work/` | 빌드 작업공간 | 소스 코드, 빌드 로그 |
+| `sstate-cache/` | 상태 캐시 | 빌드 캐시 파일 |
+| `downloads/` | 다운로드 | 원본 소스 아카이브 |
+
+**이미지 타입별 특징**
+- **.ext4**: Linux ext4 파일시스템 (개발용)
+- **.wic**: 부팅 가능한 디스크 이미지 (실제 하드웨어)
+- **.tar.bz2**: 압축된 루트 파일시스템 (배포용)
+- **.manifest**: 포함된 패키지 목록
+
+#### 2.5.4 초보자를 위한 핵심 포인트
+
+**✅ 기억해야 할 핵심 개념**
+1. **Yocto = 빌드 시스템**: 소스에서 완전한 Linux 배포판 생성
+2. **레이어 = 모듈**: 기능별로 분리된 독립적인 구성 요소
+3. **레시피 = 빌드 지침서**: 개별 소프트웨어 패키지 빌드 방법
+4. **BitBake = 실행 엔진**: 의존성을 고려한 병렬 빌드 관리
+5. **sstate-cache = 속도의 핵심**: 중복 빌드 방지로 시간 단축
+
+**🚫 초보자 흔한 오해**
+- ❌ Yocto는 Linux 배포판이다 → ⭕ Yocto는 배포판을 만드는 도구
+- ❌ 패키지 매니저로 소프트웨어 설치 → ⭕ 레시피로 빌드 시점에 포함
+- ❌ 빌드 한 번이면 끝 → ⭕ 개발 과정에서 반복적 빌드 필요
 
 ---
 
