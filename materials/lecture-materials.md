@@ -37,8 +37,10 @@
 
 #### 주요 구성 요소
 - **Poky**: Yocto의 참조 배포판
-- **BitBake**: 빌드 도구 및 태스크 실행기
-- **OpenEmbedded**: 메타데이터 및 레시피 저장소
+- **BitBake**:  
+  빌드 도구 및 태스크 실행기
+- **OpenEmbedded**:  
+  메타데이터 및 레시피 저장소
 
 ### 1.2 강의 목표
 
@@ -74,28 +76,38 @@ Yocto Project는 **"Create a custom Linux distribution for any hardware"**라는
 #### 2.1.2 핵심 구성 요소 상세 설명
 
 **🔧 BitBake (빌드 도구)**
-- **역할**: Yocto의 태스크 실행 엔진
+- **역할**:  
+  Yocto의 태스크 실행 엔진
 - **특징**: 
   - Python과 shell 스크립트로 작성된 레시피를 파싱  
   - 의존성 기반 병렬 빌드 지원  
   - 공유 상태 캐시(sstate-cache)로 빌드 시간 단축
-- **주요 명령어**: `bitbake core-image-minimal`, `bitbake -c cleanall <package>`
+- **주요 명령어**:  
+  `bitbake core-image-minimal`, `bitbake -c cleanall <package>`
 
 **📦 Poky (참조 배포판)**
-- **역할**: Yocto Project의 참조 구현체
+- **역할**:  
+  Yocto Project의 참조 구현체
 - **구성 요소**:
   - OpenEmbedded-Core (OE-Core): 핵심 메타데이터
   - BitBake: 빌드 도구
   - 문서 및 개발 도구
-- **특징**: 최소한의 Linux 배포판을 만들기 위한 기본 설정 제공
+- **특징**:  
+  최소한의 Linux 배포판을 만들기 위한 기본 설정 제공
 
 **🧩 OpenEmbedded (메타데이터 프레임워크)**
-- **역할**: 패키지 빌드를 위한 메타데이터 제공
-- **구성 요소**:
-  - **레시피 (.bb)**: 개별 소프트웨어 패키지 빌드 방법 정의
-  - **클래스 (.bbclass)**: 공통 빌드 로직 재사용
-  - **설정 (.conf)**: 빌드 환경 및 정책 정의
-  - **어펜드 (.bbappend)**: 기존 레시피 확장
+- **역할**:  
+  패키지 빌드를 위한 메타데이터 제공
+- **구성 요소**:  
+  
+  - **레시피 (.bb)**:  
+  개별 소프트웨어 패키지 빌드 방법 정의
+  - **클래스 (.bbclass)**:  
+  공통 빌드 로직 재사용
+  - **설정 (.conf)**:  
+  빌드 환경 및 정책 정의
+  - **어펜드 (.bbappend)**:  
+  기존 레시피 확장
 
 #### 2.1.3 레이어 모델의 이해
 
@@ -221,8 +233,10 @@ Yocto의 빌드 프로세스는 **의존성 기반 태스크 그래프**를 생�
 Yocto는 **타겟 하드웨어용 크로스 컴파일 툴체인**을 자동으로 생성합니다:
 
 **툴체인 구성 요소**
-- **gcc-cross**: 크로스 컴파일러 (호스트에서 타겟용 바이너리 생성)
-- **binutils-cross**: 링커, 어셈블러 등 바이너리 도구
+- **gcc-cross**:  
+  크로스 컴파일러 (호스트에서 타겟용 바이너리 생성)
+- **binutils-cross**:  
+  링커, 어셈블러 등 바이너리 도구
 - **glibc**: 타겟용 C 라이브러리
 - **kernel-headers**: 커널 헤더 파일
 
@@ -280,34 +294,41 @@ Yocto는 **계층화된 레이어 아키텍처**를 통해 모듈성과 확장�
 **레이어 분류와 특징**
 
 **📚 Core Layers (필수 레이어)**
-- **meta**: OpenEmbedded-Core 레이어
+- **meta**:  
+  OpenEmbedded-Core 레이어
   - 역할: 기본 빌드 시스템과 핵심 레시피 제공
   - 포함 내용: gcc, glibc, busybox, linux-yocto 등
   - 특징: 모든 Yocto 빌드에 필수
 
-- **meta-poky**: Poky 배포판 정책 레이어
+- **meta-poky**:  
+  Poky 배포판 정책 레이어
   - 역할: Poky 배포판의 기본 설정과 정책 정의
   - 포함 내용: 기본 이미지, 배포판 설정, 툴체인 설정
  
 - 특징: 다른 배포판으로 교체 가능
 
-- **meta-yocto-bsp**: 하드웨어 지원 레이어
+- **meta-yocto-bsp**:  
+  하드웨어 지원 레이어
   - 역할: 특정 하드웨어에 대한 지원 제공
   - 포함 내용: 보드별 커널 설정, 부트로더, 하드웨어 드라이버
  
 - 특징: MACHINE 변수와 연동
 
 **🌐 확장 레이어 (선택적)**
-- **meta-openembedded**: 확장 소프트웨어 컬렉션
+- **meta-openembedded**:  
+  확장 소프트웨어 컬렉션
   - meta-oe: 일반적인 오픈소스 소프트웨어
   - meta-python: Python 패키지 및 런타임
   - meta-networking: 네트워킹 도구 및 프로토콜
   - meta-multimedia: 멀티미디어 라이브러리 및 도구
 
 **🏗️ 커스텀 레이어**
-- **meta-company**: 회사별 특화 레이어
-- **meta-product**: 제품별 특화 레이어
-- **meta-application**: 애플리케이션별 레이어
+- **meta-company**:  
+  회사별 특화 레이어
+- **meta-product**:  
+  제품별 특화 레이어
+- **meta-application**:  
+  애플리케이션별 레이어
 
 #### 2.4.2 레이어 구성 파일 구조
 
@@ -345,9 +366,12 @@ LAYERSERIES_COMPAT_mylayer = "scarthgap"
 #### 2.4.3 레이어 간 상호작용
 
 **의존성 관리**
-- **LAYERDEPENDS**: 필수 의존 레이어 정의
-- **LAYERRECOMMENDS**: 권장 레이어 정의
-- **LAYERSERIES_COMPAT**: 지원 Yocto 버전 명시
+- **LAYERDEPENDS**:  
+  필수 의존 레이어 정의
+- **LAYERRECOMMENDS**:  
+  권장 레이어 정의
+- **LAYERSERIES_COMPAT**:  
+  지원 Yocto 버전 명시
 
 **레시피 오버라이드 메커니즘**
 ```bash
@@ -423,9 +447,12 @@ bitbake-layers show-dependencies
 #### 2.5.2 변수 시스템과 오버라이드
 
 **BitBake 변수 시스템의 특징**
-- **🔄 지연 확장**: `${변수명}` 형태로 런타임에 해석
-- **📊 조건부 설정**: `VARIABLE:append = "값"`, `VARIABLE:prepend = "값"`
-- **🎯 오버라이드**: 머신, 아키텍처, 배포판별 조건부 설정
+- **🔄 지연 확장**:  
+  `${변수명}` 형태로 런타임에 해석
+- **📊 조건부 설정**:  
+  `VARIABLE:append = "값"`, `VARIABLE:prepend = "값"`
+- **🎯 오버라이드**:  
+  머신, 아키텍처, 배포판별 조건부 설정
 
 **변수 우선순위 예시**
 ```bash
@@ -456,10 +483,14 @@ VARIABLE:prepend = "앞에추가 "
 | `downloads/` | 다운로드 | 원본 소스 아카이브 |
 
 **이미지 타입별 특징**
-- **.ext4**: Linux ext4 파일시스템 (개발용)
-- **.wic**: 부팅 가능한 디스크 이미지 (실제 하드웨어)
-- **.tar.bz2**: 압축된 루트 파일시스템 (배포용)
-- **.manifest**: 포함된 패키지 목록
+- **.ext4**:  
+  Linux ext4 파일시스템 (개발용)
+- **.wic**:  
+  부팅 가능한 디스크 이미지 (실제 하드웨어)
+- **.tar.bz2**:  
+  압축된 루트 파일시스템 (배포용)
+- **.manifest**:  
+  포함된 패키지 목록
 
 #### 2.5.4 초보자를 위한 핵심 포인트
 
@@ -946,8 +977,10 @@ bitbake-diffsigs tmp/stamps/*/hello-world/
 ### 8.2 배포 및 업데이트
 
 #### 업데이트 시스템
-- **SWUpdate**: 안전한 시스템 업데이트
-- **Mender**: OTA(Over-The-Air) 업데이트
+- **SWUpdate**:  
+  안전한 시스템 업데이트
+- **Mender**:  
+  OTA(Over-The-Air) 업데이트
 - **OSTree**: 원자적 업데이트
 
 #### 이미지 형식

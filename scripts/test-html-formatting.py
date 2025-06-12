@@ -219,6 +219,23 @@ def test_specific_formatting_issues(markdown_content):
             'issue': '이모지와 볼드가 섞인 항목들이 한 줄에 연결되어 있습니다'
         })
     
+    # 패턴 6: "- **항목**: 설명" 형태에서 설명 부분이 긴 경우 줄바꿈 추가
+    for i, line in enumerate(lines):
+        # "- **항목**: 긴설명" 패턴 찾기
+        if (line.strip().startswith('- **') and '**:' in line and 
+            not line.endswith('  ') and not line.endswith('  \n') and
+            len(line.strip()) > 25):  # 25자 이상인 경우로 기준 완화
+            
+            # 콜론 뒤에 바로 텍스트가 오는 경우
+            colon_pos = line.find('**:')
+            if colon_pos != -1 and len(line[colon_pos + 3:].strip()) > 8:  # 8자 이상으로 기준 완화
+                problems.append({
+                    'type': 'bullet_item_no_linebreak',
+                    'content': line.strip(),
+                    'line': i + 1,
+                    'issue': '불릿 포인트 항목의 설명이 긴 경우 줄바꿈이 필요합니다'
+                })
+    
     return problems
 
 def generate_html_and_test():
@@ -382,7 +399,28 @@ def auto_fix_problems(markdown_file, problems):
     original_lines = lines.copy()
     fixed_count = 0
     
-    # 각 문제 유형별로 수정
+    # bullet_item_no_linebreak 문제들을 먼저 처리 (라인 번호가 변경되므로 역순으로 처리)
+    bullet_problems = [p for p in problems if p['type'] == 'bullet_item_no_linebreak']
+    bullet_problems.sort(key=lambda x: x['line'], reverse=True)  # 역순 정렬
+    
+    for problem in bullet_problems:
+        line_num = problem['line']
+        if line_num - 1 < len(lines):
+            line = lines[line_num - 1]
+            if '**:' in line:
+                # "- **항목**: 설명" → "- **항목**:  " + "설명"으로 분리
+                colon_pos = line.find('**:')
+                if colon_pos != -1:
+                    before_colon = line[:colon_pos + 3]  # "- **항목**: " 부분
+                    after_colon = line[colon_pos + 3:].strip()  # 설명 부분
+                    
+                    if after_colon:  # 설명이 있는 경우만 처리
+                        # 줄바꿈으로 분리
+                        lines[line_num - 1] = before_colon.rstrip() + '  \n'
+                        lines.insert(line_num, '  ' + after_colon + '\n')
+                        fixed_count += 1
+    
+    # 다른 문제 유형들 처리
     for problem in problems:
         if problem['type'] == 'inline_descriptions':
             # "항목: 설명 - 항목: 설명" → 줄바꿈으로 분리
