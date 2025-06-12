@@ -368,4 +368,4 @@ plugins:
 git clone https://github.com/jayleekr/kea-yocto.git
 cd kea-yocto
 ./scripts/quick-start.sh
-``` 
+``` # GitHub Pages 설정 변경 후 테스트용 커밋
