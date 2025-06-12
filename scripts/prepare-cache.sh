@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # 강화된 오류 처리
-set -euo pipefail
+set -eo pipefail
 
 # 색상 정의
 RED='\033[0;31m'
@@ -104,16 +104,21 @@ mkdir -p yocto-workspace/{downloads,sstate-cache}
 # 캐시 미러 서버 목록 (우선순위순)
 MIRRORS=(
     "https://github.com/jayleekr/kea-yocto/releases/download/split-cache-20250612-153704"
-    "https://github.com/jayleekr/kea-yocto-cache/releases/download/5.0-lts-v1"
-    "https://your-cdn.example.com/yocto-cache/5.0-lts-v1"
-    "https://drive.google.com/uc?id=DOWNLOAD_ID&export=download"
 )
 
 # 캐시 파일 정보
-CACHE_FILE_DOWNLOADS="downloads-cache.tar.gz"
+CACHE_FILE_DOWNLOADS="full-downloads-cache.tar.gz"
 CACHE_DESC_DOWNLOADS="Downloads 캐시 (약 2-5GB)"
-CACHE_FILE_SSTATE="sstate-cache.tar.gz"
+CACHE_FILE_SSTATE="full-sstate-cache.tar.gz"
 CACHE_DESC_SSTATE="sstate 캐시 (약 5-20GB)"
+
+# 분할 다운로드 파일 목록
+SPLIT_FILES=(
+    "full-downloads-cache.tar.gz.partaa"
+    "full-downloads-cache.tar.gz.partab"
+    "full-downloads-cache.tar.gz.partac"
+    "full-downloads-cache.tar.gz.partad"
+)
 
 # 미러 서버 테스트 함수
 test_mirror() {
@@ -125,14 +130,9 @@ test_mirror() {
     fi
     
     # HTTP 헤더만 확인하여 서버 응답 테스트
-    local start_time=$(date +%s.%N)
-    
     if curl -I -s --connect-timeout $timeout --max-time $((timeout * 2)) "$mirror_url" >/dev/null 2>&1; then
-        local end_time=$(date +%s.%N)
-        local duration=$(echo "$end_time - $start_time" | bc 2>/dev/null || echo "N/A")
-        
-        if [ "$VERBOSE" = true ] && [ "$duration" != "N/A" ]; then
-            log_info "응답 시간: ${duration}초"
+        if [ "$VERBOSE" = true ]; then
+            log_info "미러 서버 응답 확인됨"
         fi
         return 0
     else
@@ -217,25 +217,17 @@ mirror_index=0
 for mirror in "${MIRRORS[@]}"; do
     echo -n "  📡 테스트: $mirror ... "
     
-    start_time=$(date +%s.%N 2>/dev/null || date +%s)
     if test_mirror "$mirror" 15; then
-        end_time=$(date +%s.%N 2>/dev/null || date +%s)
-        if command -v bc >/dev/null 2>&1; then
-            duration=$(echo "$end_time - $start_time" | bc 2>/dev/null || echo "N/A")
-        else
-            duration="~1"
-        fi
-        
-        echo -e "${GREEN}✓${NC} (${duration}초)"
+        echo -e "${GREEN}✓${NC}"
         mirror_status="${mirror_status}${mirror_index}:OK;"
-        mirror_response_time="${mirror_response_time}${mirror_index}:${duration};"
-        ((working_mirrors++))
+        mirror_response_time="${mirror_response_time}${mirror_index}:OK;"
+        working_mirrors=$((working_mirrors + 1))
     else
         echo -e "${RED}✗${NC}"
         mirror_status="${mirror_status}${mirror_index}:FAIL;"
         mirror_response_time="${mirror_response_time}${mirror_index}:N/A;"
     fi
-    ((mirror_index++))
+    mirror_index=$((mirror_index + 1))
 done
 
 if [ $working_mirrors -eq 0 ]; then
@@ -258,41 +250,49 @@ log_info "미러 서버 상태: ${working_mirrors}/${total_mirrors} 서버 사�
 if [ "$DRY_RUN" = true ]; then
     log_step "3단계: 캐시 파일 가용성 확인 중..."
     
-    # Downloads 캐시 파일 확인
+    # Downloads 캐시 파일 확인 (분할 파일들)
     echo ""
     log_info "📦 ${CACHE_DESC_DOWNLOADS} 확인 중..."
     
-    file_available=false
+    downloads_available=true
     available_mirrors=()
     
     mirror_index=0
     for mirror in "${MIRRORS[@]}"; do
         if echo "$mirror_status" | grep -q "${mirror_index}:OK;"; then
-            echo -n "    📡 $mirror/$CACHE_FILE_DOWNLOADS ... "
+            # 각 분할 파일을 확인
+            all_parts_available=true
+            for split_file in "${SPLIT_FILES[@]}"; do
+                echo -n "    📡 $mirror/$split_file ... "
+                
+                if test_file_availability "$mirror" "$split_file"; then
+                    echo -e "${GREEN}✓${NC}"
+                else
+                    echo -e "${RED}✗${NC}"
+                    all_parts_available=false
+                fi
+            done
             
-            if test_file_availability "$mirror" "$CACHE_FILE_DOWNLOADS"; then
-                echo -e "${GREEN}✓${NC}"
-                file_available=true
+            if [ "$all_parts_available" = true ]; then
                 available_mirrors+=("$mirror")
-            else
-                echo -e "${RED}✗${NC}"
             fi
         fi
-        ((mirror_index++))
+        mirror_index=$((mirror_index + 1))
     done
     
-    if [ "$file_available" = true ]; then
-        log_info "$CACHE_FILE_DOWNLOADS: ${#available_mirrors[@]}개 미러에서 사용 가능"
+    if [ ${#available_mirrors[@]} -gt 0 ]; then
+        log_info "Downloads 캐시 분할 파일들: ${#available_mirrors[@]}개 미러에서 사용 가능"
     else
-        log_warn "$CACHE_FILE_DOWNLOADS: 사용 가능한 미러가 없습니다"
+        log_warn "Downloads 캐시 분할 파일들: 사용 가능한 미러가 없습니다"
+        downloads_available=false
     fi
     
     # sstate 캐시 파일 확인
     echo ""
     log_info "📦 ${CACHE_DESC_SSTATE} 확인 중..."
     
-    file_available=false
-    available_mirrors=()
+    sstate_available=false
+    available_sstate_mirrors=()
     
     mirror_index=0
     for mirror in "${MIRRORS[@]}"; do
@@ -301,19 +301,29 @@ if [ "$DRY_RUN" = true ]; then
             
             if test_file_availability "$mirror" "$CACHE_FILE_SSTATE"; then
                 echo -e "${GREEN}✓${NC}"
-                file_available=true
-                available_mirrors+=("$mirror")
+                sstate_available=true
+                available_sstate_mirrors+=("$mirror")
             else
                 echo -e "${RED}✗${NC}"
             fi
         fi
-        ((mirror_index++))
+        mirror_index=$((mirror_index + 1))
     done
     
-    if [ "$file_available" = true ]; then
-        log_info "$CACHE_FILE_SSTATE: ${#available_mirrors[@]}개 미러에서 사용 가능"
+    if [ "$sstate_available" = true ]; then
+        log_info "$CACHE_FILE_SSTATE: ${#available_sstate_mirrors[@]}개 미러에서 사용 가능"
     else
         log_warn "$CACHE_FILE_SSTATE: 사용 가능한 미러가 없습니다"
+    fi
+    
+    # 캐시 파일 가용성 종합 확인
+    if [ "$downloads_available" = false ] && [ "$sstate_available" = false ]; then
+        log_error "모든 캐시 파일을 다운로드할 수 없습니다."
+        log_error "미러 서버에 파일이 없거나 네트워크 문제가 있을 수 있습니다."
+        exit 1
+    elif [ "$downloads_available" = false ] || [ "$sstate_available" = false ]; then
+        log_warn "일부 캐시 파일만 다운로드 가능합니다."
+        log_warn "빌드 시간이 더 오래 걸릴 수 있습니다."
     fi
 fi
 
@@ -385,12 +395,11 @@ if [ "$DRY_RUN" = true ]; then
     mirror_index=0
     for mirror in "${MIRRORS[@]}"; do
         if echo "$mirror_status" | grep -q "${mirror_index}:OK;"; then
-            response_time=$(echo "$mirror_response_time" | grep "${mirror_index}:" | cut -d':' -f2 | cut -d';' -f1)
-            echo "   ✅ $mirror (응답시간: ${response_time}초)"
+            echo "   ✅ $mirror (연결 성공)"
         else
             echo "   ❌ $mirror (연결 실패)"
         fi
-        ((mirror_index++))
+        mirror_index=$((mirror_index + 1))
     done
     
     echo ""
@@ -422,7 +431,130 @@ log_step "3단계: 캐시 다운로드 실행 중..."
 
 log_info "📡 여러 미러 서버를 시도합니다..."
 
-# 다운로드 함수 개선
+# 개별 파일 다운로드 함수
+download_single_file() {
+    local filename=$1
+    local mirror_url=$2
+    
+    # 파일이 이미 존재하는지 확인
+    if [ -f "$filename" ]; then
+        local existing_size=$(stat -f%z "$filename" 2>/dev/null || stat -c%s "$filename" 2>/dev/null || echo "0")
+        
+        if [ "$existing_size" -gt 1000000 ]; then  # 1MB 이상이면 유효한 파일로 간주
+            log_info "$filename 이미 존재합니다. 다운로드를 건너뜁니다."
+            return 0
+        else
+            log_warn "기존 파일이 손상된 것 같습니다. 다시 다운로드합니다."
+            rm -f "$filename"
+        fi
+    fi
+    
+    # 실제 다운로드 시도
+    if curl -L --fail \
+        --connect-timeout 30 \
+        --max-time 3600 \
+        --retry 3 \
+        --retry-delay 5 \
+        --progress-bar \
+        -o "$filename.tmp" \
+        "$mirror_url/$filename"; then
+        
+        # 다운로드된 파일 크기 확인
+        local downloaded_size=$(stat -f%z "$filename.tmp" 2>/dev/null || stat -c%s "$filename.tmp" 2>/dev/null || echo "0")
+        
+        if [ "$downloaded_size" -gt 100000 ]; then  # 100KB 이상
+            mv "$filename.tmp" "$filename"
+            local size_mb=$((downloaded_size / 1024 / 1024))
+            log_info "✅ $filename 다운로드 성공 (${size_mb}MB)"
+            return 0
+        else
+            log_error "다운로드된 파일이 너무 작습니다: ${downloaded_size} bytes"
+            rm -f "$filename.tmp"
+        fi
+    else
+        log_error "❌ 다운로드 실패: $filename"
+        rm -f "$filename.tmp" 2>/dev/null
+    fi
+    
+    return 1
+}
+
+# 분할 파일 다운로드 및 결합 함수
+download_split_cache() {
+    local description=$1
+    
+    log_info "$description 다운로드 중..."
+    
+    # 먼저 working mirror 찾기
+    local working_mirror=""
+    mirror_index=0
+    for mirror in "${MIRRORS[@]}"; do
+        if echo "$mirror_status" | grep -q "${mirror_index}:OK;"; then
+            working_mirror="$mirror"
+            break
+        fi
+        ((mirror_index++))
+    done
+    
+    if [ -z "$working_mirror" ]; then
+        log_error "사용 가능한 미러가 없습니다"
+        return 1
+    fi
+    
+    echo "📡 미러 사용: $working_mirror"
+    
+    # 분할 파일들 다운로드
+    local failed_files=()
+    for split_file in "${SPLIT_FILES[@]}"; do
+        echo "⬇️  다운로드 중: $split_file"
+        if ! download_single_file "$split_file" "$working_mirror"; then
+            failed_files+=("$split_file")
+        fi
+    done
+    
+    # 다운로드 실패한 파일들 확인
+    if [ ${#failed_files[@]} -gt 0 ]; then
+        log_error "다음 분할 파일 다운로드에 실패했습니다:"
+        for file in "${failed_files[@]}"; do
+            echo "  ❌ $file"
+        done
+        return 1
+    fi
+    
+    # 모든 분할 파일이 있는지 확인
+    for split_file in "${SPLIT_FILES[@]}"; do
+        if [ ! -f "$split_file" ]; then
+            log_error "분할 파일이 누락됨: $split_file"
+            return 1
+        fi
+    done
+    
+    # 분할 파일들을 결합
+    log_info "🔧 분할 파일 결합 중..."
+    if cat "${SPLIT_FILES[@]}" > "$CACHE_FILE_DOWNLOADS"; then
+        # 결합된 파일 크기 확인
+        local combined_size=$(stat -f%z "$CACHE_FILE_DOWNLOADS" 2>/dev/null || stat -c%s "$CACHE_FILE_DOWNLOADS" 2>/dev/null || echo "0")
+        
+        if [ "$combined_size" -gt 100000000 ]; then  # 100MB 이상
+            local size_gb=$((combined_size / 1024 / 1024 / 1024))
+            log_info "✅ 분할 파일 결합 성공: $CACHE_FILE_DOWNLOADS (${size_gb}GB)"
+            
+            # 분할 파일들 정리
+            rm -f "${SPLIT_FILES[@]}"
+            log_info "분할 파일 정리 완료"
+            return 0
+        else
+            log_error "결합된 파일이 너무 작습니다: ${combined_size} bytes"
+            rm -f "$CACHE_FILE_DOWNLOADS"
+            return 1
+        fi
+    else
+        log_error "분할 파일 결합 실패"
+        return 1
+    fi
+}
+
+# 일반 캐시 파일 다운로드 함수
 download_cache_file() {
     local filename=$1
     local description=$2
@@ -434,45 +566,8 @@ download_cache_file() {
         if echo "$mirror_status" | grep -q "${mirror_index}:OK;"; then
             echo "📡 시도 중: $mirror"
             
-            # 파일이 이미 존재하는지 확인
-            if [ -f "$filename" ]; then
-                log_info "기존 파일 발견. 크기 확인 중..."
-                local existing_size=$(stat -f%z "$filename" 2>/dev/null || stat -c%s "$filename" 2>/dev/null || echo "0")
-                
-                if [ "$existing_size" -gt 1000000 ]; then  # 1MB 이상이면 유효한 파일로 간주
-                    log_info "$filename 이미 존재합니다. 다운로드를 건너뜁니다."
-                    return 0
-                else
-                    log_warn "기존 파일이 손상된 것 같습니다. 다시 다운로드합니다."
-                    rm -f "$filename"
-                fi
-            fi
-            
-            # 실제 다운로드 시도
-            if curl -L --fail \
-                --connect-timeout 30 \
-                --max-time 3600 \
-                --retry 3 \
-                --retry-delay 5 \
-                --progress-bar \
-                -o "$filename.tmp" \
-                "$mirror/$filename"; then
-                
-                # 다운로드된 파일 크기 확인
-                local downloaded_size=$(stat -f%z "$filename.tmp" 2>/dev/null || stat -c%s "$filename.tmp" 2>/dev/null || echo "0")
-                
-                if [ "$downloaded_size" -gt 1000000 ]; then  # 1MB 이상
-                    mv "$filename.tmp" "$filename"
-                    local size_mb=$((downloaded_size / 1024 / 1024))
-                    log_info "✅ $filename 다운로드 성공 (${size_mb}MB)"
-                    return 0
-                else
-                    log_error "다운로드된 파일이 너무 작습니다: ${downloaded_size} bytes"
-                    rm -f "$filename.tmp"
-                fi
-            else
-                log_error "❌ 실패: $mirror"
-                rm -f "$filename.tmp" 2>/dev/null
+            if download_single_file "$filename" "$mirror"; then
+                return 0
             fi
         fi
         ((mirror_index++))
@@ -485,38 +580,52 @@ download_cache_file() {
 # 작업 디렉토리로 이동
 cd yocto-workspace
 
-# Downloads 캐시 다운로드
-if download_cache_file "downloads-cache.tar.gz" "📦 Downloads 캐시"; then
-    log_info "Downloads 캐시 압축 해제 중..."
-    if tar -xzf downloads-cache.tar.gz; then
-        log_info "✅ Downloads 캐시 준비 완료"
-        
-        # 압축 파일 삭제 (선택사항)
-        if [ "$VERBOSE" = false ]; then
-            rm -f downloads-cache.tar.gz
+# Downloads 캐시 확인 및 다운로드
+if [ -d "downloads" ] && [ "$(ls -A downloads 2>/dev/null)" ]; then
+    existing_downloads_size=$(du -sh downloads | cut -f1)
+    log_info "✅ 기존 Downloads 캐시 발견: $existing_downloads_size"
+    log_info "Downloads 캐시 다운로드를 건너뜁니다."
+else
+    # Downloads 캐시 다운로드 (분할 파일)
+    if download_split_cache "📦 Downloads 캐시"; then
+        log_info "Downloads 캐시 압축 해제 중..."
+        if tar -xzf "$CACHE_FILE_DOWNLOADS"; then
+            log_info "✅ Downloads 캐시 준비 완료"
+            
+            # 압축 파일 삭제 (선택사항)
+            if [ "$VERBOSE" = false ]; then
+                rm -f "$CACHE_FILE_DOWNLOADS"
+            fi
+        else
+            log_error "Downloads 캐시 압축 해제 실패"
         fi
     else
-        log_error "Downloads 캐시 압축 해제 실패"
+        log_warn "⚠️  Downloads 캐시 다운로드 실패. 온라인 다운로드를 사용합니다."
     fi
-else
-    log_warn "⚠️  Downloads 캐시 다운로드 실패. 온라인 다운로드를 사용합니다."
 fi
 
-# sstate 캐시 다운로드
-if download_cache_file "sstate-cache.tar.gz" "🏗️  sstate 캐시"; then
-    log_info "sstate 캐시 압축 해제 중..."
-    if tar -xzf sstate-cache.tar.gz; then
-        log_info "✅ sstate 캐시 준비 완료"
-        
-        # 압축 파일 삭제 (선택사항)
-        if [ "$VERBOSE" = false ]; then
-            rm -f sstate-cache.tar.gz
+# sstate 캐시 확인 및 다운로드
+if [ -d "sstate-cache" ] && [ "$(ls -A sstate-cache 2>/dev/null)" ]; then
+    existing_sstate_size=$(du -sh sstate-cache | cut -f1)
+    log_info "✅ 기존 sstate 캐시 발견: $existing_sstate_size"
+    log_info "sstate 캐시 다운로드를 건너뜁니다."
+else
+    # sstate 캐시 다운로드 (단일 파일)
+    if download_cache_file "$CACHE_FILE_SSTATE" "🏗️  sstate 캐시"; then
+        log_info "sstate 캐시 압축 해제 중..."
+        if tar -xzf "$CACHE_FILE_SSTATE"; then
+            log_info "✅ sstate 캐시 준비 완료"
+            
+            # 압축 파일 삭제 (선택사항)
+            if [ "$VERBOSE" = false ]; then
+                rm -f "$CACHE_FILE_SSTATE"
+            fi
+        else
+            log_error "sstate 캐시 압축 해제 실패"
         fi
     else
-        log_error "sstate 캐시 압축 해제 실패"
+        log_warn "⚠️  sstate 캐시 다운로드 실패. 첫 빌드가 오래 걸릴 수 있습니다."
     fi
-else
-    log_warn "⚠️  sstate 캐시 다운로드 실패. 첫 빌드가 오래 걸릴 수 있습니다."
 fi
 
 # 최종 상태 확인

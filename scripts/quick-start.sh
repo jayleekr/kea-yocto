@@ -263,28 +263,55 @@ if [ "$DRY_RUN" = true ]; then
     if [ "$DOWNLOADS_AVAILABLE" = false ] || [ "$SSTATE_AVAILABLE" = false ]; then
         log_info "캐시 다운로드 가능성 테스트 중..."
         
-        if [ "$VERBOSE" = true ]; then
-            # 상세 테스트 실행
-            if ./scripts/prepare-cache.sh --dry-run --verbose; then
-                log_info "캐시 다운로드 가능성: ✓"
-            else
-                log_warn "캐시 다운로드에 문제가 있을 수 있습니다"
-            fi
+        # prepare-cache.sh 스크립트 찾기
+        cache_script_path=""
+        if [ -f "./scripts/prepare-cache.sh" ]; then
+            cache_script_path="./scripts/prepare-cache.sh"
+        elif [ -f "../scripts/prepare-cache.sh" ]; then
+            cache_script_path="../scripts/prepare-cache.sh"
+        elif [ -f "scripts/prepare-cache.sh" ]; then
+            cache_script_path="scripts/prepare-cache.sh"
         else
-            # 간단한 테스트
-            if ./scripts/prepare-cache.sh --dry-run >/dev/null 2>&1; then
-                log_info "캐시 다운로드 가능성: ✓"
+            log_warn "prepare-cache.sh 스크립트를 찾을 수 없습니다. 캐시 테스트를 건너뜁니다."
+            cache_script_path=""
+        fi
+        
+        if [ -n "$cache_script_path" ]; then
+            if [ "$VERBOSE" = true ]; then
+                # 상세 테스트 실행
+                if "$cache_script_path" --dry-run --verbose; then
+                    log_info "캐시 다운로드 가능성: ✓"
+                else
+                    log_warn "캐시 다운로드에 문제가 있을 수 있습니다"
+                fi
             else
-                log_warn "캐시 다운로드에 문제가 있을 수 있습니다"
-                if [ "$DRY_RUN" = true ]; then
-                    log_warn "▶ 상세 확인: ./scripts/prepare-cache.sh --dry-run --verbose"
+                # 간단한 테스트
+                if "$cache_script_path" --dry-run >/dev/null 2>&1; then
+                    log_info "캐시 다운로드 가능성: ✓"
+                else
+                    log_warn "캐시 다운로드에 문제가 있을 수 있습니다"
+                    if [ "$DRY_RUN" = true ]; then
+                        log_warn "▶ 상세 확인: $cache_script_path --dry-run --verbose"
+                    fi
                 fi
             fi
         fi
     fi
 else
     # 실제 캐시 준비 실행
-    if ./scripts/prepare-cache.sh; then
+    cache_script_path=""
+    if [ -f "./scripts/prepare-cache.sh" ]; then
+        cache_script_path="./scripts/prepare-cache.sh"
+    elif [ -f "../scripts/prepare-cache.sh" ]; then
+        cache_script_path="../scripts/prepare-cache.sh"
+    elif [ -f "scripts/prepare-cache.sh" ]; then
+        cache_script_path="scripts/prepare-cache.sh"
+    else
+        log_error "prepare-cache.sh 스크립트를 찾을 수 없습니다"
+        exit 1
+    fi
+    
+    if "$cache_script_path"; then
         log_info "캐시 준비 완료"
     else
         log_warn "캐시 준비에 일부 실패했습니다. 계속 진행합니다."
