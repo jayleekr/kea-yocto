@@ -85,6 +85,7 @@ plugins:
 # Navigation
 nav:
   - 홈: index.md
+  - 📄 전체 문서 (PDF용): all-lectures.md
   - 강의 자료:
     - lecture/intro.md
     - lecture/architecture.md
